@@ -8,7 +8,7 @@ Eatzone is a full-stack food delivery solution connecting customers with local r
 
 Eatzone revolutionizes the way people order food online. The platform ensures a smooth experience from browsing menus to final delivery with robust features like real-time tracking, partner dashboards, and an admin control panel.
 
----
+--
 
 ## 🎯 Key Features
 
