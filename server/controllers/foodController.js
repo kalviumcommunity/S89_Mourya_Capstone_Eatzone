@@ -22,6 +22,7 @@ const addFood = async(req,res) =>{
         res.json({success:false,messsage:"Error"})
     }
 }
+//
 
 //get food list
 const listFood = async (req, res) => {
