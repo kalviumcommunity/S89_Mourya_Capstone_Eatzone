@@ -1,0 +1,69 @@
+.header{
+    height:34vw;
+    margin:30px auto;
+    background: url('../../../assets/header_img2.png') no-repeat;
+    background-size: contain;
+    position: relative;
+}
+.header-contents{
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+    gap: 1.5vw;
+    max-width: 50%;
+    bottom: 10%;
+    left: 6vw;
+    animation: fadeIn 3s;
+}
+
+.header-contents h2{
+    font-weight: 500;
+    color: white;
+    font-size: max(4.5vw,22px);
+}
+
+.header-contents p{
+    color: white;
+    font-size: 1.5vw;
+}
+
+.header-contents button{
+    border: none;
+    color: #747474;
+    font-weight: 500;
+    padding: 1vw 2.3vw;
+    background-color: white;
+    font-size: max(1vw,13px);
+    border-radius: 50px;
+     cursor: pointer; /* Add pointer cursor for better UX */
+    transition: all 0.3s ease; /* Smooth transition for hover effects */
+}
+
+.header-contents button:hover {
+    background-color: #f0f0f0; /* Slightly darker background on hover */
+    color: #333; /* Change text color on hover */
+    transform: scale(1.05); /* Slightly enlarge button on hover */
+}
+
+.header-contents button:active {
+    transform: scale(0.95); /* Slightly shrink button when clicked */
+    background-color: #e0e0e0; /* Darker background on click */
+}
+
+@media (max-width:1050px) {
+    .header-contents{
+        max-width: 45%;
+    }
+}
+@media (max-width:750px) {
+    .header-contents{
+        max-width: 65%;
+    }
+    .header-contents p{
+        display: none;
+    }
+    .header-contents{
+        padding: 2vw 4vw;
+    }
+}
