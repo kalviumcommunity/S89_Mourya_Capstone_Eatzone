@@ -1,88 +1,104 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { StoreContext } from '../../context/StoreContext';
 
 const AuthSuccess = () => {
-  const { setToken, setUser } = useContext(StoreContext);
+  const { setToken, fetchUserProfile } = useContext(StoreContext);
   const navigate = useNavigate();
   const location = useLocation();
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Get token and user info from URL query parameters
-    const params = new URLSearchParams(location.search);
-    const token = params.get('token');
-    const name = params.get('name');
-    const email = params.get('email');
-    const googleId = params.get('googleId');
-    const profileImage = params.get('picture');
+    const handleAuth = async () => {
+      try {
+        // Get token from URL query parameters
+        const params = new URLSearchParams(location.search);
+        const token = params.get('token');
 
-    if (token) {
-      // Save token to context and localStorage
-      setToken(token);
-      localStorage.setItem('token', token);
+        if (!token) {
+          console.error('No token received from authentication');
+          // If no token, redirect to home after a short delay
+          setTimeout(() => {
+            navigate('/', { replace: true });
+          }, 1500);
+          return;
+        }
 
-      // Create user object with all available data
-      const userData = {
-        name,
-        email,
-        googleId,
-        profileImage
-      };
+        // Save token to context and localStorage
+        setToken(token);
+        localStorage.setItem('token', token);
 
-      // Update context and localStorage
-      setUser(userData);
-      localStorage.setItem('user', JSON.stringify(userData));
+        // Also save user data to localStorage as a fallback
+        // This will be used if the server is not available
+        const userData = {
+          name: params.get('name'),
+          email: params.get('email'),
+          googleId: params.get('googleId'),
+          profileImage: params.get('picture')
+        };
 
-      // Check if this page is in a popup window
-      if (window.opener && !window.opener.closed) {
-        // If in a popup, communicate with the parent window and close this popup
-        if (window.opener.location.origin === window.location.origin) {
-          try {
-            // Only communicate with windows from the same origin for security
-            window.opener.postMessage({
-              type: 'AUTH_SUCCESS',
-              token,
-              user: { name, email }
-            }, window.location.origin);
+        // Store user data in localStorage as fallback
+        localStorage.setItem('user', JSON.stringify(userData));
 
-            console.log('Message sent to parent window');
+        // Check if this page is in a popup window
+        if (window.opener && !window.opener.closed) {
+          // If in a popup, communicate with the parent window and close this popup
+          if (window.opener.location.origin === window.location.origin) {
+            try {
+              // Create user data object
+              const userData = {
+                id: params.get('id'),
+                name: params.get('name'),
+                email: params.get('email'),
+                googleId: params.get('googleId'),
+                profileImage: params.get('picture')
+              };
 
-            // Store token in localStorage before closing popup
-            localStorage.setItem('token', token);
-            if (name && email) {
-              localStorage.setItem('user', JSON.stringify({ name, email }));
+              console.log("AuthSuccess - User data being sent:", userData);
+
+              // Only communicate with windows from the same origin for security
+              window.opener.postMessage({
+                type: 'AUTH_SUCCESS',
+                token,
+                user: userData
+              }, window.location.origin);
+
+              console.log('Auth success message sent to parent window');
+
+              // Close the popup after a short delay
+              setTimeout(() => window.close(), 1500);
+            } catch (error) {
+              console.error('Error communicating with parent window:', error);
+              // If communication fails, redirect to home page
+              setTimeout(() => navigate('/', { replace: true }), 1500);
             }
-
-            // Close the popup after a short delay
-            setTimeout(() => window.close(), 1500);
-          } catch (error) {
-            console.error('Error communicating with parent window:', error);
-            // If communication fails, redirect to home page
+          } else {
+            // If origins don't match, redirect to home page
             setTimeout(() => navigate('/', { replace: true }), 1500);
           }
         } else {
-          // If origins don't match, redirect to home page
-          setTimeout(() => navigate('/', { replace: true }), 1500);
+          // If not in a popup, redirect to home page after a short delay
+          setTimeout(() => {
+            navigate('/', { replace: true });
+          }, 1500);
         }
-      } else {
-        // If not in a popup, redirect to home page after a short delay
-        const redirectTimer = setTimeout(() => {
+      } catch (error) {
+        console.error('Error during authentication:', error);
+        setTimeout(() => {
           navigate('/', { replace: true });
         }, 1500);
-        return () => clearTimeout(redirectTimer);
+      } finally {
+        setIsLoading(false);
       }
-    } else {
-      // If no token, redirect to home after a short delay
-      const redirectTimer = setTimeout(() => {
-        navigate('/', { replace: true });
-      }, 1500);
-      return () => clearTimeout(redirectTimer);
-    }
-  }, [location.search, navigate, setToken]); // Include dependencies
+    };
+
+    handleAuth();
+  }, [location.search, navigate, setToken, fetchUserProfile]);
 
   return (
-    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-      <h2>Authentication successful! Redirecting...</h2>
+    <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+      <h2>Authentication successful!</h2>
+      <p>{isLoading ? 'Loading your profile...' : 'Redirecting to homepage...'}</p>
     </div>
   );
 };

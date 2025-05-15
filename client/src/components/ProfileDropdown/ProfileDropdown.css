@@ -17,12 +17,19 @@
   object-fit: cover;
 }
 
-.profile-image {
-  width: 30px;
-  height: 30px;
+.profile-letter-avatar {
+  width: 35px;
+  height: 35px;
+  background-color: #ff4d00;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 18px;
   border-radius: 50%;
-  object-fit: cover;
   border: 2px solid #ff4d00;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .dropdown-menu {
@@ -97,4 +104,21 @@
 
 .logout:hover {
   background-color: #fff0eb;
+}
+
+/* Responsive styles to match navbar */
+@media (max-width:1050px){
+  .profile-letter-avatar {
+    width: 32px;
+    height: 32px;
+    font-size: 16px;
+  }
+}
+
+@media (max-width:900px){
+  .profile-letter-avatar {
+    width: 30px;
+    height: 30px;
+    font-size: 15px;
+  }
 }

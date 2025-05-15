@@ -7,7 +7,7 @@ import GoogleIcon from '../icons/GoogleIcon'
 
 const LoginPopup = ({setShowLogin}) => {
 
-    const {url, setToken, setUser} = useContext(StoreContext)
+    const {url, setToken, fetchUserProfile} = useContext(StoreContext)
 
     const [currState,setCurrState] = useState("Login")
     const [data,setData] = useState({
@@ -18,25 +18,35 @@ const LoginPopup = ({setShowLogin}) => {
 
     // Add event listener to listen for messages from the popup window
     useEffect(() => {
-        const handleMessage = (event) => {
+        const handleMessage = async (event) => {
             // Only accept messages from the same origin for security
             if (event.origin !== window.location.origin) return;
+
+            console.log("Received message from popup:", event.data);
 
             // Check if the message is from our authentication popup
             if (event.data && event.data.type === 'AUTH_SUCCESS') {
                 // Handle successful authentication
                 const { token, user } = event.data;
 
-                // Save token and user info
-                setToken(token);
+                console.log("Authentication successful, token received:", token ? "Yes" : "No");
+                console.log("User data received:", user ? "Yes" : "No");
 
-                // Save user info if available
-                if (user) {
-                    setUser(user);
+                // Save token - user data will be fetched automatically in StoreContext
+                if (token) {
+                    setToken(token);
+
+                    // Also save user data to localStorage as a fallback if provided
+                    if (user) {
+                        localStorage.setItem('user', JSON.stringify(user));
+                    }
+
+                    // Close the login popup
+                    setShowLogin(false);
+                } else {
+                    console.error("No token received from authentication popup");
+                    alert("Authentication failed. Please try again.");
                 }
-
-                // Close the login popup
-                setShowLogin(false);
             }
         };
 
@@ -47,7 +57,7 @@ const LoginPopup = ({setShowLogin}) => {
         return () => {
             window.removeEventListener('message', handleMessage);
         };
-    }, [setToken, setUser, setShowLogin]);
+    }, [setToken, setShowLogin]);
 
     const onChangeHandler = (event) => {
         const name = event.target.name;
@@ -83,25 +93,34 @@ const LoginPopup = ({setShowLogin}) => {
 
     const onLogin = async (event) => {
         event.preventDefault()
-        let newUrl = url;
-        if (currState==="Login"){
-            newUrl += "/api/user/login"
-        }
-        else{
-            newUrl += "/api/user/register"
-        }
+        try {
+            let newUrl = url;
+            if (currState === "Login") {
+                newUrl += "/api/user/login"
+            } else {
+                newUrl += "/api/user/register"
+            }
 
-        const response = await axios.post(newUrl,data);
+            const response = await axios.post(newUrl, data);
 
-        if (response.data.success) {
-            setToken(response.data.token);
-            localStorage.setItem("token",response.data.token);
-            setShowLogin(false)
-        }
-        else{
-            alert(response.data.message)
-        }
+            if (response.data.success) {
+                // Set token - user data will be fetched automatically in StoreContext
+                setToken(response.data.token);
 
+                // Also save user data to localStorage as a fallback
+                if (response.data.user) {
+                    localStorage.setItem('user', JSON.stringify(response.data.user));
+                }
+
+                // Close the login popup
+                setShowLogin(false);
+            } else {
+                alert(response.data.message);
+            }
+        } catch (error) {
+            console.error("Login error:", error);
+            alert("An error occurred during login. Please try again.");
+        }
     }
 
 
