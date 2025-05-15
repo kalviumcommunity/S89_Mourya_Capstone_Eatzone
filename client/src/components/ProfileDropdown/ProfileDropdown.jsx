@@ -28,25 +28,20 @@ const ProfileDropdown = () => {
     setIsOpen(false);
   };
 
+  // For debugging
+  useEffect(() => {
+    console.log("ProfileDropdown - Current user data:", user);
+  }, [user]);
+
   return (
     <div className="profile-dropdown-container" ref={dropdownRef}>
       <div
         className="profile-icon-container"
         onClick={() => setIsOpen(!isOpen)}
       >
-        {user?.profileImage ? (
-          <img
-            src={user.profileImage}
-            alt="Profile"
-            className="profile-image"
-          />
-        ) : (
-          <img
-            src={assets.profile_icon}
-            alt="Profile"
-            className="profile-icon"
-          />
-        )}
+        <div className="profile-letter-avatar">
+          {user?.email ? user.email.charAt(0).toUpperCase() : 'U'}
+        </div>
       </div>
 
       {isOpen && (

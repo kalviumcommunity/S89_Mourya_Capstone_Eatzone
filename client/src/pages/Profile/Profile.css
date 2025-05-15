@@ -8,11 +8,57 @@
   margin-bottom: 2rem;
   padding-bottom: 1rem;
   border-bottom: 1px solid #eee;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .profile-header h1 {
   font-size: 2rem;
   color: #333;
+  margin: 0;
+}
+
+.refresh-button {
+  background-color: #ff4d00;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background-color 0.2s;
+}
+
+.refresh-button:hover {
+  background-color: #e64500;
+}
+
+.refresh-button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.loading-container, .error-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 300px;
+  font-size: 1.2rem;
+  color: #666;
+  text-align: center;
+  padding: 2rem;
+}
+
+.error-container {
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.error-container p {
+  margin: 0.5rem 0;
 }
 
 .profile-content {
@@ -32,16 +78,15 @@
 .profile-image {
   width: 150px;
   height: 150px;
-  border-radius: 50%;
   object-fit: cover;
   border: 3px solid #ff4d00;
   margin-bottom: 1rem;
+  border-radius: 50%;
 }
 
 .profile-image-placeholder {
   width: 150px;
   height: 150px;
-  border-radius: 50%;
   background-color: #ff4d00;
   color: white;
   display: flex;
@@ -50,6 +95,7 @@
   font-size: 4rem;
   font-weight: bold;
   margin-bottom: 1rem;
+  border-radius: 50%;
 }
 
 .profile-image-section h2 {
@@ -102,7 +148,7 @@
   .profile-content {
     flex-direction: column;
   }
-  
+
   .profile-image-section {
     margin-bottom: 1.5rem;
   }
