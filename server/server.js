@@ -3,8 +3,9 @@ import cors from "cors"
 import { connectDB } from "./config/db.js"
 import foodRouter from "./routes/foodRoute.js"
 import userRouter from "./routes/userRoute.js"
+import cartRouter from "./routes/cartRoute.js"
+import passport from "./config/passport.js"
 import 'dotenv/config'
-
 
 
 //app config
@@ -13,7 +14,12 @@ const port = 4000
 
 //middleware
 app.use(express.json())
-app.use(cors())
+// Configure CORS to allow requests from the frontend
+app.use(cors({
+  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+  credentials: true
+}))
+app.use(passport.initialize()) // Initialize Passport without sessions
 
 //db connection
 connectDB();
@@ -22,6 +28,7 @@ connectDB();
 app.use("/api/food",foodRouter)
 app.use("/images",express.static('uploads'))
 app.use("/api/user",userRouter)
+app.use("/api/cart",cartRouter)
 
 app.get("/",(req,res)=>{
     res.send("API Working")
