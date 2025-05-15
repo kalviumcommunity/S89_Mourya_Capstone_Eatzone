@@ -12,11 +12,9 @@ const StoreContextProvider = (props) => {
   console.log("Initializing with token from localStorage:", storedToken ? "Token found" : "No token found");
   const [token, setToken] = useState(storedToken || "");
 
-  // Initialize user from localStorage
-  const storedUser = localStorage.getItem("user");
-  const parsedUser = storedUser ? JSON.parse(storedUser) : null;
-  console.log("Initializing with user from localStorage:", parsedUser ? parsedUser.name : "No user found");
-  const [user, setUser] = useState(parsedUser);
+  // Initialize user state (will be fetched from server if token exists)
+  const [user, setUser] = useState(null);
+  const [isUserLoading, setIsUserLoading] = useState(false);
   const [cartItems, setCartItems] = useState(() => {
     // Initialize cart from localStorage
     const savedCart = localStorage.getItem("cartItems");
@@ -185,14 +183,160 @@ const StoreContextProvider = (props) => {
     }
   };
 
+  // Function to fetch user profile from the server
+  const fetchUserProfile = async () => {
+    if (!token) {
+      console.log("No token available, skipping user profile fetch");
+      return null;
+    }
+
+    try {
+      setIsUserLoading(true);
+      console.log("Fetching user profile from server with token:", token.substring(0, 10) + "...");
+
+      // Log the full token for debugging (remove in production)
+      console.log("Full token:", token);
+
+      // Try to connect to the server
+      try {
+        const response = await axios.get(`${url}/api/user/profile`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        console.log("Server response for profile fetch:", response.data);
+
+        if (response.data.success) {
+          const userData = response.data.user;
+          console.log("User profile fetched successfully:", userData);
+
+          if (!userData.name) {
+            console.warn("User profile is missing name property");
+          }
+
+          if (!userData.email) {
+            console.warn("User profile is missing email property");
+          }
+
+          if (!userData.profileImage) {
+            console.warn("User profile is missing profileImage property");
+          }
+
+          // Update user state with the fetched data
+          setUser(userData);
+          return userData;
+        } else {
+          console.error("Failed to fetch user profile:", response.data.message);
+          return null;
+        }
+      } catch (serverError) {
+        console.error("Server connection error:", serverError);
+
+        // If server is not available, try to get user data from token
+        try {
+          console.log("Server not available, trying to decode token");
+
+          // Parse the JWT token to get user data
+          const tokenParts = token.split('.');
+          if (tokenParts.length === 3) {
+            try {
+              // Base64 decode the payload
+              const base64Url = tokenParts[1];
+              const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+              const jsonPayload = decodeURIComponent(
+                atob(base64)
+                  .split('')
+                  .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+                  .join('')
+              );
+
+              const payload = JSON.parse(jsonPayload);
+              console.log("Token payload:", payload);
+
+              // Get user data from localStorage as fallback
+              const storedUser = localStorage.getItem("user");
+              if (storedUser) {
+                try {
+                  const userData = JSON.parse(storedUser);
+                  console.log("Using user data from localStorage:", userData);
+                  setUser(userData);
+                  return userData;
+                } catch (parseError) {
+                  console.error("Error parsing user data from localStorage:", parseError);
+                }
+              }
+
+              // If no user data in localStorage, create minimal user data from token
+              if (payload.id) {
+                const minimalUserData = {
+                  id: payload.id,
+                  name: "User", // Default name
+                  email: "" // Default email
+                };
+                console.log("Created minimal user data from token:", minimalUserData);
+                setUser(minimalUserData);
+                return minimalUserData;
+              }
+            } catch (decodeError) {
+              console.error("Error decoding token payload:", decodeError);
+            }
+          }
+        } catch (tokenError) {
+          console.error("Error decoding token:", tokenError);
+        }
+
+        return null;
+      }
+    } catch (error) {
+      console.error("Error fetching user profile:", error);
+      if (error.response) {
+        console.error("Response data:", error.response.data);
+        console.error("Response status:", error.response.status);
+        console.error("Response headers:", error.response.headers);
+      } else if (error.request) {
+        console.error("No response received:", error.request);
+      } else {
+        console.error("Error message:", error.message);
+      }
+      return null;
+    } finally {
+      setIsUserLoading(false);
+    }
+  };
+
   // Add useEffect to handle token changes
   useEffect(() => {
+    console.log("Token changed:", token ? "Token exists" : "No token");
+
     if (token) {
       localStorage.setItem("token", token);
+      console.log("Token saved to localStorage");
+
+      // Fetch user profile when token is available
+      console.log("Fetching user profile after token change");
+      fetchUserProfile()
+        .then(userData => {
+          console.log("User profile fetch result:", userData ? "Success" : "Failed");
+        })
+        .catch(error => {
+          console.error("Error fetching user profile after token change:", error);
+        });
+
       // Fetch cart data when token is available
-      fetchCartFromServer();
+      console.log("Fetching cart data after token change");
+      fetchCartFromServer()
+        .then(cartData => {
+          console.log("Cart data fetch result:", cartData ? "Success" : "Failed");
+        })
+        .catch(error => {
+          console.error("Error fetching cart data after token change:", error);
+        });
     } else {
+      console.log("Removing token and user data from localStorage");
       localStorage.removeItem("token");
+      localStorage.removeItem("user"); // Remove user from localStorage
       setUser(null);
       // We don't clear the cart when logged out anymore
       // This allows users to keep their cart when they log out and log back in
@@ -205,6 +349,7 @@ const StoreContextProvider = (props) => {
     // This allows users to keep their cart when they log out and log back in
     // The cart will be synced with the server when they log back in
 
+    console.log("Logging out user");
     setToken("");
     setUser(null);
     localStorage.removeItem("token");
@@ -227,6 +372,8 @@ const StoreContextProvider = (props) => {
     setToken,
     user,
     setUser,
+    isUserLoading,
+    fetchUserProfile,
     logout
   };
 
