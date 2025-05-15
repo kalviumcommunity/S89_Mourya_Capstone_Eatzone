@@ -18,11 +18,13 @@ passport.use(
         let user = await userModel.findOne({ googleId: profile.id });
 
         if (user) {
-          // User exists, check if we need to update profile image
-          const profileImage = profile.photos && profile.photos.length > 0 ? profile.photos[0].value : null;
+          // Generate profile image with first letter of email
+          const email = profile.emails[0].value;
+          const firstLetter = email.charAt(0).toUpperCase();
+          const profileImage = `https://ui-avatars.com/api/?name=${firstLetter}&background=random&color=fff&size=256`;
 
           // Update profile image if it has changed
-          if (profileImage && profileImage !== user.profileImage) {
+          if (profileImage !== user.profileImage) {
             user.profileImage = profileImage;
             await user.save();
           }
@@ -34,7 +36,7 @@ passport.use(
             name: profile.displayName,
             email: profile.emails[0].value,
             googleId: profile.id,
-            profileImage: profile.photos && profile.photos.length > 0 ? profile.photos[0].value : null
+            profileImage: `https://ui-avatars.com/api/?name=${profile.emails[0].value.charAt(0).toUpperCase()}&background=random&color=fff&size=256`
           });
 
           // Save the new user
@@ -64,3 +66,4 @@ passport.deserializeUser(async (id, done) => {
 });
 
 export default passport;
+
