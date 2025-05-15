@@ -4,22 +4,43 @@ import { StoreContext } from "../../context/StoreContext";
 import { useNavigate } from "react-router-dom";
 
 const Cart = () => {
-  const { cartItems, food_list, removeFromCart, getTotalCartAmount } = useContext(StoreContext);
+  const {
+    cartItems,
+    food_list,
+    removeFromCart,
+    getTotalCartAmount,
+    clearCart,
+    isCartLoading,
+    token
+  } = useContext(StoreContext);
   const navigate = useNavigate();
 
   return (
     <div className="cart">
       <div className="cart-items">
-        <div className="cart-items-title">
-          <p>Items</p>
-          <p>Title</p>
-          <p>Price</p>
-          <p>Quantity</p>
-          <p>Total</p>
-          <p>Remove</p>
+        <div className="cart-header">
+          <div className="cart-items-title">
+            <p>Items</p>
+            <p>Title</p>
+            <p>Price</p>
+            <p>Quantity</p>
+            <p>Total</p>
+            <p>Remove</p>
+          </div>
+          {Object.keys(cartItems).some(id => cartItems[id] > 0) && (
+            <button className="clear-cart-btn" onClick={clearCart}>
+              Clear Cart
+            </button>
+          )}
         </div>
         <br />
         <hr />
+
+        {isCartLoading ? (
+          <div className="cart-loading">
+            <p>Loading your cart...</p>
+          </div>
+        ) : null}
         {food_list.map((item) => {
           if (cartItems[item._id] > 0) {
             return (
@@ -59,7 +80,17 @@ const Cart = () => {
               <b>₹{getTotalCartAmount() === 0 ? 0 : getTotalCartAmount() + 2}</b>
             </div>
           </div>
-          <button onClick={() => navigate('/order')}>PROCEED TO CHECKOUT</button>
+          <button
+            onClick={() => {
+              if (!token) {
+                alert("Please sign in to proceed with checkout");
+                return;
+              }
+              navigate('/order');
+            }}
+          >
+            PROCEED TO CHECKOUT
+          </button>
         </div>
         <div className="cart-promocode">
           <div>

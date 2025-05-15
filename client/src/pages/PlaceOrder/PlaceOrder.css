@@ -33,4 +33,10 @@
 }
 .place-order .cart-total button{
     margin-top: 30px;
+    cursor: pointer;
+}
+
+.place-order .cart-total button:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
 }
