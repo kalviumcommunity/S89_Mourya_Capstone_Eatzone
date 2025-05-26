@@ -40,11 +40,13 @@ app.use(passport.initialize()) // Initialize Passport without sessions
 connectDB();
 
 //api endpoints
+//
 app.use("/api/food",foodRouter)
 app.use("/images",express.static('uploads'))
 app.use("/api/user",userRouter)
 app.use("/api/cart",cartRouter)
 app.use("/api/user/profile",profileRouter)
+//
 
 app.get("/",(req,res)=>{
     res.send("API Working")
