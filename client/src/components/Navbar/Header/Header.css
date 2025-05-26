@@ -36,8 +36,7 @@
     background-color: white;
     font-size: max(1vw,13px);
     border-radius: 50px;
-// googleauth
-     cursor: pointer; /* Add pointer cursor for better UX */
+    cursor: pointer; /* Add pointer cursor for better UX */
     transition: all 0.3s ease; /* Smooth transition for hover effects */
 }
 
@@ -51,9 +50,6 @@
     transform: scale(0.95); /* Slightly shrink button when clicked */
     background-color: #e0e0e0; /* Darker background on click */
 }
-
-=======
-}// main
 @media (max-width:1050px) {
     .header-contents{
         max-width: 45%;

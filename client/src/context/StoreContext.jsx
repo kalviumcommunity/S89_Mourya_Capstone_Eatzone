@@ -5,6 +5,7 @@ import axios from "axios";
 export const StoreContext = createContext(null);
 
 const StoreContextProvider = (props) => {
+  // Use direct server URL since server is on port 4000
   const url = "http://localhost:4000";
 
   // Initialize token from localStorage

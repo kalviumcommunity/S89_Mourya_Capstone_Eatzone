@@ -14,10 +14,12 @@ const storage = multer.diskStorage({
 })
 
 const upload = multer({storage:storage})
-
+//
+// Food Routes
 foodRouter.post("/add",upload.single("image"),addFood);
 foodRouter.get("/list",listFood);
 foodRouter.post("/remove",removeFood);
+//
 
 
 

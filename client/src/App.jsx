@@ -32,7 +32,7 @@ const App = () => {
         <Route path='/' element={<Home/>} />
         <Route path='/cart' element={<Cart/>} />
         <Route path='/order' element={<PlaceOrder/>} />
-        <Route path='/auth/success' element={<AuthSuccess/>} />
+        <Route path='/auth/*' element={<AuthSuccess/>} />
         <Route path='/profile' element={
           <ProtectedRoute>
             <Profile/>
@@ -42,6 +42,15 @@ const App = () => {
           <ProtectedRoute>
             <Orders/>
           </ProtectedRoute>
+        } />
+        {/* Catch-all route for debugging */}
+        <Route path='*' element={
+          <div style={{ padding: '20px', textAlign: 'center' }}>
+            <h2>Page Not Found</h2>
+            <p>Current path: {window.location.pathname}</p>
+            <p>Current search: {window.location.search}</p>
+            <button onClick={() => window.location.href = '/'}>Go Home</button>
+          </div>
         } />
        </Routes>
     </div>
