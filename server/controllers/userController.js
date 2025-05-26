@@ -162,7 +162,10 @@ const googleAuthCallback = (req, res) => {
 
         // Build redirect URL with all user data
         const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
-        console.log("Redirecting to frontend URL:", frontendUrl);
+        console.log("=== GOOGLE AUTH CALLBACK DEBUG ===");
+        console.log("Environment FRONTEND_URL:", process.env.FRONTEND_URL);
+        console.log("Final frontend URL being used:", frontendUrl);
+        console.log("User being redirected:", user.name, user.email);
 
         const redirectUrl = new URL(`${frontendUrl}/auth/success`);
 
