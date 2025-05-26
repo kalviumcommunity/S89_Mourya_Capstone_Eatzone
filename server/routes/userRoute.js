@@ -5,8 +5,10 @@ import passport from "../config/passport.js"
 const userRouter = express.Router()
 
 // Regular authentication routes
+//
 userRouter.post("/register", registerUser)
 userRouter.post("/login", loginUser)
+//
 
 // Google OAuth routes
 userRouter.get("/auth/google", googleAuth)
