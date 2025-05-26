@@ -1,11 +1,17 @@
 meta {
-  name: food remove
+  name: food removed
   type: http
   seq: 7
 }
 
 post {
   url: http://localhost:5173/api/food/remove
-  body: none
+  body: json
   auth: inherit
+}
+
+body:json {
+  {
+    "id": "682301ff177ebd2563fc488e"
+  }
 }
