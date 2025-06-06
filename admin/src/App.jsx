@@ -1,4 +1,4 @@
-import React from 'react'
+
 import Sidebar from './components/Sidebar/Sidebar'
 import Navbar from './components/Navbar/Navbar'
 import { Routes,Route } from 'react-router-dom'
@@ -10,8 +10,8 @@ import 'react-toastify/dist/ReactToastify.css'
 
 const App = () => {
 
-  // Use relative URLs for API calls to leverage the Vite proxy
-  const url =""
+  // Use full server URL for admin API calls
+  const url = "http://localhost:4000"
 
   return (
     <div>
