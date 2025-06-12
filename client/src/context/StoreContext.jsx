@@ -1,11 +1,11 @@
-import { createContext, useState, useEffect } from "react";
+import { createContext, useState, useEffect, useCallback } from "react";
 import { food_list } from "../assets/assets";
 import axios from "axios";
 
 export const StoreContext = createContext(null);
 
 const StoreContextProvider = (props) => {
-  // Use direct server URL since server is on port 4000
+  // Use full server URL for API calls
   const url = "http://localhost:4000";
 
   // Initialize token from localStorage
@@ -16,12 +16,77 @@ const StoreContextProvider = (props) => {
   // Initialize user state (will be fetched from server if token exists)
   const [user, setUser] = useState(null);
   const [isUserLoading, setIsUserLoading] = useState(false);
+
+  // Add dynamic food data state
+  const [foodData, setFoodData] = useState([]);
+  const [isFoodLoading, setIsFoodLoading] = useState(false);
+
   const [cartItems, setCartItems] = useState(() => {
     // Initialize cart from localStorage
     const savedCart = localStorage.getItem("cartItems");
     return savedCart ? JSON.parse(savedCart) : {};
   });
   const [isCartLoading, setIsCartLoading] = useState(false);
+
+  // Function to fetch food data from the server
+  const fetchFoodData = useCallback(async () => {
+    try {
+      setIsFoodLoading(true);
+      console.log("Fetching food data from server...");
+
+      const response = await axios.get(`${url}/api/food/list`);
+      console.log("Food data response:", response.data);
+
+      if (response.data.success) {
+        setFoodData(response.data.data);
+        console.log("Food data fetched successfully:", response.data.data.length, "items");
+      } else {
+        console.error("Failed to fetch food data:", response.data.message);
+        // Fallback to static food list
+        setFoodData(food_list);
+      }
+    } catch (error) {
+      console.error("Error fetching food data:", error);
+      // Fallback to static food list
+      setFoodData(food_list);
+    } finally {
+      setIsFoodLoading(false);
+    }
+  }, [url]);
+
+  // Function to save cart data to the server
+  const saveCartToServer = useCallback(async (cartData) => {
+    if (!token) {
+      console.log("No token available, skipping cart sync with server");
+      return;
+    }
+
+    try {
+      console.log("Saving cart to server:", JSON.stringify(cartData));
+      console.log("Using token:", token.substring(0, 10) + "...");
+
+      const response = await axios.post(
+        `${url}/api/cart/update`,
+        { cartData },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+
+      console.log("Server response:", response.data);
+
+      if (response.data.success) {
+        console.log("Cart successfully saved to server");
+      } else {
+        console.error("Failed to save cart:", response.data.message);
+      }
+    } catch (error) {
+      console.error("Error saving cart:", error.response ? error.response.data : error.message);
+    }
+  }, [token, url]);
 
   // Save cart to localStorage whenever it changes
   useEffect(() => {
@@ -36,7 +101,7 @@ const StoreContextProvider = (props) => {
       console.log("Cart changed, syncing with server...");
       saveCartToServer(cartItems);
     }
-  }, [cartItems, token, isCartLoading]);
+  }, [cartItems, token, isCartLoading, saveCartToServer]);
 
   const addToCart = (itemId) => {
     if (!cartItems[itemId]) {
@@ -77,15 +142,22 @@ const StoreContextProvider = (props) => {
     let totalAmount = 0;
     for (const item in cartItems) {
       if (cartItems[item] > 0) {
-        let itemInfo = food_list.find((product) => product._id === item);
-        totalAmount += itemInfo.price * cartItems[item];
+        // First try to find in dynamic food data, then fallback to static food list
+        let itemInfo = foodData.find((product) => product._id === item) ||
+                      food_list.find((product) => product._id === item);
+
+        if (itemInfo) {
+          totalAmount += itemInfo.price * cartItems[item];
+        } else {
+          console.warn(`Item with ID ${item} not found in food data`);
+        }
       }
     }
     return totalAmount;
   };
 
   // Function to fetch cart data from the server
-  const fetchCartFromServer = async () => {
+  const fetchCartFromServer = useCallback(async () => {
     if (!token) {
       console.log("No token available, skipping cart fetch from server");
       return;
@@ -108,8 +180,9 @@ const StoreContextProvider = (props) => {
         const serverCart = response.data.cartData;
         console.log("Server cart data:", JSON.stringify(serverCart));
 
-        // Get current local cart
-        const localCart = { ...cartItems };
+        // Get current local cart from localStorage to avoid dependency issues
+        const savedCart = localStorage.getItem("cartItems");
+        const localCart = savedCart ? JSON.parse(savedCart) : {};
         console.log("Local cart data:", JSON.stringify(localCart));
 
         // Merge server cart with local cart
@@ -148,44 +221,12 @@ const StoreContextProvider = (props) => {
     } finally {
       setIsCartLoading(false);
     }
-  };
+  }, [token, url]);
 
-  // Function to save cart data to the server
-  const saveCartToServer = async (cartData) => {
-    if (!token) {
-      console.log("No token available, skipping cart sync with server");
-      return;
-    }
 
-    try {
-      console.log("Saving cart to server:", JSON.stringify(cartData));
-      console.log("Using token:", token.substring(0, 10) + "...");
-
-      const response = await axios.post(
-        `${url}/api/cart/update`,
-        { cartData },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
-        }
-      );
-
-      console.log("Server response:", response.data);
-
-      if (response.data.success) {
-        console.log("Cart successfully saved to server");
-      } else {
-        console.error("Failed to save cart:", response.data.message);
-      }
-    } catch (error) {
-      console.error("Error saving cart:", error.response ? error.response.data : error.message);
-    }
-  };
 
   // Function to fetch user profile from the server
-  const fetchUserProfile = async () => {
+  const fetchUserProfile = useCallback(async () => {
     if (!token) {
       console.log("No token available, skipping user profile fetch");
       return null;
@@ -305,7 +346,12 @@ const StoreContextProvider = (props) => {
     } finally {
       setIsUserLoading(false);
     }
-  };
+  }, [token, url]);
+
+  // Add useEffect to fetch food data on component mount
+  useEffect(() => {
+    fetchFoodData();
+  }, [fetchFoodData]);
 
   // Add useEffect to handle token changes
   useEffect(() => {
@@ -342,7 +388,7 @@ const StoreContextProvider = (props) => {
       // We don't clear the cart when logged out anymore
       // This allows users to keep their cart when they log out and log back in
     }
-  }, [token]);
+  }, [token, fetchUserProfile, fetchCartFromServer]);
 
   // Add logout function
   const logout = () => {
@@ -359,6 +405,9 @@ const StoreContextProvider = (props) => {
 
   const contextValue = {
     food_list,
+    foodData,
+    isFoodLoading,
+    fetchFoodData,
     cartItems,
     setCartItems,
     addToCart,

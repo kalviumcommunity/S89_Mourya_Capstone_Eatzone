@@ -1,54 +1,132 @@
-import React, { useContext } from 'react';
+import { useContext, useState, useEffect, useCallback } from 'react';
 import { StoreContext } from '../../context/StoreContext';
+import axios from 'axios';
 import './Orders.css';
+import { formatINR } from '../../utils/currencyUtils';
 
 const Orders = () => {
-  const { user } = useContext(StoreContext);
-  
-  // Placeholder for orders - in a real app, you would fetch this from an API
-  const orders = [];
+  const { token, url } = useContext(StoreContext);
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Fetch user orders from API
+  const fetchOrders = useCallback(async () => {
+    if (!token) {
+      setError('Please login to view your orders');
+      setLoading(false);
+      return;
+    }
+
+    try {
+      console.log('Fetching orders with token:', token.substring(0, 10) + '...');
+
+      const response = await axios.post(`${url}/api/order/userorders`, {}, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      console.log('Orders response:', response.data);
+
+      if (response.data.success) {
+        setOrders(response.data.data || []);
+      } else {
+        setError(response.data.message || 'Failed to fetch orders');
+      }
+    } catch (error) {
+      console.error('Error fetching orders:', error);
+      if (error.response) {
+        console.error('Response data:', error.response.data);
+        setError(error.response.data.message || 'Failed to fetch orders');
+      } else {
+        setError('Network error. Please try again.');
+      }
+    } finally {
+      setLoading(false);
+    }
+  }, [token, url]);
+
+  useEffect(() => {
+    fetchOrders();
+  }, [fetchOrders]);
+
+  if (loading) {
+    return (
+      <div className="orders-container">
+        <div className="orders-header">
+          <h2>My Orders</h2>
+        </div>
+        <div className="orders-content">
+          <div className="loading">
+            <p>Loading your orders...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="orders-container">
+        <div className="orders-header">
+          <h1>My Orders</h1>
+        </div>
+        <div className="orders-content">
+          <div className="error">
+            <p>Error: {error}</p>
+            <button onClick={fetchOrders}>Try Again</button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="orders-container">
       <div className="orders-header">
         <h1>My Orders</h1>
       </div>
-      
+
       <div className="orders-content">
         {orders.length > 0 ? (
           <div className="orders-list">
             {orders.map((order) => (
-              <div key={order.id} className="order-card">
-                <div className="order-header">
-                  <div>
-                    <h3>Order #{order.id}</h3>
-                    <p className="order-date">{order.date}</p>
-                  </div>
-                  <div className="order-status">
-                    <span className={`status-badge ${order.status.toLowerCase()}`}>
-                      {order.status}
-                    </span>
+              <div key={order._id} className="order-card">
+                <div className="order-icon">
+                  📦
+                </div>
+                <div className="order-details">
+                  <div className="order-items-text">
+                    {order.items && order.items.length > 0 ? (
+                      order.items.map((item, index) => (
+                        <span key={item._id || index}>
+                          {item.name}
+                          {item.quantity > 1 && ` x ${item.quantity}`}
+                          {index < order.items.length - 1 ? ', ' : ''}
+                        </span>
+                      ))
+                    ) : (
+                      'No items'
+                    )}
                   </div>
                 </div>
-                
-                <div className="order-items">
-                  {order.items.map((item) => (
-                    <div key={item.id} className="order-item">
-                      <img src={item.image} alt={item.name} />
-                      <div className="item-details">
-                        <h4>{item.name}</h4>
-                        <p>Quantity: {item.quantity}</p>
-                        <p className="item-price">${item.price.toFixed(2)}</p>
-                      </div>
-                    </div>
-                  ))}
+                <div className="order-amount">
+                  {formatINR(order.amount || 0)}
                 </div>
-                
-                <div className="order-footer">
-                  <div className="order-total">
-                    <p>Total: <span>${order.total.toFixed(2)}</span></p>
-                  </div>
-                  <button className="reorder-button">Reorder</button>
+                <div className="order-items-count">
+                  Items: {order.items ? order.items.reduce((total, item) => total + (item.quantity || 0), 0) : 0}
+                </div>
+                <div className="order-status">
+                  <span className={`status-badge ${order.status ? order.status.toLowerCase().replace(/\s+/g, '-') : 'pending'}`}>
+                    ● {order.status || 'Pending'}
+                  </span>
+                </div>
+                <div className="order-actions">
+                  <button className="track-order-btn">
+                    Track Order
+                  </button>
                 </div>
               </div>
             ))}

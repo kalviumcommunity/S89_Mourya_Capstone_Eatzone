@@ -4,6 +4,7 @@ import Header from '../../components/Navbar/Header/Header'; //
 import ExploreMenu from '../../components/Navbar/ExploreMenu/ExploreMenu';
 import FoodDisplay from '../../components/FoodDisplay/FoodDisplay';
 import AppDownload from '../../components/AppDownload/AppDownload';
+import FloatingChatbot from '../../components/FloatingChatbot/FloatingChatbot';
 
 function Home() {
 
@@ -15,6 +16,7 @@ function Home() {
       <ExploreMenu category={category} setCategory={setCategory}/>
       <FoodDisplay category={category}/>
       <AppDownload/>
+      <FloatingChatbot />
     </div>
   );
 }

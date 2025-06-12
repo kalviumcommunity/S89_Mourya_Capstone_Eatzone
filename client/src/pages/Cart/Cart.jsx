@@ -1,17 +1,22 @@
-import React, { useContext } from "react";
+import { useContext } from "react";
 import "./Cart.css";
 import { StoreContext } from "../../context/StoreContext";
 import { useNavigate } from "react-router-dom";
+import { getImageUrl, handleImageError } from "../../utils/imageUtils";
+import { formatINR } from "../../utils/currencyUtils";
 
 const Cart = () => {
   const {
     cartItems,
     food_list,
+    foodData,
+    isFoodLoading,
     removeFromCart,
     getTotalCartAmount,
     clearCart,
     isCartLoading,
-    token
+    token,
+    url
   } = useContext(StoreContext);
   const navigate = useNavigate();
 
@@ -36,22 +41,40 @@ const Cart = () => {
         <br />
         <hr />
 
-        {isCartLoading ? (
+        {isCartLoading || isFoodLoading ? (
           <div className="cart-loading">
             <p>Loading your cart...</p>
           </div>
         ) : null}
-        {food_list.map((item) => {
-          if (cartItems[item._id] > 0) {
+
+        {/* Render cart items using dynamic food data */}
+        {Object.keys(cartItems).map((itemId) => {
+          if (cartItems[itemId] > 0) {
+            // Find item in dynamic food data first, then fallback to static list
+            const item = foodData.find((product) => product._id === itemId) ||
+                        food_list.find((product) => product._id === itemId);
+
+            if (!item) {
+              console.warn(`Item with ID ${itemId} not found in food data`);
+              return null;
+            }
+
+            // Get proper image URL using utility function
+            const imageUrl = getImageUrl(item.image, url);
+
             return (
-              <div key={item._id}>
+              <div key={itemId}>
                 <div className="cart-items-item">
-                  <img src={item.image} alt={item.name} />
+                  <img
+                    src={imageUrl}
+                    alt={item.name}
+                    onError={(e) => handleImageError(e, item.image)}
+                  />
                   <p>{item.name}</p>
-                  <p>₹{item.price}</p>
-                  <p>{cartItems[item._id]}</p>
-                  <p>₹{item.price * cartItems[item._id]}</p>
-                  <p onClick={() => removeFromCart(item._id)} className="cross">X</p>
+                  <p>{formatINR(item.price)}</p>
+                  <p>{cartItems[itemId]}</p>
+                  <p>{formatINR(item.price * cartItems[itemId])}</p>
+                  <p onClick={() => removeFromCart(itemId)} className="cross">X</p>
                 </div>
                 <hr />
               </div>
@@ -67,17 +90,17 @@ const Cart = () => {
           <div>
             <div className="cart-total-details">
               <p>Subtotal</p>
-              <p>₹{getTotalCartAmount()}</p>
+              <p>{formatINR(getTotalCartAmount())}</p>
             </div>
             <hr />
             <div className="cart-total-details">
               <p>Delivery Fee</p>
-              <p>{getTotalCartAmount() === 0 ? 0 : 2}</p>
+              <p>{formatINR(getTotalCartAmount() === 0 ? 0 : 50)}</p>
             </div>
             <hr />
             <div className="cart-total-details">
               <b>Total</b>
-              <b>₹{getTotalCartAmount() === 0 ? 0 : getTotalCartAmount() + 2}</b>
+              <b>{formatINR(getTotalCartAmount() === 0 ? 0 : getTotalCartAmount() + 50)}</b>
             </div>
           </div>
           <button

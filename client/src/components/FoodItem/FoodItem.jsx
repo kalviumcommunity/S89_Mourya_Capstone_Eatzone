@@ -1,16 +1,26 @@
-import React, { useContext } from 'react';
+import { useContext } from 'react';
 import './FoodItem.css';
 import { assets } from '../../assets/assets';
 import { StoreContext } from '../../context/StoreContext';
+import { getImageUrl, handleImageError } from '../../utils/imageUtils'
+import { formatINR } from '../../utils/currencyUtils';
 
 const FoodItem = ({id,name,price,description,image}) => {
     //const [itemCount, setItemCount] = useState(0);
-    const {cartItems,addToCart,removeFromCart} = useContext(StoreContext);
-    
+    const {cartItems,addToCart,removeFromCart,url} = useContext(StoreContext);
+
+    // Get proper image URL using utility function
+    const imageUrl = getImageUrl(image, url);
+
     return (
         <div className='food-item'>
             <div className="food-item-img-container">
-                <img className='food-item-image' src={image} alt="" />
+                <img
+                    className='food-item-image'
+                    src={imageUrl}
+                    alt={name}
+                    onError={(e) => handleImageError(e, image)}
+                />
                 {!cartItems[id] 
                     ?(<img className='add' onClick={() => addToCart(id)} src={assets.add_icon_white} alt="" />
                 ) : (
@@ -27,7 +37,7 @@ const FoodItem = ({id,name,price,description,image}) => {
                     <img src={assets.rating_stars} alt="" />
                 </div>
                 <p className="food-item-desc">{description}</p>
-                <p className="food-item-price">₹{price}</p>
+                <p className="food-item-price">{formatINR(price)}</p>
             </div>
         </div>
     );
