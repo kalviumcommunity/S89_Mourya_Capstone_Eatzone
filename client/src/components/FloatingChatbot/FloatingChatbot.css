@@ -1,0 +1,459 @@
+/* Floating Chat Button */
+.floating-chat-button {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  width: 60px;
+  height: 60px;
+  background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 20px rgba(255, 107, 107, 0.4);
+  transition: all 0.3s ease;
+  z-index: 1000;
+  font-size: 24px;
+  color: white;
+}
+
+.floating-chat-button:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 25px rgba(255, 107, 107, 0.6);
+}
+
+.floating-chat-button.open {
+  background: #666;
+}
+
+.close-icon, .chat-icon {
+  font-size: 20px;
+  font-weight: bold;
+}
+
+/* Floating Chat Window */
+.floating-chat-window {
+  position: fixed;
+  bottom: 100px;
+  right: 30px;
+  width: 350px;
+  height: 500px;
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+  z-index: 999;
+  overflow: hidden;
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Chat Header */
+.floating-chat-header {
+  background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+  color: white;
+  padding: 15px 20px;
+  font-weight: 600;
+  font-size: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.back-button {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 15px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: background 0.2s ease;
+}
+
+.back-button:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* Chat Content */
+.floating-chat-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Mode Selection */
+.chat-mode-selection {
+  padding: 30px 20px;
+  text-align: center;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.chat-mode-selection h3 {
+  margin-bottom: 25px;
+  color: #333;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.mode-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.mode-button {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 20px;
+  border: 2px solid #f0f0f0;
+  border-radius: 15px;
+  background: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: left;
+}
+
+.mode-button:hover {
+  border-color: #ff6b6b;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(255, 107, 107, 0.2);
+}
+
+.mode-button.support:hover {
+  border-color: #4ecdc4;
+  box-shadow: 0 5px 15px rgba(78, 205, 196, 0.2);
+}
+
+.mode-icon {
+  font-size: 24px;
+  min-width: 30px;
+}
+
+.mode-button strong {
+  display: block;
+  color: #333;
+  font-size: 14px;
+  margin-bottom: 5px;
+}
+
+.mode-button p {
+  color: #666;
+  font-size: 12px;
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* Quick Actions */
+.quick-actions {
+  margin-top: 25px;
+  padding-top: 20px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.quick-actions-label {
+  font-size: 12px;
+  color: #666;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.quick-action-buttons {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.quick-action-btn {
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 20px;
+  padding: 8px 15px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: #495057;
+}
+
+.quick-action-btn:hover {
+  background: #e9ecef;
+  transform: translateY(-1px);
+}
+
+/* Chat Messages */
+.floating-chat-messages {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+  background: #fafafa;
+}
+
+.floating-chat-bubble {
+  max-width: 80%;
+  margin-bottom: 12px;
+  padding: 12px 16px;
+  border-radius: 18px;
+  line-height: 1.4;
+  font-size: 14px;
+  word-wrap: break-word;
+}
+
+.floating-chat-bubble.user {
+  background: #ff6b6b;
+  color: white;
+  margin-left: auto;
+  border-bottom-right-radius: 6px;
+}
+
+.floating-chat-bubble.bot {
+  background: white;
+  color: #333;
+  border: 1px solid #e0e0e0;
+  margin-right: auto;
+  border-bottom-left-radius: 6px;
+}
+
+.floating-chat-bubble.confirmation {
+  background: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+  font-size: 12px;
+  padding: 8px 12px;
+  margin-top: 5px;
+}
+
+/* Food Items Container */
+.food-items-container {
+  margin-top: 10px;
+  margin-left: 0;
+  margin-right: auto;
+  max-width: 80%;
+}
+
+.food-item-card {
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 12px;
+  padding: 12px;
+  margin-bottom: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.2s ease;
+}
+
+.food-item-card:hover {
+  background: #e9ecef;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.food-item-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.food-item-name {
+  font-weight: 600;
+  color: #333;
+  font-size: 13px;
+}
+
+.food-item-price {
+  color: #ff6b6b;
+  font-weight: 600;
+  font-size: 12px;
+}
+
+.food-item-category {
+  color: #666;
+  font-size: 11px;
+  text-transform: capitalize;
+}
+
+.add-to-cart-btn {
+  background: #ff6b6b;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 70px;
+}
+
+.add-to-cart-btn:hover {
+  background: #ee5a24;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(255, 107, 107, 0.3);
+}
+
+.add-to-cart-btn:active {
+  transform: translateY(0);
+}
+
+/* Quick Suggestions */
+.quick-suggestions {
+  padding: 15px 20px;
+  background: #f8f9fa;
+  border-top: 1px solid #e0e0e0;
+}
+
+.suggestions-label {
+  font-size: 12px;
+  color: #666;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.suggestion-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+}
+
+.suggestion-btn {
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 15px;
+  padding: 6px 12px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: #495057;
+  white-space: nowrap;
+}
+
+.suggestion-btn:hover {
+  background: #ff6b6b;
+  color: white;
+  border-color: #ff6b6b;
+  transform: translateY(-1px);
+}
+
+/* Chat Input */
+.floating-chat-input {
+  padding: 15px 20px;
+  background: white;
+  border-top: 1px solid #e0e0e0;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.floating-chat-input input {
+  flex: 1;
+  padding: 12px 15px;
+  border: 1px solid #ddd;
+  border-radius: 25px;
+  outline: none;
+  font-size: 14px;
+  transition: border-color 0.2s ease;
+}
+
+.floating-chat-input input:focus {
+  border-color: #ff6b6b;
+}
+
+.floating-chat-input button {
+  background: #ff6b6b;
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 25px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  min-width: 60px;
+}
+
+.floating-chat-input button:hover:not(:disabled) {
+  background: #ee5a24;
+  transform: translateY(-1px);
+}
+
+.floating-chat-input button:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .floating-chat-window {
+    width: 320px;
+    right: 20px;
+    bottom: 90px;
+  }
+
+  .floating-chat-button {
+    right: 20px;
+    bottom: 20px;
+    width: 55px;
+    height: 55px;
+  }
+
+  .food-item-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .add-to-cart-btn {
+    align-self: flex-end;
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .floating-chat-window {
+    width: calc(100vw - 40px);
+    right: 20px;
+    left: 20px;
+    height: 450px;
+  }
+
+  .food-items-container {
+    max-width: 100%;
+  }
+
+  .food-item-card {
+    padding: 10px;
+  }
+
+  .food-item-name {
+    font-size: 12px;
+  }
+
+  .food-item-price {
+    font-size: 11px;
+  }
+
+  .add-to-cart-btn {
+    padding: 6px 10px;
+    font-size: 10px;
+  }
+}
