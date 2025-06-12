@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useContext } from 'react';
+import { useState, useRef, useEffect, useContext } from 'react';
 import { Link } from 'react-router-dom';
 import { assets } from '../../assets/assets';
 import { StoreContext } from '../../context/StoreContext';
@@ -57,7 +57,7 @@ const ProfileDropdown = () => {
               <span>Profile</span>
             </Link>
 
-            <Link to="/orders" className="dropdown-item" onClick={() => setIsOpen(false)}>
+            <Link to="/myorders" className="dropdown-item" onClick={() => setIsOpen(false)}>
               <img src={assets.bag_icon} alt="Orders" />
               <span>Orders</span>
             </Link>

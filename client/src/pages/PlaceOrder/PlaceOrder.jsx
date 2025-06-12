@@ -1,10 +1,11 @@
-import React, { useContext, useState } from 'react'
+import { useContext, useState } from 'react'
 import './PlaceOrder.css'
 import { StoreContext } from '../../context/StoreContext'
-import { useNavigate } from 'react-router-dom'
+import axios from 'axios'
+import { formatINR } from '../../utils/currencyUtils'
 
 const PlaceOrder = () => {
-  const { getTotalCartAmount, clearCart, cartItems, food_list } = useContext(StoreContext)
+  const { getTotalCartAmount, cartItems, food_list, foodData, url, token, user } = useContext(StoreContext)
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -16,11 +17,19 @@ const PlaceOrder = () => {
     country: '',
     phone: ''
   })
+
+
+
   const [isProcessing, setIsProcessing] = useState(false)
-  const navigate = useNavigate()
 
   // Handle form submission
-  const handlePlaceOrder = async (e) => {
+  const handlePlaceOrder = async () => {
+    // Check if user is logged in
+    if (!token) {
+      alert('Please login to place an order!');
+      return;
+    }
+
     // Check if cart is empty
     if (getTotalCartAmount() === 0) {
       alert('Your cart is empty!');
@@ -37,72 +46,87 @@ const PlaceOrder = () => {
     setIsProcessing(true);
 
     try {
-      // In a real app, you would send the order to your backend
-      // For now, we'll simulate a successful order
-
       // Get order items from cart
       const orderItems = Object.keys(cartItems)
         .filter(id => cartItems[id] > 0)
         .map(id => {
-          const item = food_list.find(food => food._id === id);
+          // First try to find in dynamic food data, then fallback to static list
+          const item = foodData.find(food => food._id === id) ||
+                      food_list.find(food => food._id === id);
+          if (!item) {
+            throw new Error(`Food item with ID ${id} not found`);
+          }
           return {
-            id: item._id,
+            _id: item._id,
             name: item.name,
             price: item.price,
-            quantity: cartItems[id],
-            total: item.price * cartItems[id]
+            quantity: cartItems[id]
           };
         });
 
-      // Create order object
-      const order = {
-        customer: {
+      // Check if user data is available
+      if (!user || (!user.id && !user._id)) {
+        alert('User information not available. Please try logging in again.');
+        return;
+      }
+
+      // Create order data for API
+      const orderData = {
+        userId: user.id || user._id,
+        items: orderItems,
+        amount: getTotalCartAmount() + 50, // Include delivery fee
+        address: {
           firstName: formData.firstName,
           lastName: formData.lastName,
           email: formData.email,
           phone: formData.phone,
-          address: {
-            street: formData.street,
-            city: formData.city,
-            state: formData.state,
-            zipCode: formData.zipCode,
-            country: formData.country
-          }
-        },
-        items: orderItems,
-        subtotal: getTotalCartAmount(),
-        deliveryFee: 2,
-        total: getTotalCartAmount() + 2,
-        date: new Date().toISOString()
+          street: formData.street,
+          city: formData.city,
+          state: formData.state,
+          zipCode: formData.zipCode,
+          country: formData.country
+        }
       };
 
-      console.log('Order placed:', order);
+      console.log('Sending order data:', orderData);
 
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // Send order to backend
+      const response = await axios.post(`${url}/api/order/place`, orderData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
 
-      // Clear the cart after successful order
-      await clearCart();
+      console.log('Order response:', response.data);
 
-      // Show success message
-      alert('Order placed successfully!');
-
-      // Redirect to home page
-      navigate('/');
+      if (response.data.success) {
+        // Redirect to Stripe payment page
+        window.location.href = response.data.session_url;
+      } else {
+        alert('Failed to create order: ' + (response.data.message || 'Unknown error'));
+      }
     } catch (error) {
       console.error('Error placing order:', error);
-      alert('There was an error placing your order. Please try again.');
+      if (error.response) {
+        console.error('Response data:', error.response.data);
+        console.error('Response status:', error.response.status);
+        alert('Error: ' + (error.response.data.message || 'Failed to place order'));
+      } else {
+        alert('There was an error placing your order. Please try again.');
+      }
     } finally {
       setIsProcessing(false);
     }
   };
 
   return (
-    <form className='place-order'>
+    <form onSubmit={(e) => { e.preventDefault(); handlePlaceOrder(); }} className='place-order'>
       <div className="place-order-left">
         <p className='title'>Delivery Information</p>
         <div className="multi-fields">
           <input
+            name="firstName"
             type="text"
             placeholder='First name'
             value={formData.firstName}
@@ -110,6 +134,7 @@ const PlaceOrder = () => {
             required
           />
           <input
+            name="lastName"
             type="text"
             placeholder='Last name'
             value={formData.lastName}
@@ -118,13 +143,15 @@ const PlaceOrder = () => {
           />
         </div>
         <input
+          name="email"
           type="email"
-          placeholder='Email address'
+          placeholder="Email address"
           value={formData.email}
           onChange={(e) => setFormData({...formData, email: e.target.value})}
           required
         />
         <input
+          name="street"
           type="text"
           placeholder='Street'
           value={formData.street}
@@ -133,6 +160,7 @@ const PlaceOrder = () => {
         />
         <div className="multi-fields">
           <input
+            name="city"
             type="text"
             placeholder='City'
             value={formData.city}
@@ -140,6 +168,7 @@ const PlaceOrder = () => {
             required
           />
           <input
+            name="state"
             type="text"
             placeholder='State'
             value={formData.state}
@@ -149,6 +178,7 @@ const PlaceOrder = () => {
         </div>
         <div className="multi-fields">
           <input
+            name="zipCode"
             type="text"
             placeholder='Zip code'
             value={formData.zipCode}
@@ -156,6 +186,7 @@ const PlaceOrder = () => {
             required
           />
           <input
+            name="country"
             type="text"
             placeholder='Country'
             value={formData.country}
@@ -164,6 +195,7 @@ const PlaceOrder = () => {
           />
         </div>
         <input
+          name="phone"
           type="text"
           placeholder='Phone'
           value={formData.phone}
@@ -177,22 +209,32 @@ const PlaceOrder = () => {
           <div>
                <div className="cart-total-details">
               <p>Subtotal</p>
-              <p>₹{getTotalCartAmount()}</p>
+              <p>{formatINR(getTotalCartAmount())}</p>
             </div>
             <hr />
             <div className="cart-total-details">
               <p>Delivery Fee</p>
-              <p>{getTotalCartAmount()===0?0:2}</p>
+              <p>{formatINR(getTotalCartAmount()===0?0:50)}</p>
             </div>
             <hr />
             <div className="cart-total-details">
               <b>Total</b>
-              <b>₹{getTotalCartAmount()===0?0:getTotalCartAmount()+2}</b>
+              <b>{formatINR(getTotalCartAmount()===0?0:getTotalCartAmount()+50)}</b>
             </div>
           </div>
+          <div style={{
+            fontSize: '12px',
+            color: '#666',
+            marginTop: '10px',
+            padding: '8px',
+            backgroundColor: '#f8f9fa',
+            borderRadius: '4px',
+            textAlign: 'center'
+          }}>
+            💳 Payments are processed securely in INR (₹) through Stripe
+          </div>
           <button
-            type="button"
-            onClick={handlePlaceOrder}
+            type="submit"
             disabled={isProcessing}
           >
             {isProcessing ? 'PROCESSING...' : 'PROCEED TO PAYMENT'}
