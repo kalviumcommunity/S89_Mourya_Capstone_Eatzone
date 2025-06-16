@@ -1,6 +1,7 @@
 import express from "express"
 import cors from "cors"
 import { connectDB } from "./config/db.js"
+<<<<<<< HEAD
 import 'dotenv/config'
 
 import foodRouter from "./routes/foodRoute.js"
@@ -25,6 +26,22 @@ app.use((req, res, next) => {
     console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
     next();
 });
+=======
+import foodRouter from "./routes/foodRoute.js"
+import userRouter from "./routes/userRoute.js"
+import cartRouter from "./routes/cartRoute.js"
+import profileRouter from "./routes/profileRoute.js"
+import passport from "./config/passport.js"
+import 'dotenv/config'
+
+
+//app config
+const app =express()
+const port = 4000
+
+//middleware
+app.use(express.json())
+>>>>>>> origin/main
 // Configure CORS to allow requests from the frontend
 app.use(cors({
   origin: function(origin, callback) {
@@ -32,8 +49,12 @@ app.use(cors({
     const allowedOrigins = [
       process.env.FRONTEND_URL || 'http://localhost:5173',
       'http://localhost:5173',
+<<<<<<< HEAD
       'http://localhost:5174',
       'http://localhost:5175'  // Admin panel
+=======
+      'http://localhost:5174'
+>>>>>>> origin/main
     ];
 
     // Allow requests with no origin (like mobile apps or curl requests)
@@ -55,6 +76,7 @@ connectDB();
 app.use("/api/food",foodRouter)
 app.use("/images",express.static('uploads'))
 app.use("/api/user",userRouter)
+<<<<<<< HEAD
 app.use("/api/admin",adminRouter)
 app.use("/api/cart",cartRouter)
 app.use("/api/order",orderRouter)
@@ -87,3 +109,16 @@ server.on('error', (err) => {
 setTimeout(() => {
     console.log('Server should be ready now. Testing internal request...');
 }, 2000);
+=======
+app.use("/api/cart",cartRouter)
+app.use("/api/user/profile",profileRouter)
+//
+
+app.get("/",(req,res)=>{
+    res.send("API Working")
+})
+
+app.listen(port,()=>{
+    console.log(`Server Started on http://localhost:${port}`)
+})
+>>>>>>> origin/main
