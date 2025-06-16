@@ -2,7 +2,7 @@ import express from "express";
 import { newChatWithBot } from "../controllers/newChatbotController.js";
 import authMiddleware from "../middleware/auth.js";
 
-// Input validation middleware
+// Enhanced input validation middleware with security checks
 const validateChatInput = (req, res, next) => {
   const { message, chatMode } = req.body;
 
@@ -13,10 +13,29 @@ const validateChatInput = (req, res, next) => {
     });
   }
 
-  // Validate message length
-  if (message.length > 1000) {
+  // Validate message length (reduced for security)
+  if (message.length > 500) {
     return res.status(400).json({
-      error: "Message too long. Maximum 1000 characters allowed."
+      error: "Message too long. Maximum 500 characters allowed."
+    });
+  }
+
+  // Check for potentially malicious patterns
+  const dangerousPatterns = [
+    /javascript:/gi,
+    /on\w+\s*=/gi,
+    /\${.*?}/g,
+    /eval\s*\(/gi,
+    /function\s*\(/gi,
+    /<script/gi,
+    /document\./gi,
+    /window\./gi
+  ];
+
+  const hasDangerousContent = dangerousPatterns.some(pattern => pattern.test(message));
+  if (hasDangerousContent) {
+    return res.status(400).json({
+      error: "Message contains invalid content"
     });
   }
 
@@ -27,8 +46,13 @@ const validateChatInput = (req, res, next) => {
     });
   }
 
-  // Sanitize message (basic XSS prevention)
-  req.body.message = message.trim().replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
+  // Enhanced sanitization
+  req.body.message = message
+    .trim()
+    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+    .replace(/[<>]/g, '')
+    .replace(/javascript:/gi, '')
+    .replace(/on\w+\s*=/gi, '');
 
   next();
 };

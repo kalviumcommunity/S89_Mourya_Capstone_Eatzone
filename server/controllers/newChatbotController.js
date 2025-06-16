@@ -4,16 +4,29 @@ import foodModel from "../models/foodModel.js";
 import dotenv from "dotenv";
 dotenv.config();
 
-// Note: Prices are now stored directly in INR, no conversion needed
+// Input sanitization function to prevent prompt injection
+const sanitizeInput = (input) => {
+  if (typeof input !== 'string') return '';
 
-// Function to ensure prices match the application - no conversion needed now
-const normalizePrice = (price) => {
-  // Prices are now stored directly in INR, just return as-is
-  // This ensures chatbot prices match exactly with the application
-  return price;
+  // Remove potentially dangerous patterns
+  const sanitized = input
+    .replace(/[<>]/g, '') // Remove HTML tags
+    .replace(/javascript:/gi, '') // Remove javascript: protocol
+    .replace(/on\w+\s*=/gi, '') // Remove event handlers
+    .replace(/\${.*?}/g, '') // Remove template literals
+    .replace(/eval\s*\(/gi, '') // Remove eval calls
+    .replace(/function\s*\(/gi, '') // Remove function declarations
+    .trim();
+
+  // Limit length to prevent excessive input
+  return sanitized.substring(0, 500);
 };
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+// Validate API key exists
+if (!process.env.GEMINI_API_KEY) {
+  console.error("❌ GEMINI_API_KEY is not configured");
+  throw new Error("Missing GEMINI_API_KEY environment variable");
+}
 
 // Eatzone Official Support Chatbot Knowledge Base
 const EATZONE_KNOWLEDGE = {
@@ -250,14 +263,18 @@ export const newChatWithBot = async (req, res) => {
   const { message, chatMode = 'support' } = req.body || {};
   const userId = req.body.userId || req.userId || "guest";
 
-  console.log("User:", userId, "| Mode:", chatMode, "| Message:", message);
+  // Sanitize user input to prevent prompt injection
+  const sanitizedMessage = sanitizeInput(message);
 
-  if (!message) {
+  console.log("User:", userId, "| Mode:", chatMode);
+  // Don't log the actual message for security reasons
+
+  if (!sanitizedMessage) {
     return res.status(400).json({ error: "Message is required" });
   }
 
   try {
-    const userMessage = message.trim();
+    const userMessage = sanitizedMessage.trim();
     const intent = detectIntent(userMessage);
 
     console.log("📝 User message:", userMessage);
@@ -271,24 +288,36 @@ export const newChatWithBot = async (req, res) => {
       });
     }
 
-    // Fetch live data for processing
+    // Fetch live data for processing with enhanced error handling
     console.log("🔍 Fetching data from database...");
 
     let allFoodItems = [];
     let userOrders = [];
 
+    // Fetch food items with error handling
     try {
       allFoodItems = await foodModel.find({});
       console.log("📊 Available menu items:", allFoodItems.length);
+    } catch (dbError) {
+      console.error("❌ Database error fetching food items:", dbError);
+      allFoodItems = [];
+    }
 
-      if (userId && userId !== "guest") {
+    // Fetch user orders with error handling
+    if (userId && userId !== "guest") {
+      try {
         userOrders = await orderModel.find({ userId }).sort({ date: -1 }).limit(3);
         console.log("📦 User orders found:", userOrders.length);
-      } else {
-        console.log("📦 Guest user - no orders to fetch");
+      } catch (dbError) {
+        console.error("❌ Database error fetching orders:", dbError);
+        userOrders = [];
       }
-    } catch (dbError) {
-      console.error("❌ Database error:", dbError);
+    } else {
+      console.log("📦 Guest user - no orders to fetch");
+    }
+
+    // If both database queries failed, return error
+    if (allFoodItems.length === 0 && userOrders.length === 0 && userId !== "guest") {
       return res.json({
         reply: "I'm having trouble accessing our database right now. Please contact support at +91 9876554321."
       });
@@ -314,10 +343,19 @@ export const newChatWithBot = async (req, res) => {
             reply: "❌ Sorry, it's too late to cancel. The order is being prepared or already out for delivery."
           });
         } else {
-          // For Pending status, allow cancellation
-          return res.json({
-            reply: "✅ Your order has been cancelled."
-          });
+          // For Pending status, allow cancellation and update database
+          try {
+            await orderModel.findByIdAndUpdate(latestOrder._id, { status: 'Cancelled' });
+            console.log("✅ Order cancelled successfully in database:", latestOrder._id);
+            return res.json({
+              reply: "✅ Your order has been cancelled successfully."
+            });
+          } catch (error) {
+            console.error("❌ Failed to cancel order in database:", error);
+            return res.json({
+              reply: "❌ Failed to cancel order. Please contact support at +91 9876554321."
+            });
+          }
         }
       } else {
         return res.json({ reply: "I couldn't find your recent order. Please contact support at +91 9876554321." });

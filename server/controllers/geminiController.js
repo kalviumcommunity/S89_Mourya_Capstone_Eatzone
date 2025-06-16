@@ -4,6 +4,30 @@ import foodModel from "../models/foodModel.js";
 import dotenv from "dotenv";
 dotenv.config();
 
+// Input sanitization function to prevent prompt injection
+const sanitizeInput = (input) => {
+  if (typeof input !== 'string') return '';
+
+  // Remove potentially dangerous patterns
+  const sanitized = input
+    .replace(/[<>]/g, '') // Remove HTML tags
+    .replace(/javascript:/gi, '') // Remove javascript: protocol
+    .replace(/on\w+\s*=/gi, '') // Remove event handlers
+    .replace(/\${.*?}/g, '') // Remove template literals
+    .replace(/eval\s*\(/gi, '') // Remove eval calls
+    .replace(/function\s*\(/gi, '') // Remove function declarations
+    .trim();
+
+  // Limit length to prevent excessive input
+  return sanitized.substring(0, 500);
+};
+
+// Validate API key exists
+if (!process.env.GEMINI_API_KEY) {
+  console.error("❌ GEMINI_API_KEY is not configured");
+  throw new Error("Missing GEMINI_API_KEY environment variable");
+}
+
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 // Eatzone Application Knowledge Base
@@ -40,24 +64,26 @@ const EATZONE_KNOWLEDGE = {
 
 export const chatWithBot = async (req, res) => {
   console.log("=== CHATBOT REQUEST START ===");
-  console.log("Request body:", req.body);
   console.log("Headers:", req.headers.authorization ? "Token present" : "No token");
 
   const { message, chatMode } = req.body || {};
+
+  // Sanitize user input to prevent prompt injection
+  const sanitizedMessage = sanitizeInput(message);
 
   // Get userId from auth middleware (req.body.userId is set by authMiddleware)
   const userId = req.body.userId || req.userId || "guest";
   console.log("Chatbot - User ID:", userId);
   console.log("Chat mode:", chatMode);
-  console.log("Message:", message);
+  // Don't log the actual message for security reasons
 
-  if (!message) {
-    console.log("ERROR: No message provided");
+  if (!sanitizedMessage) {
+    console.log("ERROR: No message provided or invalid message");
     return res.status(400).json({ error: "Message is required" });
   }
 
   try {
-    const userMessage = message.toLowerCase().trim();
+    const userMessage = sanitizedMessage.toLowerCase().trim();
 
     // Quick responses for common queries
     if (userMessage.includes('hello') || userMessage.includes('hi')) {
@@ -70,15 +96,26 @@ export const chatWithBot = async (req, res) => {
       return res.json({ reply: EATZONE_KNOWLEDGE.quickResponses.goodbye });
     }
 
-    // Fetch data for AI processing
-    const allFoodItems = await foodModel.find({});
+    // Fetch data for AI processing with enhanced error handling
+    let allFoodItems = [];
+    try {
+      allFoodItems = await foodModel.find({});
+    } catch (dbError) {
+      console.error("Database error fetching food items:", dbError);
+      allFoodItems = [];
+    }
 
     // Fetch user's recent orders using the authenticated user ID
     let recentOrders = [];
     if (userId && userId !== "guest") {
       console.log("Fetching orders for authenticated user:", userId);
-      recentOrders = await orderModel.find({ userId }).sort({ date: -1 }).limit(3);
-      console.log("Found orders:", recentOrders.length);
+      try {
+        recentOrders = await orderModel.find({ userId }).sort({ date: -1 }).limit(3);
+        console.log("Found orders:", recentOrders.length);
+      } catch (dbError) {
+        console.error("Database error fetching orders:", dbError);
+        recentOrders = [];
+      }
     }
 
     // Process order history
@@ -104,7 +141,7 @@ export const chatWithBot = async (req, res) => {
         - Maximum ${maxWords} words
         - Use exact phrases from SOLUTIONS below
 
-        USER QUERY: "${message}"
+        USER QUERY: "${sanitizedMessage}"
         USER'S RECENT ORDERS: ${pastFoodNames}
 
         EATZONE APP INFO:
@@ -131,7 +168,7 @@ export const chatWithBot = async (req, res) => {
         - Format: "ITEM:[Name]|PRICE:₹[Price]|CATEGORY:[Category]"
         - Maximum 2 items only
 
-        USER REQUEST: "${message}"
+        USER REQUEST: "${sanitizedMessage}"
         USER'S RECENT ORDERS: ${pastFoodNames}
 
         EATZONE MENU (ONLY recommend from these):
@@ -147,7 +184,7 @@ export const chatWithBot = async (req, res) => {
         - Maximum ${maxWords} words
         - If not about Eatzone, say "I help with Eatzone only"
 
-        USER: "${message}"
+        USER: "${sanitizedMessage}"
         RECENT ORDERS: ${pastFoodNames}
 
         EATZONE INFO:
