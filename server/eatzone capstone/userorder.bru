@@ -1,0 +1,19 @@
+meta {
+  name: userorder
+  type: http
+  seq: 8
+}
+
+post {
+  url: http://localhost:4000/api/order/userorders
+  body: json
+  auth: inherit
+}
+
+headers {
+  Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4MjU3MDQxNzVmNzZhZDQ0MjVmNmE4NCIsImlhdCI6MTc0OTAzMTg1NSwiZXhwIjoxNzQ5NjM2NjU1fQ.QeivkGjvFuHOs01pqikC1KP0I1tvhPXvaL9P93ob_3k
+}
+
+body:json {
+  {}
+}

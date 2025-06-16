@@ -1,6 +1,7 @@
 import passport from 'passport';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 import userModel from '../models/userModel.js';
+import adminModel from '../models/adminModel.js';
 import 'dotenv/config';
 
 // Configure Google OAuth 2.0 strategy
@@ -9,7 +10,7 @@ passport.use(
     {
       clientID: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL: '/api/user/auth/google/callback',
+      callbackURL: `${process.env.SERVER_URL || 'http://localhost:4000'}/api/user/auth/google/callback`,
       scope: ['profile', 'email']
     },
     async (accessToken, refreshToken, profile, done) => {
@@ -42,6 +43,53 @@ passport.use(
           // Save the new user
           user = await newUser.save();
           return done(null, user);
+        }
+      } catch (error) {
+        return done(error, null);
+      }
+    }
+  )
+);
+
+// Configure Google OAuth 2.0 strategy for Admin
+passport.use('google-admin',
+  new GoogleStrategy(
+    {
+      clientID: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      callbackURL: `${process.env.SERVER_URL || 'http://localhost:4000'}/api/admin/auth/google/callback`,
+      scope: ['profile', 'email']
+    },
+    async (accessToken, refreshToken, profile, done) => {
+      try {
+        // Check if admin already exists in our database
+        let admin = await adminModel.findOne({ googleId: profile.id });
+
+        if (admin) {
+          // Generate profile image with first letter of email
+          const email = profile.emails[0].value;
+          const firstLetter = email.charAt(0).toUpperCase();
+          const profileImage = `https://ui-avatars.com/api/?name=${firstLetter}&background=random&color=fff&size=256`;
+
+          // Update profile image if it has changed
+          if (profileImage !== admin.profileImage) {
+            admin.profileImage = profileImage;
+            await admin.save();
+          }
+
+          return done(null, admin);
+        } else {
+          // Admin doesn't exist, create a new admin
+          const newAdmin = new adminModel({
+            name: profile.displayName,
+            email: profile.emails[0].value,
+            googleId: profile.id,
+            profileImage: `https://ui-avatars.com/api/?name=${profile.emails[0].value.charAt(0).toUpperCase()}&background=random&color=fff&size=256`
+          });
+
+          // Save the new admin
+          admin = await newAdmin.save();
+          return done(null, admin);
         }
       } catch (error) {
         return done(error, null);

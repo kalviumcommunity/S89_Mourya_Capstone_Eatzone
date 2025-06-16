@@ -1,21 +1,31 @@
 import React, { useEffect, useState } from 'react'
 import './List.css'
 import axios from "axios"
-import {toast} from "react-toastify"
+import { toast } from "react-toastify"
 
-const List = ({url}) => {
+const List = ({ url }) => {
+  const [list, setList] = useState([]);
+  const [filteredList, setFilteredList] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState('all');
+  const [editingItem, setEditingItem] = useState(null);
+  const [editForm, setEditForm] = useState({
+    name: '',
+    description: '',
+    price: '',
+    category: '',
+    image: null
+  });
 
-  const [list,setList]= useState([]);
-
-  const fetchList = async ()=>{
+  const fetchList = async () => {
     try {
-      // Show loading toast
-      toast.info("Fetching food items...", { autoClose: 1000 });
-
+      setLoading(true);
       const response = await axios.get(`${url}/api/food/list`);
 
-      if (response.data.success){
+      if (response.data.success) {
         setList(response.data.data);
+        setFilteredList(response.data.data);
         toast.success("Food items loaded successfully", { autoClose: 1000 });
       } else {
         toast.error(response.data.message || "Failed to load food items");
@@ -23,58 +33,410 @@ const List = ({url}) => {
     } catch (error) {
       console.error("Error fetching food list:", error);
       toast.error(error.response?.data?.message || "An error occurred while fetching food items");
+    } finally {
+      setLoading(false);
     }
   }
 
-  const removeFood = async(foodId)=>{
+  const removeFood = async (foodId) => {
+    if (window.confirm('Are you sure you want to delete this food item?')) {
+      try {
+        toast.info("Removing food item...", { autoClose: 1000 });
+
+        const response = await axios.post(`${url}/api/food/remove`, { id: foodId });
+
+        if (response.data.success) {
+          toast.success(response.data.message || "Food item removed successfully");
+          await fetchList(); // Refresh the list
+        } else {
+          toast.error(response.data.message || "Failed to remove food item");
+        }
+      } catch (error) {
+        console.error("Error removing food item:", error);
+        toast.error(error.response?.data?.message || "An error occurred while removing food item");
+      }
+    }
+  }
+
+  const clearAllFood = async () => {
+    if (window.confirm("⚠️ WARNING: Are you sure you want to delete ALL food items?\n\nThis action cannot be undone and will remove all items from your database.")) {
+      try {
+        toast.info("Clearing all food items...", { autoClose: 2000 });
+
+        const response = await axios.post(`${url}/api/food/clear-all`);
+
+        if (response.data.success) {
+          toast.success(response.data.message || "All food items cleared successfully");
+          await fetchList(); // Refresh the list
+        } else {
+          toast.error(response.data.message || "Failed to clear food items");
+        }
+      } catch (error) {
+        console.error("Error clearing food items:", error);
+        toast.error(error.response?.data?.message || "An error occurred while clearing food items");
+      }
+    }
+  }
+
+  const startEdit = (item) => {
+    setEditingItem(item);
+    setEditForm({
+      name: item.name,
+      description: item.description || '',
+      price: item.price.toString(),
+      category: item.category,
+      image: null
+    });
+  };
+
+  const cancelEdit = () => {
+    setEditingItem(null);
+    setEditForm({
+      name: '',
+      description: '',
+      price: '',
+      category: '',
+      image: null
+    });
+  };
+
+  const handleEditFormChange = (e) => {
+    const { name, value, files } = e.target;
+    if (name === 'image') {
+      setEditForm(prev => ({ ...prev, image: files[0] }));
+    } else {
+      setEditForm(prev => ({ ...prev, [name]: value }));
+    }
+  };
+
+  const updateFood = async (e) => {
+    e.preventDefault();
+
+    if (!editForm.name || !editForm.price || !editForm.category) {
+      toast.error("Please fill in all required fields");
+      return;
+    }
+
+    // Validate price is a positive number
+    if (isNaN(editForm.price) || Number(editForm.price) <= 0) {
+      toast.error("Please enter a valid price");
+      return;
+    }
+
     try {
-      // Show loading toast
-      toast.info("Removing food item...", { autoClose: 1000 });
+      console.log("Updating food item:", editingItem._id);
+      console.log("Form data:", editForm);
 
-      const response = await axios.post(`${url}/api/food/remove`, { id: foodId });
+      toast.info("Updating food item...", { autoClose: 1000 });
 
-      if (response.data.success){
-        toast.success(response.data.message || "Food item removed successfully");
-        // Refresh the list after successful removal
-        await fetchList();
+      const formData = new FormData();
+      formData.append('id', editingItem._id);
+      formData.append('name', editForm.name.trim());
+      formData.append('description', editForm.description.trim());
+      formData.append('price', editForm.price);
+      formData.append('category', editForm.category);
+
+      if (editForm.image) {
+        console.log("Adding image to form data:", editForm.image.name);
+        formData.append('image', editForm.image);
+      }
+
+      // Log form data for debugging
+      for (let pair of formData.entries()) {
+        console.log(pair[0] + ': ' + pair[1]);
+      }
+
+      const response = await axios.post(`${url}/api/food/update`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+        timeout: 30000, // 30 second timeout
+      });
+
+      console.log("Update response:", response.data);
+
+      if (response.data.success) {
+        toast.success(response.data.message || "Food item updated successfully");
+        await fetchList(); // Refresh the list
+        cancelEdit(); // Close the edit modal
       } else {
-        toast.error(response.data.message || "Failed to remove food item");
+        console.error("Update failed:", response.data.message);
+        toast.error(response.data.message || "Failed to update food item");
       }
     } catch (error) {
-      console.error("Error removing food item:", error);
-      toast.error(error.response?.data?.message || "An error occurred while removing the food item");
-    }
-  }
+      console.error("Error updating food item:", error);
+      console.error("Error response:", error.response?.data);
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+      if (error.response?.status === 404) {
+        toast.error("Food item not found");
+      } else if (error.response?.status === 400) {
+        toast.error(error.response.data.message || "Invalid data provided");
+      } else if (error.response?.data?.message) {
+        toast.error(error.response.data.message);
+      } else {
+        toast.error("An error occurred while updating food item");
+      }
+    }
+  };
+
+  // Filter function
+  useEffect(() => {
+    let filtered = list;
+
+    // Filter by search term
+    if (searchTerm) {
+      filtered = filtered.filter(item =>
+        item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.category.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
+    // Filter by category
+    if (categoryFilter !== 'all') {
+      filtered = filtered.filter(item => item.category === categoryFilter);
+    }
+
+    setFilteredList(filtered);
+  }, [list, searchTerm, categoryFilter]);
+
   useEffect(() => {
     fetchList();
   }, [])
 
-  return (
-    <div className='list add flex-col'>
-      <p>All Foods List</p>
-      <div className="list-table">
-        <div className="list-table-format title">
-          <b>Image</b>
-          <b>Name</b>
-          <b>Category</b>
-          <b>Price</b>
-          <b>Action</b>
+  // Get unique categories
+  const categories = [...new Set(list.map(item => item.category))];
+
+  if (loading) {
+    return (
+      <div className="list">
+        <div className="loading-container">
+          <div className="spinner"></div>
+          <p>Loading food items...</p>
         </div>
-        {list.map((item,index)=>{
-          return (
-            <div key={index} className='list-table-format'>
-              <img src={`${url}/images/`+item.image} alt="" />
-              <p>{item.name}</p>
-              <p>{item.category}</p>
-              <p>${item.price}</p>
-              <p onClick={()=>removeFood(item._id)} className='cursor'>X</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className='list'>
+      <div className="card">
+        <div className="card-header">
+          <div>
+            <h2 className="card-title">Food Items</h2>
+            <p className="card-subtitle">Manage your restaurant menu items</p>
+          </div>
+          <div className="card-actions">
+            <button
+              className="btn btn-danger"
+              onClick={clearAllFood}
+              title="Clear all food items from database"
+            >
+              🗑️ Clear All Items
+            </button>
+          </div>
+        </div>
+
+        {/* Stats */}
+        <div className="list-stats">
+          <div className="list-stat">
+            <span className="list-stat-value">{list.length}</span>
+            <span className="list-stat-label">Total Items</span>
+          </div>
+          <div className="list-stat">
+            <span className="list-stat-value">{categories.length}</span>
+            <span className="list-stat-label">Categories</span>
+          </div>
+          <div className="list-stat">
+            <span className="list-stat-value">₹{list.reduce((sum, item) => sum + item.price, 0)}</span>
+            <span className="list-stat-label">Total Value</span>
+          </div>
+        </div>
+
+        {/* Filters */}
+        <div className="list-filters">
+          <input
+            type="text"
+            placeholder="Search food items..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="search-input"
+          />
+          <select
+            value={categoryFilter}
+            onChange={(e) => setCategoryFilter(e.target.value)}
+            className="filter-select"
+          >
+            <option value="all">All Categories</option>
+            {categories.map((category, index) => (
+              <option key={index} value={category}>{category}</option>
+            ))}
+          </select>
+        </div>
+
+        {/* Table */}
+        <div className="list-table">
+          <div className="list-table-format title">
+            <span>Image</span>
+            <span>Food Details</span>
+            <span>Category</span>
+            <span>Price</span>
+            <span>Status</span>
+            <span>Actions</span>
+          </div>
+
+          {filteredList.length > 0 ? (
+            filteredList.map((item, index) => (
+              <div key={index} className='list-table-format'>
+                <img
+                  src={`${url}/images/${item.image}`}
+                  alt={item.name}
+                  className="food-image"
+                />
+                <div className="food-info">
+                  <h4 className="food-name">{item.name}</h4>
+                  <p className="food-description">{item.description || 'No description available'}</p>
+                </div>
+                <span className="food-category">{item.category}</span>
+                <span className="food-price">₹{item.price}</span>
+                <span className="badge badge-success">Available</span>
+                <div className="food-actions">
+                  <button
+                    className="action-btn edit-btn"
+                    title="Edit Item"
+                    onClick={() => startEdit(item)}
+                  >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                      <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                    </svg>
+                  </button>
+                  <button
+                    className="action-btn delete-btn"
+                    title="Delete Item"
+                    onClick={() => removeFood(item._id)}
+                  >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <polyline points="3,6 5,6 21,6"></polyline>
+                      <path d="M19,6v14a2,2 0 0,1 -2,2H7a2,2 0 0,1 -2,-2V6m3,0V4a2,2 0 0,1 2,-2h4a2,2 0 0,1 2,2v2"></path>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            ))
+          ) : (
+            <div className="no-items">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <circle cx="11" cy="11" r="8"></circle>
+                <path d="M21 21l-4.35-4.35"></path>
+              </svg>
+              <h3>No items found</h3>
+              <p>Try adjusting your search or filter criteria</p>
             </div>
-          )
-        })}
+          )}
+        </div>
       </div>
 
+      {/* Edit Modal */}
+      {editingItem && (
+        <div className="edit-modal-overlay" onClick={cancelEdit}>
+          <div className="edit-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="edit-modal-header">
+              <h3>Edit Food Item</h3>
+              <button className="close-btn" onClick={cancelEdit}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </button>
+            </div>
+
+            <form onSubmit={updateFood} className="edit-form">
+              <div className="form-group">
+                <label htmlFor="edit-name">Food Name *</label>
+                <input
+                  type="text"
+                  id="edit-name"
+                  name="name"
+                  value={editForm.name}
+                  onChange={handleEditFormChange}
+                  placeholder="Enter food name"
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="edit-description">Description</label>
+                <textarea
+                  id="edit-description"
+                  name="description"
+                  value={editForm.description}
+                  onChange={handleEditFormChange}
+                  placeholder="Enter food description"
+                  rows="3"
+                />
+              </div>
+
+              <div className="form-row">
+                <div className="form-group">
+                  <label htmlFor="edit-category">Category *</label>
+                  <select
+                    id="edit-category"
+                    name="category"
+                    value={editForm.category}
+                    onChange={handleEditFormChange}
+                    required
+                  >
+                    <option value="">Select Category</option>
+                    <option value="Salad">Salad</option>
+                    <option value="Rolls">Rolls</option>
+                    <option value="Deserts">Deserts</option>
+                    <option value="Sandwich">Sandwich</option>
+                    <option value="Cake">Cake</option>
+                    <option value="Pure Veg">Pure Veg</option>
+                    <option value="Pasta">Pasta</option>
+                    <option value="Noodles">Noodles</option>
+                  </select>
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="edit-price">Price (₹) *</label>
+                  <input
+                    type="number"
+                    id="edit-price"
+                    name="price"
+                    value={editForm.price}
+                    onChange={handleEditFormChange}
+                    placeholder="Enter price"
+                    min="1"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="edit-image">Update Image (Optional)</label>
+                <input
+                  type="file"
+                  id="edit-image"
+                  name="image"
+                  onChange={handleEditFormChange}
+                  accept="image/*"
+                />
+                <small>Leave empty to keep current image</small>
+              </div>
+
+              <div className="form-actions">
+                <button type="button" className="btn btn-secondary" onClick={cancelEdit}>
+                  Cancel
+                </button>
+                <button type="submit" className="btn btn-primary">
+                  Update Item
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

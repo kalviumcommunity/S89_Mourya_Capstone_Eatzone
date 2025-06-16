@@ -1,5 +1,6 @@
 import express from "express"
 import { loginUser, registerUser, googleAuth, googleAuthCallback } from "../controllers/userController.js"
+import { getUserProfile, updateUserProfile } from "../controllers/profileController.js"
 import passport from "../config/passport.js"
 
 const userRouter = express.Router()
@@ -20,5 +21,9 @@ userRouter.get("/auth/google/callback",
     }),
     googleAuthCallback
 )
+
+// Profile routes
+userRouter.get("/profile", getUserProfile)
+userRouter.put("/profile/update", updateUserProfile)
 
 export default userRouter;
