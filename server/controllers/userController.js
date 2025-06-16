@@ -112,7 +112,7 @@ const registerUser = async (req, res) => {
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
 
-        // Create new user
+        // Create new users
         const newUser = new userModel({
             name: name,
             email: email,
@@ -169,7 +169,7 @@ const googleAuthCallback = (req, res) => {
             hasProfileImage: !!user.profileImage
         });
 
-        // Generate JWT token
+        // Generate JWT Token
         const token = createToken(user._id);
 
         // Build redirect URL with all user data
