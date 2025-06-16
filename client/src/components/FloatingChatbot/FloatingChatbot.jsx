@@ -1,6 +1,7 @@
 import React, { useState, useContext } from "react";
 import "./FloatingChatbot.css";
 import { StoreContext } from "../../context/StoreContext";
+import { sendChatMessage } from "../../config/api";
 
 const FloatingChatbot = () => {
   const { user, token, addToCart, food_list } = useContext(StoreContext);
@@ -85,19 +86,7 @@ const FloatingChatbot = () => {
     setLoading(true);
 
     try {
-      const response = await fetch("http://localhost:4000/api/chatbot/chat", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: token ? `Bearer ${token}` : "",
-        },
-        body: JSON.stringify({
-          message: input,
-          chatMode: chatMode
-        }),
-      });
-
-      const data = await response.json();
+      const data = await sendChatMessage(input, chatMode, token);
       const { cleanText, items } = parseMessageForItems(data.reply);
       const botMessage = {
         role: "bot",
@@ -159,19 +148,7 @@ const FloatingChatbot = () => {
     setLoading(true);
 
     try {
-      const response = await fetch("http://localhost:4000/api/chatbot/chat", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: token ? `Bearer ${token}` : "",
-        },
-        body: JSON.stringify({
-          message: suggestion,
-          chatMode: chatMode
-        }),
-      });
-
-      const data = await response.json();
+      const data = await sendChatMessage(suggestion, chatMode, token);
       const { cleanText, items } = parseMessageForItems(data.reply);
       const botMessage = {
         role: "bot",

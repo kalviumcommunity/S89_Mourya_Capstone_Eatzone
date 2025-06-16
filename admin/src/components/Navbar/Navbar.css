@@ -1,14 +1,238 @@
-.navbar{
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 8px 4%;
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  background: var(--white);
+  border-bottom: 1px solid var(--medium-gray);
+  box-shadow: var(--shadow-sm);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  height: 80px;
 }
 
-.navbar .logo{
-    width: max(10%,80px);
+.navbar-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
 }
 
-.navbar .profile{
-    width: 40px;
+.navbar .logo {
+  width: 120px;
+  height: auto;
+}
+
+.navbar-title h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--accent-black);
+  margin: 0;
+}
+
+.navbar-title span {
+  font-size: 0.875rem;
+  color: var(--dark-gray);
+  display: block;
+  margin-top: 0.25rem;
+}
+
+.navbar-right {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
+.navbar-stats {
+  display: flex;
+  gap: 2rem;
+}
+
+.stat-item {
+  text-align: center;
+}
+
+.stat-label {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--dark-gray);
+  margin-bottom: 0.25rem;
+}
+
+.stat-value {
+  display: block;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--primary-red);
+}
+
+.navbar-notifications {
+  position: relative;
+}
+
+.notification-icon {
+  position: relative;
+  padding: 0.5rem;
+  border-radius: var(--radius-md);
+  background: var(--light-gray);
+  color: var(--dark-gray);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.notification-icon:hover {
+  background: var(--medium-gray);
+  color: var(--accent-black);
+}
+
+.notification-badge {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  background: var(--primary-red);
+  color: var(--white);
+  font-size: 0.625rem;
+  font-weight: 600;
+  padding: 0.125rem 0.375rem;
+  border-radius: 9999px;
+  min-width: 18px;
+  text-align: center;
+}
+
+.navbar-profile {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem;
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.navbar-profile:hover {
+  background: var(--light-gray);
+}
+
+.profile-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary-red), var(--primary-red-hover));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--white);
+  font-weight: 600;
+  font-size: 1rem;
+  overflow: hidden;
+}
+
+.profile-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.profile-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.profile-name {
+  font-weight: 600;
+  color: var(--accent-black);
+  font-size: 0.875rem;
+}
+
+.profile-role {
+  font-size: 0.75rem;
+  color: var(--dark-gray);
+}
+
+.dropdown-arrow {
+  transition: var(--transition);
+  color: var(--dark-gray);
+}
+
+.dropdown-arrow.rotated {
+  transform: rotate(180deg);
+}
+
+.profile-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 0.5rem;
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  min-width: 200px;
+  overflow: hidden;
+  z-index: 1000;
+  animation: dropdownFadeIn 0.2s ease-out;
+}
+
+@keyframes dropdownFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  color: var(--accent-black);
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.dropdown-item:hover {
+  background: var(--light-gray);
+}
+
+.dropdown-item.logout {
+  color: var(--danger);
+}
+
+.dropdown-item.logout:hover {
+  background: rgba(220, 53, 69, 0.1);
+}
+
+.dropdown-divider {
+  height: 1px;
+  background: var(--medium-gray);
+  margin: 0.5rem 0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .navbar {
+    padding: 1rem;
+  }
+
+  .navbar-stats {
+    display: none;
+  }
+
+  .navbar-title h2 {
+    font-size: 1.25rem;
+  }
+
+  .navbar-title span {
+    display: none;
+  }
+
+  .profile-info {
+    display: none;
+  }
 }

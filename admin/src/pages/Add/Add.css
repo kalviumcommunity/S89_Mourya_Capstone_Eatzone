@@ -1,35 +1,223 @@
-.add{
-    width: 70%;
-    margin-left: max(5vw,25px);
-    margin-top: 50px;
-    color: #6d6d6d;
-    font-size: 16px;
+.add {
+  padding: 2rem;
+  background: var(--light-gray);
+  min-height: calc(100vh - 80px);
 }
-.add form{
-    gap: 20px;
+
+.add .card {
+  max-width: 800px;
+  margin: 0 auto;
 }
-.add-img-upload img{
+
+.add .card-header {
+  text-align: center;
+}
+
+.add .card-title {
+  font-size: 1.75rem;
+  color: var(--accent-black);
+}
+
+.add .card-subtitle {
+  color: var(--dark-gray);
+  margin-top: 0.5rem;
+}
+
+.add form {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+/* Image Upload Section */
+.add-img-upload {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.add-img-upload label {
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 2rem;
+  border: 2px dashed var(--medium-gray);
+  border-radius: var(--radius-lg);
+  background: var(--white);
+  transition: var(--transition);
+  min-height: 200px;
+  justify-content: center;
+}
+
+.add-img-upload label:hover {
+  border-color: var(--primary-red);
+  background: var(--primary-red-light);
+}
+
+.add-img-upload img {
+  width: 150px;
+  height: 150px;
+  object-fit: cover;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+}
+
+.add-img-upload input[type="file"] {
+  display: none;
+}
+
+.upload-text {
+  text-align: center;
+  color: var(--dark-gray);
+}
+
+.upload-text h3 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--accent-black);
+  margin: 0 0 0.5rem 0;
+}
+
+.upload-text p {
+  font-size: 0.875rem;
+  margin: 0;
+}
+
+/* Form Fields */
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+}
+
+.add-product-name,
+.add-product-description {
+  width: 100%;
+}
+
+.add-product-name input,
+.add-product-description textarea {
+  width: 100%;
+  padding: 1rem;
+  border: 1px solid var(--medium-gray);
+  border-radius: var(--radius-md);
+  font-size: 1rem;
+  transition: var(--transition);
+  background: var(--white);
+  font-family: inherit;
+}
+
+.add-product-name input:focus,
+.add-product-description textarea:focus {
+  outline: none;
+  border-color: var(--primary-red);
+  box-shadow: 0 0 0 3px rgba(255, 71, 87, 0.1);
+}
+
+.add-product-description textarea {
+  resize: vertical;
+  min-height: 120px;
+}
+
+.add-category-price {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+}
+
+.add-category select,
+.add-price input {
+  width: 100%;
+  padding: 1rem;
+  border: 1px solid var(--medium-gray);
+  border-radius: var(--radius-md);
+  font-size: 1rem;
+  transition: var(--transition);
+  background: var(--white);
+}
+
+.add-category select:focus,
+.add-price input:focus {
+  outline: none;
+  border-color: var(--primary-red);
+  box-shadow: 0 0 0 3px rgba(255, 71, 87, 0.1);
+}
+
+/* Submit Button */
+.add-btn {
+  width: 100%;
+  max-width: 200px;
+  margin: 0 auto;
+  padding: 1rem 2rem;
+  border: none;
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, var(--primary-red), var(--primary-red-hover));
+  color: var(--white);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.add-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.add-btn:active {
+  transform: translateY(0);
+}
+
+.add-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Form Labels */
+.form-label {
+  display: block;
+  margin-bottom: 0.75rem;
+  font-weight: 600;
+  color: var(--accent-black);
+  font-size: 1rem;
+}
+
+.form-label.required::after {
+  content: ' *';
+  color: var(--danger);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .add {
+    padding: 1rem;
+  }
+
+  .form-row,
+  .add-category-price {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .add-img-upload label {
+    padding: 1.5rem;
+    min-height: 150px;
+  }
+
+  .add-img-upload img {
     width: 120px;
-}
-.add-product-name, .add-product-description{
-    width:max(40%,280px);
-}
-.add-product-name input, .add-product-description textarea{
-    padding: 10px;
-}
-.add-category-price{
-    display: flex;
-    gap: 30px;
-}
-.add-category-price select,.add-category-price input{
-    max-width: 120px;
-    padding: 10px;
-}
-.add-btn{
-    max-width: 120px;
-    border: none;
-    padding: 10px;
-    background-color: black;
-    color: white;
-    cursor: pointer;
+    height: 120px;
+  }
+
+  .add .card-title {
+    font-size: 1.5rem;
+  }
 }
