@@ -34,7 +34,10 @@ const loginUser = async (req, res) => {
 
         if (!user) {
             console.log("User not found with email:", email);
-            return res.json({ success: false, message: "User doesn't exist" });
+            return res.json({
+                success: false,
+                message: "No account found with this email. Please register first or use Google Sign-In."
+            });
         }
 
         // Check if this is a Google account (no password)
@@ -46,11 +49,20 @@ const loginUser = async (req, res) => {
             });
         }
 
+        // Check if user has a password (regular account)
+        if (!user.password) {
+            console.log("User has no password set:", email);
+            return res.json({
+                success: false,
+                message: "Please use Google Sign-In or reset your password."
+            });
+        }
+
         const isMatch = await bcrypt.compare(password, user.password);
 
         if (!isMatch) {
             console.log("Invalid password for user:", email);
-            return res.json({ success: false, message: "Invalid credentials" });
+            return res.json({ success: false, message: "Invalid email or password" });
         }
 
         // Create token
