@@ -20,22 +20,26 @@ const validateChatInput = (req, res, next) => {
     });
   }
 
-  // Check for potentially malicious patterns
+  // Check for potentially malicious patterns - more targeted detection
   const dangerousPatterns = [
-    /javascript:/gi,
-    /on\w+\s*=/gi,
-    /\${.*?}/g,
-    /eval\s*\(/gi,
-    /function\s*\(/gi,
-    /<script/gi,
-    /document\./gi,
-    /window\./gi
+    /javascript:\s*[^a-zA-Z]/gi, // More specific javascript: protocol detection
+    /on\w+\s*=\s*['"]/gi, // Event handlers with quotes
+    /\${[^}]*eval/gi, // Template literals with eval
+    /eval\s*\(\s*['"]/gi, // Eval with string parameters
+    /<script[^>]*>/gi, // Script tags
+    /document\s*\.\s*(write|cookie|location)/gi, // Specific dangerous document methods
+    /window\s*\.\s*(location|open)/gi // Specific dangerous window methods
   ];
 
-  const hasDangerousContent = dangerousPatterns.some(pattern => pattern.test(message));
+  // More sophisticated detection - require multiple suspicious patterns or specific contexts
+  const suspiciousMatches = dangerousPatterns.filter(pattern => pattern.test(message));
+  const hasDangerousContent = suspiciousMatches.length > 1 ||
+    message.toLowerCase().includes('<script') ||
+    /javascript:\s*[^a-zA-Z]/.test(message);
+
   if (hasDangerousContent) {
     return res.status(400).json({
-      error: "Message contains invalid content"
+      error: "Message contains potentially harmful content"
     });
   }
 
@@ -46,13 +50,8 @@ const validateChatInput = (req, res, next) => {
     });
   }
 
-  // Enhanced sanitization
-  req.body.message = message
-    .trim()
-    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
-    .replace(/[<>]/g, '')
-    .replace(/javascript:/gi, '')
-    .replace(/on\w+\s*=/gi, '');
+  // Basic sanitization - detailed sanitization handled in controller
+  req.body.message = message.trim();
 
   next();
 };

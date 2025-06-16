@@ -4,28 +4,42 @@ import foodModel from "../models/foodModel.js";
 import dotenv from "dotenv";
 dotenv.config();
 
-// Input sanitization function to prevent prompt injection
+// Enhanced input sanitization function to prevent prompt injection
 const sanitizeInput = (input) => {
   if (typeof input !== 'string') return '';
 
-  // Remove potentially dangerous patterns
-  const sanitized = input
-    .replace(/[<>]/g, '') // Remove HTML tags
-    .replace(/javascript:/gi, '') // Remove javascript: protocol
-    .replace(/on\w+\s*=/gi, '') // Remove event handlers
-    .replace(/\${.*?}/g, '') // Remove template literals
-    .replace(/eval\s*\(/gi, '') // Remove eval calls
-    .replace(/function\s*\(/gi, '') // Remove function declarations
+  // Remove potentially dangerous patterns with more targeted approach
+  let sanitized = input
+    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '') // Remove script tags
+    .replace(/javascript:\s*[^a-zA-Z]/gi, '') // Remove javascript: protocol (but allow word "javascript")
+    .replace(/on\w+\s*=\s*['"]/gi, '') // Remove event handlers with quotes
+    .replace(/\${[^}]*eval[^}]*}/gi, '') // Remove template literals with eval
+    .replace(/eval\s*\(\s*['"]/gi, '') // Remove eval with string parameters
+    .replace(/document\s*\.\s*(write|cookie|location)/gi, '') // Remove dangerous document methods
+    .replace(/window\s*\.\s*(location|open)/gi, '') // Remove dangerous window methods
+    .replace(/[<>]/g, '') // Remove remaining angle brackets
     .trim();
+
+  // Additional security: Remove excessive whitespace and control characters
+  sanitized = sanitized.replace(/\s+/g, ' ').replace(/[\x00-\x1F\x7F]/g, '');
 
   // Limit length to prevent excessive input
   return sanitized.substring(0, 500);
 };
 
-// Validate API key exists
-if (!process.env.GEMINI_API_KEY) {
-  console.error("❌ GEMINI_API_KEY is not configured");
-  throw new Error("Missing GEMINI_API_KEY environment variable");
+// Validate API key exists - graceful handling
+const validateApiKey = () => {
+  if (!process.env.GEMINI_API_KEY) {
+    console.error("❌ GEMINI_API_KEY is not configured");
+    console.error("Please set GEMINI_API_KEY environment variable");
+    return false;
+  }
+  return true;
+};
+
+if (!validateApiKey()) {
+  console.error("🚨 Critical configuration missing. Exiting...");
+  process.exit(1);
 }
 
 // Eatzone Official Support Chatbot Knowledge Base
@@ -316,12 +330,8 @@ export const newChatWithBot = async (req, res) => {
       console.log("📦 Guest user - no orders to fetch");
     }
 
-    // If both database queries failed, return error
-    if (allFoodItems.length === 0 && userOrders.length === 0 && userId !== "guest") {
-      return res.json({
-        reply: "I'm having trouble accessing our database right now. Please contact support at +91 9876554321."
-      });
-    }
+    // Database error handling is already done in individual try-catch blocks above
+    // Empty arrays are valid results (no food items or no orders for user)
 
 
     // STEP-BY-STEP INTENT PROCESSING
