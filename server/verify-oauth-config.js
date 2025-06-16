@@ -3,7 +3,7 @@ import 'dotenv/config';
 console.log('=== Google OAuth Configuration Verification ===\n');
 
 console.log('Environment Variables:');
-console.log(`GOOGLE_CLIENT_ID: ${process.env.GOOGLE_CLIENT_ID}`);
+console.log(`GOOGLE_CLIENT_ID: ${process.env.GOOGLE_CLIENT_ID ? '✓ Set (value hidden)' : '✗ Not set'}`);
 console.log(`GOOGLE_CLIENT_SECRET: ${process.env.GOOGLE_CLIENT_SECRET ? '✓ Set' : '✗ Not set'}`);
 console.log(`SERVER_URL: ${process.env.SERVER_URL}`);
 console.log(`FRONTEND_URL: ${process.env.FRONTEND_URL}`);
