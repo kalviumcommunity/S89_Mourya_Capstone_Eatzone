@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./Add.css";
 import { assets } from "../../assets/assets";
 import axios from "axios"
@@ -7,12 +7,31 @@ import { toast } from "react-toastify";
 const Add = ({url}) => {
 
   const [image,setImage] = useState(false);
+  const [restaurants, setRestaurants] = useState([]);
   const [data,setData] = useState({
     name:"",
     description:"",
     price:"",
-    category:"Salad"
+    category:"Rolls",
+    restaurantId:""
   })
+
+  // Fetch restaurants on component mount
+  useEffect(() => {
+    fetchRestaurants();
+  }, []);
+
+  const fetchRestaurants = async () => {
+    try {
+      const response = await axios.get(`${url}/api/restaurant/list`);
+      if (response.data.success) {
+        setRestaurants(response.data.data);
+      }
+    } catch (error) {
+      console.error("Error fetching restaurants:", error);
+      toast.error("Failed to load restaurants");
+    }
+  };
 
   const onChangeHandler = (event) => {
       const name = event.target.name;
@@ -40,6 +59,7 @@ const Add = ({url}) => {
       formData.append("description", data.description);
       formData.append("price", Number(data.price));
       formData.append("category", data.category);
+      formData.append("restaurantId", data.restaurantId);
       formData.append("image", image);
 
       // Show loading toast
@@ -52,7 +72,8 @@ const Add = ({url}) => {
           name: "",
           description: "",
           price: "",
-          category: "Salad"
+          category: "Rolls",
+          restaurantId: ""
         });
         setImage(false);
         toast.success(response.data.message || "Food item added successfully!");
@@ -117,15 +138,45 @@ const Add = ({url}) => {
             <div className="add-category">
               <label className="form-label required">Category</label>
               <select onChange={onChangeHandler} name="category" value={data.category} required>
-                <option value="Salad">Salad</option>
                 <option value="Rolls">Rolls</option>
+                <option value="Salad">Salad</option>
                 <option value="Deserts">Deserts</option>
                 <option value="Sandwich">Sandwich</option>
                 <option value="Cake">Cake</option>
-                <option value="Pure Veg">Pure Veg</option>
+                <option value="Veg">Veg</option>
+                <option value="Main Course">Main Course</option>
+                <option value="Appetizer">Appetizer</option>
+                <option value="Dessert">Dessert</option>
+                <option value="Pizza">Pizza</option>
+                <option value="Sushi">Sushi</option>
+                <option value="Sashimi">Sashimi</option>
+                <option value="Soup">Soup</option>
+                <option value="Tacos">Tacos</option>
+                <option value="Burritos">Burritos</option>
                 <option value="Pasta">Pasta</option>
                 <option value="Noodles">Noodles</option>
               </select>
+            </div>
+          </div>
+
+          <div className="form-row">
+            <div className="add-restaurant">
+              <label className="form-label">Restaurant (Optional)</label>
+              <select
+                onChange={onChangeHandler}
+                name="restaurantId"
+                value={data.restaurantId}
+              >
+                <option value="">Select Restaurant (Optional)</option>
+                {restaurants.map((restaurant) => (
+                  <option key={restaurant._id} value={restaurant._id}>
+                    {restaurant.name}
+                  </option>
+                ))}
+              </select>
+              <small className="form-help">
+                Leave empty to add as general food item, or select a restaurant to associate this item with a specific restaurant.
+              </small>
             </div>
           </div>
 

@@ -129,6 +129,7 @@
 }
 
 .add-category select,
+.add-restaurant select,
 .add-price input {
   width: 100%;
   padding: 1rem;
@@ -140,10 +141,23 @@
 }
 
 .add-category select:focus,
+.add-restaurant select:focus,
 .add-price input:focus {
   outline: none;
   border-color: var(--primary-red);
   box-shadow: 0 0 0 3px rgba(255, 71, 87, 0.1);
+}
+
+.add-restaurant {
+  width: 100%;
+}
+
+.form-help {
+  display: block;
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--dark-gray);
+  line-height: 1.4;
 }
 
 /* Submit Button */

@@ -6,6 +6,8 @@ import { Routes, Route, Navigate } from 'react-router-dom'
 import Dashboard from './pages/Dashboard/Dashboard'
 import Add from './pages/Add/Add'
 import List from './pages/List/List'
+import AddRestaurant from './pages/AddRestaurant/AddRestaurant'
+import RestaurantList from './pages/RestaurantList/RestaurantList'
 import Orders from './pages/Orders/Orders'
 import Analytics from './pages/Analytics/Analytics'
 import DeliveryPartners from './pages/DeliveryPartners/DeliveryPartners'
@@ -30,6 +32,8 @@ const AppContent = () => {
           <Route path="/dashboard" element={<Dashboard url={url}/>}/>
           <Route path="/add" element={<Add url={url}/>}/>
           <Route path="/list" element={<List url={url}/>}/>
+          <Route path="/add-restaurant" element={<AddRestaurant url={url}/>}/>
+          <Route path="/restaurant-list" element={<RestaurantList url={url}/>}/>
           <Route path="/orders" element={<Orders url={url}/>}/>
           <Route path="/analytics" element={<Analytics url={url}/>}/>
           <Route path="/delivery-partners" element={<DeliveryPartners url={url}/>}/>
