@@ -3,9 +3,9 @@ import mongoose from "mongoose";
 const adminSchema = new mongoose.Schema({
     name: { type: String, required: true },
     email: { type: String, required: true, unique: true },
-    password: { type: String, required: false }, // Optional for Google auth
+    password: { type: String, required: true }, // Required for secure authentication
     googleId: { type: String, sparse: true }, // For Google authentication
-    firebaseUID: { type: String, required: true, unique: true }, // Firebase UID for authentication
+    firebaseUID: { type: String, required: false }, // Optional Firebase UID
     profileImage: { type: String }, // Profile image URL
     role: { type: String, default: 'admin' }, // Admin role
     isActive: { type: Boolean, default: true }, // Account status

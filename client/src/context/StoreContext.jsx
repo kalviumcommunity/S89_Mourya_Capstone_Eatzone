@@ -82,23 +82,19 @@ const StoreContextProvider = (props) => {
     }
   }, [token, url, user]);
 
-  // Save cart to user-specific localStorage whenever it changes
-  useEffect(() => {
-    if (user && user.id) {
-      const userCartKey = `cartItems_${user.id}`;
-      localStorage.setItem(userCartKey, JSON.stringify(cartItems));
-    }
-  }, [cartItems, user]);
+  // SECURITY: Remove automatic localStorage saving with user ID
+  // Cart data should only be stored on server for authenticated users
 
-  // Debounced cart sync
+  // Debounced cart sync - SECURE VERSION
   useEffect(() => {
     const timeoutId = setTimeout(() => {
       if (token && user?.id) {
+        // Only sync to server for authenticated users
         saveCartToServer(cartItems);
+      } else {
+        // For guest users, use session storage (more secure than localStorage)
+        sessionStorage.setItem('guestCart', JSON.stringify(cartItems));
       }
-      // Always save to localStorage for persistence
-      const cartKey = user?.id ? `cartItems_${user.id}` : 'guestCart';
-      localStorage.setItem(cartKey, JSON.stringify(cartItems));
     }, 500);
 
     return () => clearTimeout(timeoutId);
@@ -167,32 +163,12 @@ const StoreContextProvider = (props) => {
     return totalAmount;
   };
 
-  // Load cart from localStorage or server
+  // Load cart from server or session storage - SECURE VERSION
   const loadCart = useCallback(async () => {
-    const cartKey = user?.id ? `cartItems_${user.id}` : 'guestCart';
-
-    console.log("Loading cart with key:", cartKey);
-
-    // Load from localStorage first
-    try {
-      const savedCart = localStorage.getItem(cartKey);
-      if (savedCart) {
-        const localCart = JSON.parse(savedCart);
-        console.log("Loaded cart from localStorage:", localCart);
-        setCartItems(localCart);
-      } else {
-        console.log("No saved cart found in localStorage");
-        setCartItems({});
-      }
-    } catch (error) {
-      console.error("Error loading cart from localStorage:", error);
-      setCartItems({});
-    }
-
-    // If user is authenticated, try to sync with server
+    // For authenticated users, load from server only
     if (token && user?.id) {
       try {
-        console.log("Syncing cart with server for user:", user.id);
+        console.log("Loading cart from server for authenticated user");
         const response = await axios.get(`${url}/api/cart`, {
           headers: { Authorization: `Bearer ${token}` },
           timeout: 5000
@@ -200,12 +176,29 @@ const StoreContextProvider = (props) => {
 
         if (response.data.success) {
           const serverCart = response.data.cartData || {};
-          console.log("Server cart data:", serverCart);
+          console.log("Server cart data loaded");
           setCartItems(serverCart);
-          localStorage.setItem(cartKey, JSON.stringify(serverCart));
+        } else {
+          setCartItems({});
         }
       } catch (error) {
         console.error("Error fetching cart from server:", error);
+        setCartItems({});
+      }
+    } else {
+      // For guest users, load from session storage only
+      try {
+        const savedCart = sessionStorage.getItem('guestCart');
+        if (savedCart) {
+          const localCart = JSON.parse(savedCart);
+          console.log("Loaded guest cart from session storage");
+          setCartItems(localCart);
+        } else {
+          setCartItems({});
+        }
+      } catch (error) {
+        console.error("Error loading guest cart:", error);
+        setCartItems({});
       }
     }
   }, [token, user?.id, url]);
@@ -378,15 +371,22 @@ const StoreContextProvider = (props) => {
     loadCart();
   }, [user?.id]);
 
-  // Function to clear cart data for user isolation
+  // Function to clear cart data for user isolation - SECURE VERSION
   const clearUserData = () => {
     setCartItems({});
     setUser(null);
     setToken("");
     localStorage.removeItem("token");
     localStorage.removeItem("user");
-    // Remove old generic cart data
+    // Clear all cart-related storage
     localStorage.removeItem("cartItems");
+    sessionStorage.removeItem("guestCart");
+    // Clear any user-specific cart data that might exist
+    Object.keys(localStorage).forEach(key => {
+      if (key.startsWith('cartItems_')) {
+        localStorage.removeItem(key);
+      }
+    });
   };
 
   // Add logout function
