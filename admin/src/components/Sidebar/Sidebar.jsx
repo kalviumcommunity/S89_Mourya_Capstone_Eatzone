@@ -13,6 +13,7 @@ const Sidebar = () => {
           <rect x="14" y="14" width="7" height="7"></rect>
           <rect x="3" y="14" width="7" height="7"></rect>
         </svg>
+        //si
       ),
       label: 'Dashboard',
       description: 'Overview & Analytics'
