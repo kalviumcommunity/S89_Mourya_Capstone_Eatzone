@@ -250,9 +250,9 @@
 .food-item-card {
   background: #f8f9fa;
   border: 1px solid #e9ecef;
-  border-radius: 12px;
-  padding: 12px;
-  margin-bottom: 8px;
+  border-radius: 10px;
+  padding: 10px;
+  margin-bottom: 6px;
   display: flex;
   justify-content: space-between;
   align-items: center;

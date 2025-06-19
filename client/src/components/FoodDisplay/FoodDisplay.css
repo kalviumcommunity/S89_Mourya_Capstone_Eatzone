@@ -4,13 +4,14 @@
 .food-display h2{
     font-size: max(2vw,24px);
     font-weight: 600;
+    color: #333;
+    margin-bottom: 20px;
 }
 .food-display-list{
     display: grid;
-    grid-template-columns: repeat(auto-fit,minmax(240px,1fr));
-    gap: 30px;
-    margin-top: 30px;
-    row-gap: 50px;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 24px;
+    margin-top: 20px;
 }
 
 .food-display .loading {
@@ -21,4 +22,58 @@
     color: #666;
     font-style: italic;
     font-size: 18px;
+}
+
+/* Tablet Responsive */
+@media (max-width: 1024px) {
+    .food-display-list {
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        gap: 20px;
+    }
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .food-display {
+        margin-top: 20px;
+    }
+
+    .food-display h2 {
+        font-size: 22px;
+        margin-bottom: 16px;
+    }
+
+    .food-display-list {
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 16px;
+        margin-top: 16px;
+    }
+
+    .food-display .loading {
+        padding: 30px;
+        font-size: 16px;
+    }
+}
+
+/* Small Mobile Responsive */
+@media (max-width: 480px) {
+    .food-display {
+        margin-top: 15px;
+    }
+
+    .food-display h2 {
+        font-size: 20px;
+        margin-bottom: 12px;
+    }
+
+    .food-display-list {
+        grid-template-columns: 1fr;
+        gap: 12px;
+        margin-top: 12px;
+    }
+
+    .food-display .loading {
+        padding: 20px;
+        font-size: 14px;
+    }
 }
