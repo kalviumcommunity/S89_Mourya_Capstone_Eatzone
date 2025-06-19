@@ -158,8 +158,8 @@ restaurantRouter.post("/add", adminAuthMiddleware, upload.single("image"), async
             minimumOrder: minimumOrder || 0,
             cuisineTypes: cuisineTypes ? JSON.parse(cuisineTypes) : [],
             image: req.file.filename,
-            adminId: req.adminId, // Use authenticated admin ID
-            firebaseUID: req.admin.firebaseUID // Use authenticated admin's firebaseUID
+            adminId: req.adminId, // Use authenticated admin ID from middleware
+            firebaseUID: req.admin?.firebaseUID || null // Optional firebaseUID
         });
 
         await restaurant.save();
@@ -212,7 +212,7 @@ restaurantRouter.post("/update", adminAuthMiddleware, upload.single("image"), as
             updateData.image = req.file.filename;
         }
 
-        // SECURITY: Only allow update if admin owns the restaurant
+        // SECURITY: Enhanced authorization check for restaurant ownership
         const existingRestaurant = await restaurantModel.findById(id);
         if (!existingRestaurant) {
             return res.status(404).json({
@@ -221,11 +221,25 @@ restaurantRouter.post("/update", adminAuthMiddleware, upload.single("image"), as
             });
         }
 
-        if (existingRestaurant.adminId && existingRestaurant.adminId.toString() !== req.adminId) {
+        // Enhanced ownership validation with legacy data handling
+        const isOwner = existingRestaurant.adminId &&
+                       existingRestaurant.adminId.toString() === req.adminId;
+
+        const isLegacyData = !existingRestaurant.adminId;
+
+        // SECURITY: Only allow update if admin owns restaurant OR it's legacy data being claimed
+        if (!isOwner && !isLegacyData) {
+            console.warn(`🚨 SECURITY: Unauthorized restaurant update attempt by admin ${req.adminId} for restaurant ${id}`);
             return res.status(403).json({
                 success: false,
                 message: "You don't have permission to update this restaurant"
             });
+        }
+
+        // If it's legacy data, assign ownership to current admin
+        if (isLegacyData) {
+            updateData.adminId = req.adminId;
+            console.log(`📝 AUDIT: Legacy restaurant ${id} claimed by admin ${req.adminId}`);
         }
 
         const updatedRestaurant = await restaurantModel.findByIdAndUpdate(
@@ -272,14 +286,27 @@ restaurantRouter.post("/remove", adminAuthMiddleware, async (req, res) => {
             });
         }
 
-        // SECURITY: Only allow deletion if admin owns the restaurant
-        // Remove hardcoded "admin-uid" bypass and legacy data bypass
-        if (restaurant.adminId && restaurant.adminId.toString() !== adminId) {
+        // SECURITY: Enhanced authorization check for restaurant deletion
+        const isOwner = restaurant.adminId &&
+                       restaurant.adminId.toString() === adminId;
+
+        const isLegacyData = !restaurant.adminId;
+
+        // SECURITY: Only allow deletion if admin owns restaurant OR it's legacy data
+        if (!isOwner && !isLegacyData) {
+            console.warn(`🚨 SECURITY: Unauthorized restaurant deletion attempt by admin ${adminId} for restaurant ${id}`);
             return res.status(403).json({
                 success: false,
                 message: "You don't have permission to delete this restaurant"
             });
         }
+
+        // Log deletion for security audit
+        console.log(`🗑️ AUDIT: Restaurant ${id} deleted by admin ${adminId} (Owner: ${isOwner}, Legacy: ${isLegacyData})`);
+
+        // Also delete associated food items to maintain data integrity
+        const { default: foodModel } = await import('../models/foodModel.js');
+        await foodModel.deleteMany({ restaurantId: id });
 
         // Delete the restaurant
         await restaurantModel.findByIdAndDelete(id);

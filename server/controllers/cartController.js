@@ -63,25 +63,58 @@ export const updateCart = async (req, res) => {
             return res.status(400).json({ success: false, message: "Invalid cart data" });
         }
 
-        // Validate each cart item
+        // Enhanced cart validation with business logic
         const validatedCartData = {};
+        const maxItemsPerProduct = parseInt(process.env.MAX_CART_QUANTITY_PER_ITEM) || 50;
+        const maxTotalItems = parseInt(process.env.MAX_TOTAL_CART_ITEMS) || 200;
+        let totalItems = 0;
+
         for (const [itemId, quantity] of Object.entries(cartData)) {
-            // Validate item ID format (MongoDB ObjectId)
-            if (!/^[0-9a-fA-F]{24}$/.test(itemId)) {
-                console.warn(`Invalid item ID format: ${itemId}`);
+            // Enhanced item ID validation (MongoDB ObjectId)
+            if (!itemId || typeof itemId !== 'string' || !/^[0-9a-fA-F]{24}$/.test(itemId)) {
+                console.warn(`🚨 SECURITY: Invalid item ID format: ${itemId}`);
                 continue;
             }
 
-            // Validate quantity
-            const qty = parseInt(quantity);
-            if (isNaN(qty) || qty < 0 || qty > 100) { // Max 100 items per product
-                console.warn(`Invalid quantity for item ${itemId}: ${quantity}`);
+            // Enhanced quantity validation
+            const qty = Number(quantity);
+            if (!Number.isInteger(qty) || qty < 0 || qty > maxItemsPerProduct) {
+                console.warn(`🚨 SECURITY: Invalid quantity for item ${itemId}: ${quantity} (max: ${maxItemsPerProduct})`);
                 continue;
+            }
+
+            // Check total cart size limit
+            totalItems += qty;
+            if (totalItems > maxTotalItems) {
+                console.warn(`🚨 SECURITY: Cart size limit exceeded. Total items: ${totalItems}, Max: ${maxTotalItems}`);
+                return res.status(400).json({
+                    success: false,
+                    message: `Cart size limit exceeded. Maximum ${maxTotalItems} items allowed.`
+                });
             }
 
             if (qty > 0) {
                 validatedCartData[itemId] = qty;
             }
+        }
+
+        // Additional security: Verify items exist in database
+        const itemIds = Object.keys(validatedCartData);
+        if (itemIds.length > 0) {
+            const { default: foodModel } = await import('../models/foodModel.js');
+            const existingItems = await foodModel.find({ _id: { $in: itemIds } }).select('_id');
+            const existingItemIds = existingItems.map(item => item._id.toString());
+
+            // Remove non-existent items
+            const finalCartData = {};
+            for (const [itemId, qty] of Object.entries(validatedCartData)) {
+                if (existingItemIds.includes(itemId)) {
+                    finalCartData[itemId] = qty;
+                } else {
+                    console.warn(`🚨 SECURITY: Attempted to add non-existent item: ${itemId}`);
+                }
+            }
+            validatedCartData = finalCartData;
         }
 
         console.log("Updating cart for user ID:", userId, "with validated data:", JSON.stringify(validatedCartData));

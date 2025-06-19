@@ -71,10 +71,26 @@ adminAuthRouter.post("/login", async (req, res) => {
     }
 });
 
-// Admin registration endpoint (for initial setup only)
+// Admin registration endpoint - SECURE VERSION (Super Admin Only)
 adminAuthRouter.post("/register", async (req, res) => {
     try {
-        const { name, email, password } = req.body;
+        const { name, email, password, superAdminKey } = req.body;
+
+        // SECURITY: Require super admin key for registration
+        const requiredSuperAdminKey = process.env.SUPER_ADMIN_KEY;
+        if (!requiredSuperAdminKey) {
+            return res.status(503).json({
+                success: false,
+                message: "Admin registration is disabled - SUPER_ADMIN_KEY not configured"
+            });
+        }
+
+        if (!superAdminKey || superAdminKey !== requiredSuperAdminKey) {
+            return res.status(403).json({
+                success: false,
+                message: "Unauthorized: Invalid super admin key"
+            });
+        }
 
         // Validate input
         if (!name || !email || !password) {
@@ -84,7 +100,33 @@ adminAuthRouter.post("/register", async (req, res) => {
             });
         }
 
-        // Check if admin already exists
+        // Validate email format
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid email format"
+            });
+        }
+
+        // Validate password strength
+        if (password.length < 8) {
+            return res.status(400).json({
+                success: false,
+                message: "Password must be at least 8 characters long"
+            });
+        }
+
+        // Check if any admin already exists (only allow one admin for security)
+        const adminCount = await adminModel.countDocuments();
+        if (adminCount >= 1) {
+            return res.status(409).json({
+                success: false,
+                message: "Admin account already exists. Contact system administrator."
+            });
+        }
+
+        // Check if admin already exists by email
         const existingAdmin = await adminModel.findOne({ email });
         if (existingAdmin) {
             return res.status(409).json({
@@ -93,18 +135,23 @@ adminAuthRouter.post("/register", async (req, res) => {
             });
         }
 
-        // Hash password
-        const saltRounds = 12;
+        // Hash password with high salt rounds
+        const saltRounds = 14; // Increased for better security
         const hashedPassword = await bcrypt.hash(password, saltRounds);
 
         // Create new admin
         const newAdmin = new adminModel({
             name,
             email,
-            password: hashedPassword
+            password: hashedPassword,
+            role: 'admin',
+            isActive: true
         });
 
         await newAdmin.save();
+
+        // Log admin creation for security audit
+        console.log(`🔐 SECURITY AUDIT: New admin account created - Email: ${email}, Time: ${new Date().toISOString()}`);
 
         res.status(201).json({
             success: true,
