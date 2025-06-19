@@ -2,6 +2,7 @@ import express from "express";
 import restaurantModel from "../models/restaurantModel.js";
 import foodModel from "../models/foodModel.js";
 import multer from "multer";
+import adminAuthMiddleware from "../middleware/adminAuth.js";
 
 const restaurantRouter = express.Router();
 
@@ -124,7 +125,7 @@ restaurantRouter.get("/:id/categories", async (req, res) => {
 });
 
 // Add restaurant (admin only)
-restaurantRouter.post("/add", upload.single("image"), async (req, res) => {
+restaurantRouter.post("/add", adminAuthMiddleware, upload.single("image"), async (req, res) => {
     try {
         const {
             name,
@@ -157,7 +158,8 @@ restaurantRouter.post("/add", upload.single("image"), async (req, res) => {
             minimumOrder: minimumOrder || 0,
             cuisineTypes: cuisineTypes ? JSON.parse(cuisineTypes) : [],
             image: req.file.filename,
-            firebaseUID
+            adminId: req.adminId, // Use authenticated admin ID
+            firebaseUID: req.admin.firebaseUID // Use authenticated admin's firebaseUID
         });
 
         await restaurant.save();
@@ -178,7 +180,7 @@ restaurantRouter.post("/add", upload.single("image"), async (req, res) => {
 });
 
 // Update restaurant (admin only)
-restaurantRouter.post("/update", upload.single("image"), async (req, res) => {
+restaurantRouter.post("/update", adminAuthMiddleware, upload.single("image"), async (req, res) => {
     try {
         const {
             id,
@@ -210,18 +212,27 @@ restaurantRouter.post("/update", upload.single("image"), async (req, res) => {
             updateData.image = req.file.filename;
         }
 
-        const updatedRestaurant = await restaurantModel.findByIdAndUpdate(
-            id,
-            updateData,
-            { new: true, runValidators: true }
-        );
-
-        if (!updatedRestaurant) {
+        // SECURITY: Only allow update if admin owns the restaurant
+        const existingRestaurant = await restaurantModel.findById(id);
+        if (!existingRestaurant) {
             return res.status(404).json({
                 success: false,
                 message: "Restaurant not found"
             });
         }
+
+        if (existingRestaurant.adminId && existingRestaurant.adminId.toString() !== req.adminId) {
+            return res.status(403).json({
+                success: false,
+                message: "You don't have permission to update this restaurant"
+            });
+        }
+
+        const updatedRestaurant = await restaurantModel.findByIdAndUpdate(
+            id,
+            updateData,
+            { new: true, runValidators: true }
+        );
 
         res.json({
             success: true,
@@ -238,10 +249,18 @@ restaurantRouter.post("/update", upload.single("image"), async (req, res) => {
     }
 });
 
-// Delete restaurant (admin only)
-restaurantRouter.post("/remove", async (req, res) => {
+// Delete restaurant (admin only) - SECURE VERSION
+restaurantRouter.post("/remove", adminAuthMiddleware, async (req, res) => {
     try {
-        const { id, firebaseUID } = req.body;
+        const { id } = req.body;
+        const adminId = req.adminId; // From auth middleware
+
+        if (!id) {
+            return res.status(400).json({
+                success: false,
+                message: "Restaurant ID is required"
+            });
+        }
 
         // First, check if restaurant exists
         const restaurant = await restaurantModel.findById(id);
@@ -253,15 +272,9 @@ restaurantRouter.post("/remove", async (req, res) => {
             });
         }
 
-        // For admin panel, allow deletion if:
-        // 1. firebaseUID matches, OR
-        // 2. restaurant has no firebaseUID (legacy data), OR
-        // 3. firebaseUID is "admin-uid" (admin access)
-        const canDelete = !restaurant.firebaseUID ||
-                         restaurant.firebaseUID === firebaseUID ||
-                         firebaseUID === "admin-uid";
-
-        if (!canDelete) {
+        // SECURITY: Only allow deletion if admin owns the restaurant
+        // Remove hardcoded "admin-uid" bypass and legacy data bypass
+        if (restaurant.adminId && restaurant.adminId.toString() !== adminId) {
             return res.status(403).json({
                 success: false,
                 message: "You don't have permission to delete this restaurant"

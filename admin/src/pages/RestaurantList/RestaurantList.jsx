@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import './RestaurantList.css';
 
-const RestaurantList = ({ url }) => {
+const RestaurantList = ({ url, token }) => {
   const [restaurants, setRestaurants] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -36,10 +36,10 @@ const RestaurantList = ({ url }) => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}` // Use proper admin token
         },
         body: JSON.stringify({
-          id: restaurantId,
-          firebaseUID: "admin-uid" // Admin access
+          id: restaurantId
         })
       });
 

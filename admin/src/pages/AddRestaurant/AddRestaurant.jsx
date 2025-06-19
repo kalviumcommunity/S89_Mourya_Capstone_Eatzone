@@ -3,7 +3,7 @@ import { useAdmin } from '../../context/AdminContext';
 import { toast } from 'react-toastify';
 import './AddRestaurant.css';
 
-const AddRestaurant = ({ url }) => {
+const AddRestaurant = ({ url, token }) => {
   const { admin } = useAdmin();
   const [image, setImage] = useState(null);
   const [data, setData] = useState({
@@ -62,11 +62,14 @@ const AddRestaurant = ({ url }) => {
     formData.append("minimumOrder", data.minimumOrder);
     formData.append("cuisineTypes", JSON.stringify(data.cuisineTypes));
     formData.append("image", image);
-    formData.append("firebaseUID", admin?.firebaseUID || "admin-uid");
+    // Remove firebaseUID - it will be set by the server from authenticated admin
 
     try {
       const response = await fetch(`${url}/api/restaurant/add`, {
         method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}` // Add proper admin authentication
+        },
         body: formData
       });
 

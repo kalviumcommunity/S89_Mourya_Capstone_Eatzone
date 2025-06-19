@@ -12,30 +12,85 @@ export const useAdmin = () => {
 };
 
 export const AdminProvider = ({ children }) => {
-    // Remove all authentication - admin is always authenticated
-    const [admin] = useState({
-        id: 'admin',
-        name: 'Admin User',
-        email: 'admin@eatzone.com',
-        role: 'admin'
-    });
-    const [loading] = useState(false);
+    // SECURITY: Implement proper admin authentication
+    const [admin, setAdmin] = useState(null);
+    const [token, setToken] = useState(localStorage.getItem('adminToken') || null);
+    const [loading, setLoading] = useState(false);
 
     const url = "http://localhost:4000";
 
-    // No authentication required - empty functions for compatibility
-    const login = () => {};
-    const logout = () => {};
-    const updateAdmin = () => {};
+    // Check if admin is authenticated
+    const isAuthenticated = !!(admin && token);
+
+    // Login function
+    const login = async (credentials) => {
+        setLoading(true);
+        try {
+            const response = await fetch(`${url}/api/admin/login`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(credentials),
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                setAdmin(data.admin);
+                setToken(data.token);
+                localStorage.setItem('adminToken', data.token);
+                localStorage.setItem('adminData', JSON.stringify(data.admin));
+                return { success: true };
+            } else {
+                return { success: false, message: data.message };
+            }
+        } catch (error) {
+            console.error('Login error:', error);
+            return { success: false, message: 'Login failed. Please try again.' };
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Logout function
+    const logout = () => {
+        setAdmin(null);
+        setToken(null);
+        localStorage.removeItem('adminToken');
+        localStorage.removeItem('adminData');
+    };
+
+    // Update admin data
+    const updateAdmin = (adminData) => {
+        setAdmin(adminData);
+        localStorage.setItem('adminData', JSON.stringify(adminData));
+    };
+
+    // Load admin data on app start
+    useEffect(() => {
+        const savedToken = localStorage.getItem('adminToken');
+        const savedAdmin = localStorage.getItem('adminData');
+
+        if (savedToken && savedAdmin) {
+            try {
+                setToken(savedToken);
+                setAdmin(JSON.parse(savedAdmin));
+            } catch (error) {
+                console.error('Error loading saved admin data:', error);
+                logout();
+            }
+        }
+    }, []);
 
     const value = {
         admin,
-        token: 'no-auth-required',
+        token,
         loading,
         login,
         logout,
         updateAdmin,
-        isAuthenticated: true, // Always authenticated
+        isAuthenticated,
         url
     };
 

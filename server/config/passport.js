@@ -35,17 +35,9 @@ passport.use(
         user = await userModel.findOne({ email: email });
 
         if (user) {
-          // User exists with this email but no googleId - link the accounts
-          user.googleId = profile.id;
-          user.profileImage = profileImage;
-
-          // Update name if it's not set or different
-          if (!user.name || user.name !== profile.displayName) {
-            user.name = profile.displayName;
-          }
-
-          await user.save();
-          return done(null, user);
+          // SECURITY: Do not automatically link accounts
+          // This prevents account takeover attacks
+          return done(new Error(`An account with email ${email} already exists. Please sign in with your existing credentials or contact support to link your Google account.`), null);
         }
 
         // User doesn't exist at all, create a new user
@@ -98,17 +90,9 @@ passport.use('google-admin',
         admin = await adminModel.findOne({ email: email });
 
         if (admin) {
-          // Admin exists with this email but no googleId - link the accounts
-          admin.googleId = profile.id;
-          admin.profileImage = profileImage;
-
-          // Update name if it's not set or different
-          if (!admin.name || admin.name !== profile.displayName) {
-            admin.name = profile.displayName;
-          }
-
-          await admin.save();
-          return done(null, admin);
+          // SECURITY: Do not automatically link admin accounts
+          // This prevents admin account takeover attacks
+          return done(new Error(`An admin account with email ${email} already exists. Please sign in with your existing credentials or contact support to link your Google account.`), null);
         }
 
         // Admin doesn't exist at all, create a new admin

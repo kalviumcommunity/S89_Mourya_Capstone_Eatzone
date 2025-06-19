@@ -57,17 +57,39 @@ export const updateCart = async (req, res) => {
         const { cartData } = req.body;
         console.log("Cart data received:", JSON.stringify(cartData));
 
-        if (!cartData) {
-            console.log("No cart data provided in request body");
-            return res.status(400).json({ success: false, message: "Cart data is required" });
+        // SECURITY: Validate cart data structure and content
+        if (!cartData || typeof cartData !== 'object') {
+            console.log("Invalid cart data provided");
+            return res.status(400).json({ success: false, message: "Invalid cart data" });
         }
 
-        console.log("Updating cart for user ID:", userId);
+        // Validate each cart item
+        const validatedCartData = {};
+        for (const [itemId, quantity] of Object.entries(cartData)) {
+            // Validate item ID format (MongoDB ObjectId)
+            if (!/^[0-9a-fA-F]{24}$/.test(itemId)) {
+                console.warn(`Invalid item ID format: ${itemId}`);
+                continue;
+            }
+
+            // Validate quantity
+            const qty = parseInt(quantity);
+            if (isNaN(qty) || qty < 0 || qty > 100) { // Max 100 items per product
+                console.warn(`Invalid quantity for item ${itemId}: ${quantity}`);
+                continue;
+            }
+
+            if (qty > 0) {
+                validatedCartData[itemId] = qty;
+            }
+        }
+
+        console.log("Updating cart for user ID:", userId, "with validated data:", JSON.stringify(validatedCartData));
 
         try {
             const user = await userModel.findByIdAndUpdate(
                 userId,
-                { cartData },
+                { cartData: validatedCartData },
                 { new: true }
             );
 
