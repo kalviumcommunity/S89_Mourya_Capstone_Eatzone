@@ -35,7 +35,11 @@ const RestaurantList = () => {
   if (loading) {
     return (
       <div className="restaurant-list-container">
-        <h2>Popular Restaurants</h2>
+        <div className="restaurant-list-header">
+          <div className="header-icon">🍽️</div>
+          <h2>Popular Restaurants </h2>
+          <p className="restaurant-subtitle">Loading amazing dining experiences...</p>
+        </div>
         <div className="restaurant-loading">
           <div className="loading-grid">
             {[...Array(6)].map((_, index) => (
@@ -57,7 +61,7 @@ const RestaurantList = () => {
   if (error) {
     return (
       <div className="restaurant-list-container">
-        <h2>Popular Restaurants</h2>
+        <h2>Popular Restaurants </h2>
         <div className="restaurant-error">
           <p>😕 {error}</p>
           <button onClick={fetchRestaurants} className="retry-btn">
@@ -73,7 +77,7 @@ const RestaurantList = () => {
       <div className="restaurant-list-container">
         <h2>Popular Restaurants</h2>
         <div className="no-restaurants">
-          <p>🍽️ No restaurants available at the moment</p>
+          <p>🍽️ No restaurants or hotels available at the moment</p>
           <p>Check back later for delicious options!</p>
         </div>
       </div>
@@ -81,16 +85,29 @@ const RestaurantList = () => {
   }
 
   return (
-    <div className="restaurant-list-container">
+    <div className="restaurant-list-container" id="restaurants">
       <div className="restaurant-list-header">
-        <h2>Popular Restaurants</h2>
-        <p className="restaurant-count">{restaurants.length} restaurants available</p>
+        <div className="header-icon"> 🍽️</div>
+        <h2>Popular Restaurants </h2>
+        <p className="restaurant-subtitle">Discover amazing dining experiences and comfortable stays</p>
+        <div className="header-bottom">
+          <p className="restaurant-count">{restaurants.length} restaurants & hotels available</p>
+          {restaurants.length > 6 && (
+            <button className="view-all-btn" onClick={() => window.scrollTo({top: document.getElementById('restaurants').offsetTop, behavior: 'smooth'})}>
+              View All
+            </button>
+          )}
+        </div>
       </div>
-      
+
       <div className="restaurant-grid">
         {restaurants.map((restaurant) => (
           <RestaurantCard key={restaurant._id} restaurant={restaurant} />
         ))}
+      </div>
+
+      <div className="section-divider">
+        <hr />
       </div>
     </div>
   );

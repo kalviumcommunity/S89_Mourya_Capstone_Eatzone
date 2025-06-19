@@ -8,6 +8,8 @@ const userRouter = express.Router()
 // Regular authentication routes
 
 // login register
+userRouter.post("/register", registerUser)
+userRouter.post("/login", loginUser)
 
 
 

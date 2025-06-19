@@ -147,8 +147,8 @@
 
 .food-items-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 24px;
 }
 
 /* Loading States */
@@ -158,8 +158,8 @@
 
 .loading-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 24px;
 }
 
 .food-item-skeleton {
@@ -292,40 +292,53 @@
   color: #333;
 }
 
+/* Tablet Responsive */
+@media (max-width: 1024px) {
+  .food-items-grid {
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+  }
+
+  .loading-grid {
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+  }
+}
+
 /* Mobile Responsive */
 @media (max-width: 768px) {
   .restaurant-header {
     height: 250px;
   }
-  
+
   .restaurant-title {
     font-size: 24px;
   }
-  
+
   .restaurant-desc {
     font-size: 14px;
   }
-  
+
   .restaurant-meta {
     gap: 16px;
   }
-  
+
   .meta-item {
     font-size: 13px;
   }
-  
+
   .menu-container {
-    padding: 0 16px;
+    padding: 0 12px;
   }
-  
+
   .food-items-grid {
-    grid-template-columns: 1fr;
-    gap: 16px;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 14px;
   }
-  
+
   .loading-grid {
-    grid-template-columns: 1fr;
-    gap: 16px;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 14px;
   }
 }
 
@@ -333,20 +346,34 @@
   .restaurant-header {
     height: 200px;
   }
-  
+
   .restaurant-overlay {
-    padding: 20px 16px 16px;
+    padding: 20px 12px 12px;
   }
-  
+
   .restaurant-title {
     font-size: 20px;
   }
-  
+
   .menu-title {
-    font-size: 20px;
+    font-size: 18px;
   }
-  
+
   .category-container {
-    padding: 0 16px;
+    padding: 0 12px;
+  }
+
+  .menu-container {
+    padding: 0 8px;
+  }
+
+  .food-items-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .loading-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
   }
 }

@@ -6,7 +6,7 @@ export default defineConfig({
   plugins: [react()],
   server: {
     port: 5173,
-    strictPort: true, // Exit if port 5173 is not available
+    strictPort: false, // Allow auto port selection if 5173 is busy
     proxy: {
       '/api': {
         target: 'http://localhost:4000',

@@ -29,8 +29,7 @@ const LoginPopup = ({setShowLogin}) => {
                 // Handle successful authentication
                 const { token, user } = event.data;
 
-                console.log("Authentication successful, token received:", token ? "Yes" : "No");
-                console.log("User data received:", user ? "Yes" : "No");
+                // Authentication successful
 
                 // Save token - user data will be fetched automatically in StoreContext
                 if (token) {
