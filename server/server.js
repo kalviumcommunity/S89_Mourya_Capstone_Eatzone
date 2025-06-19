@@ -165,10 +165,6 @@ const server = app.listen(port, '0.0.0.0', () => {
     console.log(`👨‍💼 Admin:  ${process.env.ADMIN_URL || 'http://localhost:5175'}`);
     console.log(`🧪 Test:   http://localhost:${port}/test`);
     console.log('🚀 =======================================');
-    console.log(`🔗 Environment: ${process.env.NODE_ENV || 'development'}`);
-    console.log(`🗄️  Database: ${process.env.MONGODB_URI ? 'Configured' : 'Not configured'}`);
-    console.log(`🤖 Gemini API: ${process.env.GEMINI_API_KEY ? 'Configured' : 'Not configured'}`);
-    console.log(`💳 Stripe API: ${process.env.STRIPE_SECRET_KEY ? 'Configured' : 'Not configured'}`);
     console.log('🚀 =======================================');
 });
 
