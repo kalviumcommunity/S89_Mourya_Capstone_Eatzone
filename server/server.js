@@ -181,7 +181,6 @@ server.on('error', (err) => {
     }
 });
 
-// Graceful shutdown
 process.on('SIGTERM', () => {
     console.log('🛑 SIGTERM received. Shutting down gracefully...');
     server.close(() => {
