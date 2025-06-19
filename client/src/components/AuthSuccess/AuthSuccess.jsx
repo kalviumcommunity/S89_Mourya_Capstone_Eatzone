@@ -54,7 +54,7 @@ const AuthSuccess = () => {
                 profileImage: params.get('picture')
               };
 
-              console.log("AuthSuccess - User data being sent:", userData);
+              // Sending user data to parent window
 
               // Only communicate with windows from the same origin for security
               window.opener.postMessage({

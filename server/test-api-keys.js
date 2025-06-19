@@ -9,8 +9,8 @@ console.log('=== API Keys Test ===\n');
 
 // Test environment variables loading
 console.log('Environment Variables:');
-console.log(`GEMINI_API_KEY: ${process.env.GEMINI_API_KEY ? '✓ Set (' + process.env.GEMINI_API_KEY.substring(0, 10) + '...)' : '✗ Not set'}`);
-console.log(`STRIPE_SECRET_KEY: ${process.env.STRIPE_SECRET_KEY ? '✓ Set (' + process.env.STRIPE_SECRET_KEY.substring(0, 10) + '...)' : '✗ Not set'}\n`);
+console.log(`GEMINI_API_KEY: ${process.env.GEMINI_API_KEY ? '✓ Set (value hidden)' : '✗ Not set'}`);
+console.log(`STRIPE_SECRET_KEY: ${process.env.STRIPE_SECRET_KEY ? '✓ Set (value hidden)' : '✗ Not set'}\n`);
 
 // Test Gemini API
 async function testGeminiAPI() {

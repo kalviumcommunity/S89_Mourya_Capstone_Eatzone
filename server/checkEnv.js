@@ -12,12 +12,12 @@ const testId = '123456789';
 try {
     console.log('\nTesting JWT token creation...');
     const token = jwt.sign({ id: testId }, process.env.JWT_SECRET || 'fallback_secret_for_testing');
-    console.log('Token created successfully:', token.substring(0, 20) + '...');
-    
+    console.log('Token created successfully');
+
     console.log('\nTesting JWT token verification...');
     const decoded = jwt.verify(token, process.env.JWT_SECRET || 'fallback_secret_for_testing');
     console.log('Token verified successfully!');
-    console.log('Decoded payload:', decoded);
+    console.log('Decoded payload contains user ID:', !!decoded.id);
     
     if (decoded.id === testId) {
         console.log('ID matches the original value. JWT verification is working correctly!');

@@ -4,18 +4,10 @@ import jwt from "jsonwebtoken";
 // Helper function to verify token and get user ID
 const getUserIdFromToken = (token) => {
     try {
-        console.log("Verifying token for profile fetch:", token.substring(0, 10) + "...");
-        console.log("JWT_SECRET is set:", !!process.env.JWT_SECRET);
-
-        // Log the full token for debugging (remove in production)
-        console.log("Full token:", token);
-
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        console.log("Token decoded successfully, decoded payload:", decoded);
         return decoded.id;
     } catch (error) {
-        console.error("Token verification failed:", error.message);
-        console.error("Error details:", error);
+        console.error("Token verification failed");
         return null;
     }
 };

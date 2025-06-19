@@ -4,14 +4,10 @@ import jwt from "jsonwebtoken";
 // Helper function to verify token and get user ID
 const getUserIdFromToken = (token) => {
     try {
-        console.log("Verifying token:", token.substring(0, 10) + "...");
-        console.log("Using JWT_SECRET:", process.env.JWT_SECRET ? "Secret is set" : "Secret is NOT set");
-
         const decoded = jwt.verify(token, process.env.JWT_SECRET || "fallback_secret_for_testing");
-        console.log("Token decoded successfully, user ID:", decoded.id);
         return decoded.id;
     } catch (error) {
-        console.error("Token verification failed:", error.message);
+        console.error("Token verification failed");
         return null;
     }
 };

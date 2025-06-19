@@ -10,7 +10,6 @@ const StoreContextProvider = (props) => {
 
   // Initialize token from localStorage
   const storedToken = localStorage.getItem("token");
-  console.log("Initializing with token from localStorage:", storedToken ? "Token found" : "No token found");
   const [token, setToken] = useState(storedToken || "");
 
   // Initialize user state (will be fetched from server if token exists)
@@ -372,16 +371,14 @@ const StoreContextProvider = (props) => {
         });
 
       // Fetch cart data when token is available
-      console.log("Fetching cart data after token change");
       fetchCartFromServer()
         .then(cartData => {
-          console.log("Cart data fetch result:", cartData ? "Success" : "Failed");
+          // Cart data fetched successfully
         })
         .catch(error => {
-          console.error("Error fetching cart data after token change:", error);
+          console.error("Error fetching cart data");
         });
     } else {
-      console.log("Removing token and user data from localStorage");
       localStorage.removeItem("token");
       localStorage.removeItem("user"); // Remove user from localStorage
       setUser(null);
@@ -396,7 +393,6 @@ const StoreContextProvider = (props) => {
     // This allows users to keep their cart when they log out and log back in
     // The cart will be synced with the server when they log back in
 
-    console.log("Logging out user");
     setToken("");
     setUser(null);
     localStorage.removeItem("token");

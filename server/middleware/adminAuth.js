@@ -56,10 +56,9 @@ const adminAuthMiddleware = async (req, res, next) => {
         req.adminId = decoded.id;
         req.admin = admin;
 
-        console.log('Admin auth middleware - Admin ID:', decoded.id);
         next();
     } catch (error) {
-        console.error('Admin auth middleware error:', error);
+        console.error('Admin auth middleware error occurred');
         return res.status(401).json({
             success: false,
             message: 'Invalid admin token.'

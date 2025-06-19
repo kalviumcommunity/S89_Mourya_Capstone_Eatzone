@@ -27,10 +27,9 @@ const authMiddleware = (req, res, next) => {
         req.body.userId = decoded.id; // Add userId to request body
         req.userId = decoded.id; // Also add to req object for GET requests
 
-        console.log('Auth middleware - User ID:', decoded.id);
         next();
     } catch (error) {
-        console.error('Auth middleware error:', error);
+        console.error('Auth middleware error occurred');
         return res.status(401).json({
             success: false,
             message: 'Invalid token.'

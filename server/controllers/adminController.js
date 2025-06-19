@@ -138,10 +138,9 @@ const loginAdmin = async (req, res) => {
             profileImage: admin.profileImage
         };
 
-        console.log("Admin logged in successfully:", adminData.name);
         res.json({ success: true, token, admin: adminData });
     } catch (error) {
-        console.error("Admin login error:", error);
+        console.error("Admin login error occurred");
         res.json({ success: false, message: "An error occurred during login" });
     }
 };

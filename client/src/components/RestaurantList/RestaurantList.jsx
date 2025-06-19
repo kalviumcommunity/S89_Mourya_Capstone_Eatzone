@@ -87,7 +87,7 @@ const RestaurantList = () => {
   return (
     <div className="restaurant-list-container" id="restaurants">
       <div className="restaurant-list-header">
-        <div className="header-icon">🍽️</div>
+        <div className="header-icon"> 🍽️</div>
         <h2>Popular Restaurants </h2>
         <p className="restaurant-subtitle">Discover amazing dining experiences and comfortable stays</p>
         <div className="header-bottom">
