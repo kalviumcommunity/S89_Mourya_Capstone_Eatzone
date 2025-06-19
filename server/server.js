@@ -156,16 +156,7 @@ app.use((_req, res) => {
     });
 });
 
-const server = app.listen(port, '0.0.0.0', () => {
-    console.log('🚀 =======================================');
-    console.log('🍽️  EATZONE SERVER STARTED SUCCESSFULLY');
-    console.log('🚀 =======================================');
-    console.log(`📊 Server: http://localhost:${port}`);
-    console.log(`🌐 Client: ${process.env.FRONTEND_URL || 'http://localhost:5173'}`);
-    console.log(`👨‍💼 Admin:  ${process.env.ADMIN_URL || 'http://localhost:5175'}`);
-    console.log(`🧪 Test:   http://localhost:${port}/test`);
-    console.log('🚀 =======================================');
-});
+
 
 server.on('error', (err) => {
     console.error('❌ Server error:', err);
