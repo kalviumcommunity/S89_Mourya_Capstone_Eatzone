@@ -148,8 +148,11 @@ const googleAuthCallback = (req, res) => {
     const user = req.user;
     if (!user) {
       console.error("Authentication failed - no user object");
-      return res.json({ success: false, message: "Authentication failed" });
+      const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
+      return res.redirect(`${frontendUrl}?authError=true&message=Authentication failed`);
     }
+
+    console.log("Google authentication successful for user:", user.email);
 
     // Generate JWT Token
     const token = createToken(user._id);
@@ -171,15 +174,16 @@ const googleAuthCallback = (req, res) => {
     }
 
     const finalRedirectUrl = redirectUrl.toString();
+    console.log("Redirecting to:", finalRedirectUrl);
 
     // Redirect to frontend with token and user data
     res.redirect(finalRedirectUrl);
   } catch (error) {
-    console.error("Error during Google authentication callback");
+    console.error("Error during Google authentication callback:", error);
 
     // Redirect to frontend with error
     const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
-    res.redirect(`${frontendUrl}?authError=true`);
+    res.redirect(`${frontendUrl}?authError=true&message=Authentication error occurred`);
   }
 };
 

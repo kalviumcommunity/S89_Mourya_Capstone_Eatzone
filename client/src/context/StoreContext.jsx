@@ -20,12 +20,10 @@ const StoreContextProvider = (props) => {
   const [foodData, setFoodData] = useState([]);
   const [isFoodLoading, setIsFoodLoading] = useState(false);
 
-  const [cartItems, setCartItems] = useState(() => {
-    // Initialize cart from localStorage
-    const savedCart = localStorage.getItem("cartItems");
-    return savedCart ? JSON.parse(savedCart) : {};
-  });
+  const [cartItems, setCartItems] = useState({});
   const [isCartLoading, setIsCartLoading] = useState(false);
+
+
 
   // Function to fetch food data from the server
   const fetchFoodData = useCallback(async () => {
@@ -55,85 +53,99 @@ const StoreContextProvider = (props) => {
 
   // Function to save cart data to the server
   const saveCartToServer = useCallback(async (cartData) => {
-    if (!token) {
-      console.log("No token available, skipping cart sync with server");
+    if (!token || !user?.id) {
       return;
     }
 
     try {
-      console.log("Saving cart to server:", JSON.stringify(cartData));
-      console.log("Using token:", token.substring(0, 10) + "...");
+      // Clean cart data before sending
+      const cleanedCartData = {};
+      Object.keys(cartData).forEach(itemId => {
+        if (cartData[itemId] > 0) {
+          cleanedCartData[itemId] = cartData[itemId];
+        }
+      });
 
-      const response = await axios.post(
+      await axios.post(
         `${url}/api/cart/update`,
-        { cartData },
+        { cartData: cleanedCartData },
         {
           headers: {
             Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json'
-          }
+          },
+          timeout: 5000
         }
       );
-
-      console.log("Server response:", response.data);
-
-      if (response.data.success) {
-        console.log("Cart successfully saved to server");
-      } else {
-        console.error("Failed to save cart:", response.data.message);
-      }
     } catch (error) {
-      console.error("Error saving cart:", error.response ? error.response.data : error.message);
+      console.error("Error saving cart to server:", error.message);
     }
-  }, [token, url]);
+  }, [token, url, user]);
 
-  // Save cart to localStorage whenever it changes
+  // Save cart to user-specific localStorage whenever it changes
   useEffect(() => {
-    localStorage.setItem("cartItems", JSON.stringify(cartItems));
-  }, [cartItems]);
-
-  // Add useEffect to sync cart changes with the server
-  useEffect(() => {
-    // Skip initial render and only sync when we have a token
-    if (token && !isCartLoading && Object.keys(cartItems).length > 0) {
-      // Only sync non-empty carts
-      console.log("Cart changed, syncing with server...");
-      saveCartToServer(cartItems);
+    if (user && user.id) {
+      const userCartKey = `cartItems_${user.id}`;
+      localStorage.setItem(userCartKey, JSON.stringify(cartItems));
     }
-  }, [cartItems, token, isCartLoading, saveCartToServer]);
+  }, [cartItems, user]);
+
+  // Debounced cart sync
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      if (token && user?.id) {
+        saveCartToServer(cartItems);
+      }
+      // Always save to localStorage for persistence
+      const cartKey = user?.id ? `cartItems_${user.id}` : 'guestCart';
+      localStorage.setItem(cartKey, JSON.stringify(cartItems));
+    }, 500);
+
+    return () => clearTimeout(timeoutId);
+  }, [cartItems, token, user?.id, saveCartToServer]);
 
   const addToCart = (itemId) => {
-    if (!cartItems[itemId]) {
-      setCartItems((prev) => ({ ...prev, [itemId]: 1 }));
-    } else {
-      setCartItems((prev) => ({ ...prev, [itemId]: prev[itemId] + 1 }));
-    }
-    // Server sync is handled by the useEffect
-  };
-
-  const removeFromCart = (itemId) => {
-    setCartItems((prev) => ({ ...prev, [itemId]: prev[itemId] - 1 }));
-    // Server sync is handled by the useEffect
-  };
-
-  const clearCart = async () => {
-    if (!token) {
-      setCartItems({});
+    if (!itemId) {
+      console.error("Invalid item ID");
       return;
     }
 
-    try {
-      const response = await axios.post(`${url}/api/cart/clear`, {}, {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      });
+    setCartItems((prev) => {
+      const newCart = { ...prev };
+      newCart[itemId] = (newCart[itemId] || 0) + 1;
+      return newCart;
+    });
+  };
 
-      if (response.data.success) {
-        setCartItems({});
+  const removeFromCart = (itemId) => {
+    if (!itemId) {
+      console.error("Invalid item ID");
+      return;
+    }
+
+    setCartItems((prev) => {
+      const newCart = { ...prev };
+      if (newCart[itemId] > 0) {
+        newCart[itemId] -= 1;
+        if (newCart[itemId] === 0) {
+          delete newCart[itemId];
+        }
       }
-    } catch (error) {
-      console.error("Error clearing cart:", error);
+      return newCart;
+    });
+  };
+
+  const clearCart = async () => {
+    setCartItems({});
+
+    if (token && user?.id) {
+      try {
+        await axios.post(`${url}/api/cart/clear`, {}, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+      } catch (error) {
+        console.error("Error clearing cart on server:", error);
+      }
     }
   };
 
@@ -155,72 +167,48 @@ const StoreContextProvider = (props) => {
     return totalAmount;
   };
 
-  // Function to fetch cart data from the server
-  const fetchCartFromServer = useCallback(async () => {
-    if (!token) {
-      console.log("No token available, skipping cart fetch from server");
-      return;
-    }
+  // Load cart from localStorage or server
+  const loadCart = useCallback(async () => {
+    const cartKey = user?.id ? `cartItems_${user.id}` : 'guestCart';
 
+    console.log("Loading cart with key:", cartKey);
+
+    // Load from localStorage first
     try {
-      console.log("Fetching cart from server with token:", token.substring(0, 10) + "...");
-      setIsCartLoading(true);
-
-      const response = await axios.get(`${url}/api/cart`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
-
-      console.log("Server response for cart fetch:", response.data);
-
-      if (response.data.success) {
-        const serverCart = response.data.cartData;
-        console.log("Server cart data:", JSON.stringify(serverCart));
-
-        // Get current local cart from localStorage to avoid dependency issues
-        const savedCart = localStorage.getItem("cartItems");
-        const localCart = savedCart ? JSON.parse(savedCart) : {};
-        console.log("Local cart data:", JSON.stringify(localCart));
-
-        // Merge server cart with local cart
-        // If an item exists in both, use the higher quantity
-        const mergedCart = { ...serverCart };
-
-        Object.keys(localCart).forEach(itemId => {
-          if (localCart[itemId] > 0) {
-            if (mergedCart[itemId]) {
-              // Item exists in both carts, use the higher quantity
-              mergedCart[itemId] = Math.max(mergedCart[itemId], localCart[itemId]);
-            } else {
-              // Item only exists in local cart
-              mergedCart[itemId] = localCart[itemId];
-            }
-          }
-        });
-
-        console.log("Merged cart data:", JSON.stringify(mergedCart));
-
-        // Update cart with merged data
-        setCartItems(mergedCart);
-
-        // If we merged items, save the merged cart back to the server
-        if (JSON.stringify(mergedCart) !== JSON.stringify(serverCart)) {
-          console.log("Cart data changed after merging, saving back to server");
-          saveCartToServer(mergedCart);
-        } else {
-          console.log("No changes to cart after merging, skipping save to server");
-        }
+      const savedCart = localStorage.getItem(cartKey);
+      if (savedCart) {
+        const localCart = JSON.parse(savedCart);
+        console.log("Loaded cart from localStorage:", localCart);
+        setCartItems(localCart);
       } else {
-        console.error("Failed to fetch cart:", response.data.message);
+        console.log("No saved cart found in localStorage");
+        setCartItems({});
       }
     } catch (error) {
-      console.error("Error fetching cart:", error.response ? error.response.data : error.message);
-    } finally {
-      setIsCartLoading(false);
+      console.error("Error loading cart from localStorage:", error);
+      setCartItems({});
     }
-  }, [token, url]);
+
+    // If user is authenticated, try to sync with server
+    if (token && user?.id) {
+      try {
+        console.log("Syncing cart with server for user:", user.id);
+        const response = await axios.get(`${url}/api/cart`, {
+          headers: { Authorization: `Bearer ${token}` },
+          timeout: 5000
+        });
+
+        if (response.data.success) {
+          const serverCart = response.data.cartData || {};
+          console.log("Server cart data:", serverCart);
+          setCartItems(serverCart);
+          localStorage.setItem(cartKey, JSON.stringify(serverCart));
+        }
+      } catch (error) {
+        console.error("Error fetching cart from server:", error);
+      }
+    }
+  }, [token, user?.id, url]);
 
 
 
@@ -347,10 +335,20 @@ const StoreContextProvider = (props) => {
     }
   }, [token, url]);
 
-  // Add useEffect to fetch food data on component mount
+  // Add useEffect to fetch food data on component mount and clean up old data
   useEffect(() => {
+    // Clean up old generic cart data on app start
+    const oldCartData = localStorage.getItem("cartItems");
+    if (oldCartData) {
+      console.log("Removing old generic cart data for security");
+      localStorage.removeItem("cartItems");
+    }
+
     fetchFoodData();
-  }, [fetchFoodData]);
+
+    // Load initial cart
+    loadCart();
+  }, []);
 
   // Add useEffect to handle token changes
   useEffect(() => {
@@ -369,34 +367,32 @@ const StoreContextProvider = (props) => {
         .catch(error => {
           console.error("Error fetching user profile after token change:", error);
         });
-
-      // Fetch cart data when token is available
-      fetchCartFromServer()
-        .then(cartData => {
-          // Cart data fetched successfully
-        })
-        .catch(error => {
-          console.error("Error fetching cart data");
-        });
     } else {
-      localStorage.removeItem("token");
-      localStorage.removeItem("user"); // Remove user from localStorage
-      setUser(null);
-      // We don't clear the cart when logged out anymore
-      // This allows users to keep their cart when they log out and log back in
+      // Clear all user data when token is removed
+      clearUserData();
     }
-  }, [token, fetchUserProfile, fetchCartFromServer]);
+  }, [token, fetchUserProfile]);
+
+  // Load cart when user changes or on initial load
+  useEffect(() => {
+    loadCart();
+  }, [user?.id]);
+
+  // Function to clear cart data for user isolation
+  const clearUserData = () => {
+    setCartItems({});
+    setUser(null);
+    setToken("");
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    // Remove old generic cart data
+    localStorage.removeItem("cartItems");
+  };
 
   // Add logout function
   const logout = () => {
-    // We don't clear the cart items when logging out
-    // This allows users to keep their cart when they log out and log back in
-    // The cart will be synced with the server when they log back in
-
-    setToken("");
-    setUser(null);
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
+    console.log("Logging out user:", user?.id);
+    clearUserData();
   };
 
   const contextValue = {
@@ -411,7 +407,7 @@ const StoreContextProvider = (props) => {
     clearCart,
     getTotalCartAmount,
     isCartLoading,
-    fetchCartFromServer,
+    loadCart,
     saveCartToServer,
     url,
     token,
@@ -420,7 +416,8 @@ const StoreContextProvider = (props) => {
     setUser,
     isUserLoading,
     fetchUserProfile,
-    logout
+    logout,
+    clearUserData
   };
 
   return (

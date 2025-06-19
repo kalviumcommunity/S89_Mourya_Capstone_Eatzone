@@ -25,7 +25,12 @@ const RestaurantList = ({ url }) => {
     }
   };
 
-  const removeRestaurant = async (restaurantId) => {
+  const removeRestaurant = async (restaurantId, restaurantName) => {
+    // Add confirmation dialog
+    if (!window.confirm(`Are you sure you want to delete "${restaurantName}"? This action cannot be undone.`)) {
+      return;
+    }
+
     try {
       const response = await fetch(`${url}/api/restaurant/remove`, {
         method: 'POST',
@@ -34,7 +39,7 @@ const RestaurantList = ({ url }) => {
         },
         body: JSON.stringify({
           id: restaurantId,
-          firebaseUID: "admin-uid" // You might want to get this from context
+          firebaseUID: "admin-uid" // Admin access
         })
       });
 
@@ -106,9 +111,10 @@ const RestaurantList = ({ url }) => {
               <div className="rating">
                 <span>⭐ {restaurant.rating}</span>
               </div>
-              <p 
-                onClick={() => removeRestaurant(restaurant._id)} 
+              <p
+                onClick={() => removeRestaurant(restaurant._id, restaurant.name)}
                 className='cursor'
+                title={`Delete ${restaurant.name}`}
               >
                 ❌
               </p>

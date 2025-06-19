@@ -2,7 +2,7 @@ import React from 'react'
 import './Sidebar.css'
 import { NavLink } from 'react-router-dom'
 
-const Sidebar = () => {
+const Sidebar = ({ isMobileOpen, onMobileClose }) => {
   const menuItems = [
     {
       path: '/dashboard',
@@ -108,48 +108,53 @@ const Sidebar = () => {
   ];
 
   return (
-    <div className='sidebar'>
-      <div className="sidebar-header">
-        <h3>Navigation</h3>
-        <span>Manage your platform</span>
-      </div>
+    <>
+      {isMobileOpen && <div className="mobile-overlay active" onClick={onMobileClose}></div>}
+      <div className={`sidebar ${isMobileOpen ? 'mobile-open' : ''}`}>
+        <div className="sidebar-header">
+          <h3>Navigation</h3>
+          <span>Manage your platform</span>
+        </div>
 
-      <div className="sidebar-menu">
-        {menuItems.map((item, index) => (
-          <NavLink
-            key={index}
-            to={item.path}
-            className={({ isActive }) =>
-              `sidebar-option ${isActive ? 'active' : ''}`
-            }
-          >
-            <div className="sidebar-option-icon">
-              {item.icon}
-            </div>
-            <div className="sidebar-option-content">
-              <span className="sidebar-option-label">{item.label}</span>
-              <span className="sidebar-option-description">{item.description}</span>
-            </div>
-          </NavLink>
-        ))}
-      </div>
+        <div className="sidebar-menu">
+          {menuItems.map((item, index) => (
+            <NavLink
+              key={index}
+              to={item.path}
+              className={({ isActive }) =>
+                `sidebar-option ${isActive ? 'active' : ''}`
+              }
+              data-tooltip={item.label}
+              onClick={onMobileClose}
+            >
+              <div className="sidebar-option-icon">
+                {item.icon}
+              </div>
+              <div className="sidebar-option-content">
+                <span className="sidebar-option-label">{item.label}</span>
+                <span className="sidebar-option-description">{item.description}</span>
+              </div>
+            </NavLink>
+          ))}
+        </div>
 
-      <div className="sidebar-footer">
-        <div className="sidebar-help">
-          <div className="help-icon">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <circle cx="12" cy="12" r="10"></circle>
-              <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
-              <line x1="12" y1="17" x2="12.01" y2="17"></line>
-            </svg>
-          </div>
-          <div>
-            <span className="help-title">Need Help?</span>
-            <span className="help-subtitle">Contact support</span>
+        <div className="sidebar-footer">
+          <div className="sidebar-help">
+            <div className="help-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                <line x1="12" y1="17" x2="12.01" y2="17"></line>
+              </svg>
+            </div>
+            <div>
+              <span className="help-title">Need Help?</span>
+              <span className="help-subtitle">Contact support</span>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </>
   )
 }
 

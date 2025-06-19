@@ -243,17 +243,33 @@ restaurantRouter.post("/remove", async (req, res) => {
     try {
         const { id, firebaseUID } = req.body;
 
-        const restaurant = await restaurantModel.findOneAndDelete({
-            _id: id,
-            firebaseUID: firebaseUID
-        });
+        // First, check if restaurant exists
+        const restaurant = await restaurantModel.findById(id);
 
         if (!restaurant) {
             return res.status(404).json({
                 success: false,
-                message: "Restaurant not found or you don't have permission to delete it"
+                message: "Restaurant not found"
             });
         }
+
+        // For admin panel, allow deletion if:
+        // 1. firebaseUID matches, OR
+        // 2. restaurant has no firebaseUID (legacy data), OR
+        // 3. firebaseUID is "admin-uid" (admin access)
+        const canDelete = !restaurant.firebaseUID ||
+                         restaurant.firebaseUID === firebaseUID ||
+                         firebaseUID === "admin-uid";
+
+        if (!canDelete) {
+            return res.status(403).json({
+                success: false,
+                message: "You don't have permission to delete this restaurant"
+            });
+        }
+
+        // Delete the restaurant
+        await restaurantModel.findByIdAndDelete(id);
 
         res.json({
             success: true,

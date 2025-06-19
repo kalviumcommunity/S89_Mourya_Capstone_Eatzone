@@ -15,36 +15,52 @@ passport.use(
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
-        // Check if user already exists in our database
+        const email = profile.emails[0].value;
+        const firstLetter = email.charAt(0).toUpperCase();
+        const profileImage = `https://ui-avatars.com/api/?name=${firstLetter}&background=random&color=fff&size=256`;
+
+        // First check if user exists by googleId
         let user = await userModel.findOne({ googleId: profile.id });
 
         if (user) {
-          // Generate profile image with first letter of email
-          const email = profile.emails[0].value;
-          const firstLetter = email.charAt(0).toUpperCase();
-          const profileImage = `https://ui-avatars.com/api/?name=${firstLetter}&background=random&color=fff&size=256`;
-
           // Update profile image if it has changed
           if (profileImage !== user.profileImage) {
             user.profileImage = profileImage;
             await user.save();
           }
-
-          return done(null, user);
-        } else {
-          // User doesn't exist, create a new user
-          const newUser = new userModel({
-            name: profile.displayName,
-            email: profile.emails[0].value,
-            googleId: profile.id,
-            profileImage: `https://ui-avatars.com/api/?name=${profile.emails[0].value.charAt(0).toUpperCase()}&background=random&color=fff&size=256`
-          });
-
-          // Save the new user
-          user = await newUser.save();
           return done(null, user);
         }
+
+        // If not found by googleId, check if user exists by email
+        user = await userModel.findOne({ email: email });
+
+        if (user) {
+          // User exists with this email but no googleId - link the accounts
+          user.googleId = profile.id;
+          user.profileImage = profileImage;
+
+          // Update name if it's not set or different
+          if (!user.name || user.name !== profile.displayName) {
+            user.name = profile.displayName;
+          }
+
+          await user.save();
+          return done(null, user);
+        }
+
+        // User doesn't exist at all, create a new user
+        const newUser = new userModel({
+          name: profile.displayName,
+          email: email,
+          googleId: profile.id,
+          profileImage: profileImage
+        });
+
+        // Save the new user
+        user = await newUser.save();
+        return done(null, user);
       } catch (error) {
+        console.error('Google OAuth error:', error);
         return done(error, null);
       }
     }
@@ -62,36 +78,53 @@ passport.use('google-admin',
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
-        // Check if admin already exists in our database
+        const email = profile.emails[0].value;
+        const firstLetter = email.charAt(0).toUpperCase();
+        const profileImage = `https://ui-avatars.com/api/?name=${firstLetter}&background=random&color=fff&size=256`;
+
+        // First check if admin exists by googleId
         let admin = await adminModel.findOne({ googleId: profile.id });
 
         if (admin) {
-          // Generate profile image with first letter of email
-          const email = profile.emails[0].value;
-          const firstLetter = email.charAt(0).toUpperCase();
-          const profileImage = `https://ui-avatars.com/api/?name=${firstLetter}&background=random&color=fff&size=256`;
-
           // Update profile image if it has changed
           if (profileImage !== admin.profileImage) {
             admin.profileImage = profileImage;
             await admin.save();
           }
-
-          return done(null, admin);
-        } else {
-          // Admin doesn't exist, create a new admin
-          const newAdmin = new adminModel({
-            name: profile.displayName,
-            email: profile.emails[0].value,
-            googleId: profile.id,
-            profileImage: `https://ui-avatars.com/api/?name=${profile.emails[0].value.charAt(0).toUpperCase()}&background=random&color=fff&size=256`
-          });
-
-          // Save the new admin
-          admin = await newAdmin.save();
           return done(null, admin);
         }
+
+        // If not found by googleId, check if admin exists by email
+        admin = await adminModel.findOne({ email: email });
+
+        if (admin) {
+          // Admin exists with this email but no googleId - link the accounts
+          admin.googleId = profile.id;
+          admin.profileImage = profileImage;
+
+          // Update name if it's not set or different
+          if (!admin.name || admin.name !== profile.displayName) {
+            admin.name = profile.displayName;
+          }
+
+          await admin.save();
+          return done(null, admin);
+        }
+
+        // Admin doesn't exist at all, create a new admin
+        const newAdmin = new adminModel({
+          name: profile.displayName,
+          email: email,
+          googleId: profile.id,
+          profileImage: profileImage,
+          firebaseUID: `google_${profile.id}` // Generate a Firebase UID for Google users
+        });
+
+        // Save the new admin
+        admin = await newAdmin.save();
+        return done(null, admin);
       } catch (error) {
+        console.error('Google OAuth admin error:', error);
         return done(error, null);
       }
     }

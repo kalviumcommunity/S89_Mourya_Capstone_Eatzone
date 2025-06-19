@@ -47,7 +47,7 @@
 }
 
 .view-all-btn {
-  background: #ff6b35;
+  background: #333;
   color: white;
   border: none;
   padding: 8px 16px;
@@ -59,31 +59,60 @@
 }
 
 .view-all-btn:hover {
-  background: #e55a2b;
+  background: #555;
   transform: translateY(-1px);
 }
 
+.scroll-hint {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.scroll-hint span {
+  font-size: 12px;
+  color: #666;
+  font-weight: 500;
+  animation: pulse 2s infinite;
+  background: rgba(102, 102, 102, 0.1);
+  padding: 4px 8px;
+  border-radius: 12px;
+  border: 1px solid rgba(102, 102, 102, 0.2);
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(0.98);
+  }
+}
+
 .restaurant-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 20px;
+  display: flex;
+  overflow-x: auto;
+  gap: 16px;
   margin-top: 24px;
-  padding: 0 8px;
+  padding: 0 8px 16px 8px;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
+.restaurant-grid {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* Internet Explorer 10+ */
+}
+
+.restaurant-grid::-webkit-scrollbar {
+  display: none; /* WebKit */
 }
 
 /* Section Divider */
 .section-divider {
-  margin-top: 40px;
-  margin-bottom: 20px;
-}
-
-.section-divider hr {
-  border: none;
-  height: 2px;
-  background: linear-gradient(90deg, transparent, #ff6b35, transparent);
-  margin: 0 auto;
-  width: 60%;
-  border-radius: 2px;
+  display: none;
 }
 
 /* Loading States */
@@ -170,7 +199,7 @@
 }
 
 .retry-btn {
-  background: #ff6b35;
+  background: #333;
   color: white;
   border: none;
   padding: 12px 24px;
@@ -182,7 +211,7 @@
 }
 
 .retry-btn:hover {
-  background: #e55a2b;
+  background: #555;
 }
 
 /* No Restaurants State */
@@ -214,13 +243,12 @@
   }
 
   .restaurant-grid {
-    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-    gap: 18px;
+    gap: 14px;
+    padding: 0 6px 14px 6px;
   }
 
   .loading-grid {
-    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-    gap: 18px;
+    gap: 14px;
   }
 }
 
@@ -240,13 +268,15 @@
   }
 
   .restaurant-grid {
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
     gap: 12px;
-    padding: 0 4px;
+    padding: 0 4px 12px 4px;
+  }
+
+  .restaurant-grid::-webkit-scrollbar {
+    display: none;
   }
 
   .loading-grid {
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
     gap: 12px;
   }
 
@@ -281,14 +311,16 @@
   }
 
   .restaurant-grid {
-    grid-template-columns: 1fr;
-    gap: 8px;
-    padding: 0 2px;
+    gap: 10px;
+    padding: 0 2px 10px 2px;
+  }
+
+  .restaurant-grid::-webkit-scrollbar {
+    height: 4px;
   }
 
   .loading-grid {
-    grid-template-columns: 1fr;
-    gap: 8px;
+    gap: 10px;
   }
 
   .header-icon {
