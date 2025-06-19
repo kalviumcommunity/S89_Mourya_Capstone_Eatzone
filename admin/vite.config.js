@@ -5,7 +5,9 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   server: {
-    port: 5175, // Use port 5175 for admin (will auto-increment if busy)
+    port: 5175, // Fixed port 5175 for admin
+    strictPort: true, // Force port 5175, fail if busy
+    host: true, // Allow external connections
     proxy: {
       '/api': {
         target: 'http://localhost:4000',

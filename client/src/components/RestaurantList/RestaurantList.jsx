@@ -92,10 +92,10 @@ const RestaurantList = () => {
         <p className="restaurant-subtitle">Discover amazing dining experiences and comfortable stays</p>
         <div className="header-bottom">
           <p className="restaurant-count">{restaurants.length} restaurants & hotels available</p>
-          {restaurants.length > 6 && (
-            <button className="view-all-btn" onClick={() => window.scrollTo({top: document.getElementById('restaurants').offsetTop, behavior: 'smooth'})}>
-              View All
-            </button>
+          {restaurants.length > 3 && (
+            <div className="scroll-hint">
+              <span>👈 Scroll to see more 👉</span>
+            </div>
           )}
         </div>
       </div>

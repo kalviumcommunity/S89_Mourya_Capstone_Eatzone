@@ -21,13 +21,26 @@ const FoodItem = ({id,name,price,description,image}) => {
                     alt={name}
                     onError={(e) => handleImageError(e, image)}
                 />
-                {!cartItems[id] 
-                    ?(<img className='add' onClick={() => addToCart(id)} src={assets.add_icon_white} alt="" />
+                {!cartItems[id]
+                    ?(<img
+                        className='add'
+                        onClick={() => addToCart(id)}
+                        src={assets.add_icon_white}
+                        alt="Add to cart"
+                    />
                 ) : (
                     <div className='food-item-counter'>
-                        <img onClick={()=>removeFromCart(id)} src={assets.remove_icon_red} alt="" />
+                        <img
+                            onClick={() => removeFromCart(id)}
+                            src={assets.remove_icon_red}
+                            alt="Remove from cart"
+                        />
                         <p>{cartItems[id]}</p>
-                        <img onClick={()=>addToCart(id)}  src={assets.add_icon_green} alt="" />
+                        <img
+                            onClick={() => addToCart(id)}
+                            src={assets.add_icon_green}
+                            alt="Add more to cart"
+                        />
                     </div>
                 )}
             </div>

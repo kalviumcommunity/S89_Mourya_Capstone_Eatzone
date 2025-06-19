@@ -31,17 +31,17 @@ app.use(cors({
     origin: function(origin, callback) {
         const allowedOrigins = [
             process.env.FRONTEND_URL || 'http://localhost:5173',
-            'http://localhost:5173',
-            'http://localhost:5174',  // Client app (updated port)
-            'http://localhost:5175',
-            'http://localhost:5176',  // Admin panel
-            'http://localhost:5177'   // Admin panel (updated port)
+            'http://localhost:5173',  // Client app (fixed port)
+            process.env.ADMIN_URL || 'http://localhost:5175',
+            'http://localhost:5175'   // Admin panel (fixed port)
         ];
 
+        // Allow requests with no origin (mobile apps, curl, etc.)
         if (!origin || allowedOrigins.indexOf(origin) !== -1) {
             callback(null, true);
         } else {
-            callback(new Error('Not allowed by CORS'));
+            console.warn(`CORS blocked request from origin: ${origin}`);
+            callback(new Error(`Not allowed by CORS. Allowed origins: ${allowedOrigins.join(', ')}`));
         }
     },
     credentials: true
