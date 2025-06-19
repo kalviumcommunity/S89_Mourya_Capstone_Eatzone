@@ -11,6 +11,13 @@ import menu_5 from './menu_5.png'
 import menu_6 from './menu_6.png'
 import menu_7 from './menu_7.png'
 import menu_8 from './menu_8.png'
+// Temporary menu images - replace with proper 80x80 category icons
+import menu_9 from './menu_4.png' // Pizza (temporarily using sandwich menu image)
+import menu_10 from './menu_6.png' // Sushi (temporarily using pure veg menu image)
+import menu_11 from './menu_1.png' // Soup (temporarily using salad menu image)
+import menu_12 from './menu_2.png' // Tacos (temporarily using rolls menu image)
+import menu_13 from './menu_7.png' // Main Course (using pasta menu image)
+import menu_14 from './menu_3.png' // Appetizer (temporarily using dessert menu image)
 
 import food_1 from './food_1.png'
 import food_2 from './food_2.png'
@@ -86,12 +93,12 @@ export const assets = {
 
 export const menu_list = [
     {
-        menu_name: "Salad",
-        menu_image: menu_1
-    },
-    {
         menu_name: "Rolls",
         menu_image: menu_2
+    },
+    {
+        menu_name: "Salad",
+        menu_image: menu_1
     },
     {
         menu_name: "Deserts",
@@ -106,8 +113,44 @@ export const menu_list = [
         menu_image: menu_5
     },
     {
-        menu_name: "Pure Veg",
+        menu_name: "Veg",
         menu_image: menu_6
+    },
+    {
+        menu_name: "MainC",
+        menu_image: menu_13
+    },
+    {
+        menu_name: "Appetizer",
+        menu_image: menu_14
+    },
+    // {
+    //     menu_name: "Dessert",
+    //     menu_image: menu_3 
+    // },
+    {
+        menu_name: "Pizza",
+        menu_image: menu_9
+    },
+    {
+        menu_name: "Sushi",
+        menu_image: menu_10
+    },
+    {
+        menu_name: "Sashimi",
+        menu_image: menu_10 // Same as Sushi
+    },
+    {
+        menu_name: "Soup",
+        menu_image: menu_11
+    },
+    {
+        menu_name: "Tacos",
+        menu_image: menu_12
+    },
+    {
+        menu_name: "Burritos",
+        menu_image: menu_12 // Same as Tacos
     },
     {
         menu_name: "Pasta",

@@ -17,7 +17,9 @@ const Orders = ({ url }) => {
       setLoading(true);
       const response = await axios.get(`${url}/api/order/list`);
       if (response.data.success) {
-        setOrders(response.data.data);
+        // Sort orders by date in descending order (latest first) as backup
+        const sortedOrders = (response.data.data || []).sort((a, b) => new Date(b.date) - new Date(a.date));
+        setOrders(sortedOrders);
       } else {
         toast.error(response.data.message || 'Failed to load orders');
       }

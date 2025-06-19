@@ -1,0 +1,186 @@
+.add-restaurant {
+  width: 70%;
+  margin-left: 5vw;
+  margin-top: 50px;
+  color: #6d6d6d;
+  font-size: 16px;
+}
+
+.add-restaurant form {
+  gap: 20px;
+}
+
+.add-img-upload img {
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 2px dashed #ccc;
+  cursor: pointer;
+}
+
+.add-restaurant-name input,
+.add-restaurant-description textarea,
+.add-restaurant-address input {
+  width: 100%;
+  max-width: 500px;
+  padding: 10px;
+  border: 1px solid #c9c9c9;
+  border-radius: 4px;
+}
+
+.add-restaurant-contact {
+  gap: 20px;
+}
+
+.add-restaurant-contact .flex-col {
+  flex: 1;
+}
+
+.add-restaurant-contact input {
+  width: 100%;
+  max-width: 240px;
+  padding: 10px;
+  border: 1px solid #c9c9c9;
+  border-radius: 4px;
+}
+
+.add-restaurant-details {
+  gap: 20px;
+}
+
+.add-restaurant-details .flex-col {
+  flex: 1;
+}
+
+.add-restaurant-details input {
+  width: 100%;
+  max-width: 160px;
+  padding: 10px;
+  border: 1px solid #c9c9c9;
+  border-radius: 4px;
+}
+
+.add-cuisine-types {
+  gap: 10px;
+}
+
+.cuisine-input-container {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  max-width: 400px;
+}
+
+.cuisine-input-container input {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid #c9c9c9;
+  border-radius: 4px;
+}
+
+.add-cuisine-btn {
+  padding: 10px 20px;
+  background: #ff6b35;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.add-cuisine-btn:hover {
+  background: #e55a2b;
+}
+
+.cuisine-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.cuisine-tag {
+  background: #f0f0f0;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.remove-cuisine {
+  background: none;
+  border: none;
+  color: #666;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: bold;
+  padding: 0;
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+.remove-cuisine:hover {
+  background: #ddd;
+  color: #333;
+}
+
+.add-btn {
+  max-width: 120px;
+  border: none;
+  padding: 10px 30px;
+  background-color: #ff6b35;
+  color: white;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.add-btn:hover {
+  background-color: #e55a2b;
+}
+
+.flex-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.flex-row {
+  display: flex;
+  flex-direction: row;
+}
+
+.flex-col p {
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .add-restaurant {
+    width: 90%;
+    margin-left: 5%;
+    margin-top: 30px;
+  }
+  
+  .add-restaurant-contact,
+  .add-restaurant-details {
+    flex-direction: column;
+  }
+  
+  .add-restaurant-contact input,
+  .add-restaurant-details input {
+    max-width: 100%;
+  }
+  
+  .cuisine-input-container {
+    max-width: 100%;
+  }
+}

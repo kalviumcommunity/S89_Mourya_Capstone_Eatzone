@@ -6,6 +6,7 @@ import Cart from './pages/Cart/Cart'
 import PlaceOrder from './pages/PlaceOrder/PlaceOrder'
 import Profile from './pages/Profile/Profile'
 import Orders from './pages/Orders/Orders'
+import Restaurant from './pages/Restaurant/Restaurant'
 import Verify from './pages/Verify/Verify'
 import Footer from './components/Footer/Footer'
 import LoginPopup from './components/LoginPopup/LoginPopup'
@@ -34,6 +35,7 @@ const App = () => {
         <Route path='/' element={<Home/>} />
         <Route path='/cart' element={<Cart/>} />
         <Route path='/order' element={<PlaceOrder/>} />
+        <Route path='/restaurant/:id' element={<Restaurant/>} />
         <Route path='/verify' element={<Verify/>}/>
         <Route path='/auth/*' element={<AuthSuccess/>} />
         <Route path='/myorders' element={

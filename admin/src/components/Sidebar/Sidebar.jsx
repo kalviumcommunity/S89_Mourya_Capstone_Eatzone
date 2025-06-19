@@ -13,6 +13,7 @@ const Sidebar = () => {
           <rect x="14" y="14" width="7" height="7"></rect>
           <rect x="3" y="14" width="7" height="7"></rect>
         </svg>
+        //si
       ),
       label: 'Dashboard',
       description: 'Overview & Analytics'
@@ -40,6 +41,26 @@ const Sidebar = () => {
       ),
       label: 'List Items',
       description: 'Manage menu items'
+    },
+    {
+      path: '/add-restaurant',
+      icon: (
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+        </svg>
+      ),
+      label: 'Add Restaurant',
+      description: 'Create new restaurant'
+    },
+    {
+      path: '/restaurant-list',
+      icon: (
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+        </svg>
+      ),
+      label: 'Restaurant List',
+      description: 'Manage restaurants'
     },
     {
       path: '/orders',

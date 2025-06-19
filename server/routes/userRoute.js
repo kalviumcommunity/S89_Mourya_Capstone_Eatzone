@@ -7,9 +7,8 @@ const userRouter = express.Router()
 
 // Regular authentication routes
 
-//
-userRouter.post("/register", registerUser)
-userRouter.post("/login", loginUser)
+// login register
+
 
 
 // Google OAuth routes
