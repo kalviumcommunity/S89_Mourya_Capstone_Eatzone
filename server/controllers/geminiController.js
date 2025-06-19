@@ -2,6 +2,8 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import orderModel from "../models/orderModel.js";
 import foodModel from "../models/foodModel.js";
 import dotenv from "dotenv";
+
+// Load environment variables from .env file
 dotenv.config();
 
 // Enhanced input sanitization function to prevent prompt injection
@@ -29,20 +31,21 @@ const sanitizeInput = (input) => {
 
 // Validate API key exists - graceful handling
 const validateApiKey = () => {
-  if (!process.env.GEMINI_API_KEY) {
-    console.error("❌ GEMINI_API_KEY is not configured");
-    console.error("Please set GEMINI_API_KEY environment variable");
+  if (!process.env.GEMINI_API_KEY || process.env.GEMINI_API_KEY === 'your_gemini_api_key_here') {
+    console.warn("⚠️ GEMINI_API_KEY is not configured");
+    console.warn("Chatbot functionality will be limited. Please set GEMINI_API_KEY environment variable");
     return false;
   }
   return true;
 };
 
-if (!validateApiKey()) {
-  console.error("🚨 Critical configuration missing. Exiting...");
-  process.exit(1);
-}
+const isApiKeyValid = validateApiKey();
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+// Initialize Gemini AI only if API key is valid
+let genAI = null;
+if (isApiKeyValid) {
+  genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+}
 
 // Eatzone Application Knowledge Base
 const EATZONE_KNOWLEDGE = {
@@ -79,6 +82,13 @@ const EATZONE_KNOWLEDGE = {
 export const chatWithBot = async (req, res) => {
   console.log("=== CHATBOT REQUEST START ===");
   console.log("Headers:", req.headers.authorization ? "Token present" : "No token");
+
+  // Check if API key is configured
+  if (!isApiKeyValid) {
+    return res.json({
+      reply: "🤖 Chatbot is currently unavailable. Please contact support at +91 9876554321 for assistance."
+    });
+  }
 
   const { message, chatMode } = req.body || {};
 

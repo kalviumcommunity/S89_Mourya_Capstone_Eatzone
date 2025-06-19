@@ -5,6 +5,7 @@ const adminSchema = new mongoose.Schema({
     email: { type: String, required: true, unique: true },
     password: { type: String, required: false }, // Optional for Google auth
     googleId: { type: String, sparse: true }, // For Google authentication
+    firebaseUID: { type: String, required: true, unique: true }, // Firebase UID for authentication
     profileImage: { type: String }, // Profile image URL
     role: { type: String, default: 'admin' }, // Admin role
     isActive: { type: Boolean, default: true }, // Account status
@@ -13,7 +14,7 @@ const adminSchema = new mongoose.Schema({
         type: [String],
         default: ['dashboard', 'orders', 'food_items', 'analytics', 'delivery_partners', 'feedback']
     }
-}, { 
+}, {
     minimize: false,
     timestamps: true // Add createdAt and updatedAt
 });

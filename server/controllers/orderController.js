@@ -1,8 +1,19 @@
 import orderModel from "../models/orderModel.js";
 import userModel from "../models/userModel.js";
 import Stripe from "stripe"
+import dotenv from "dotenv";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY)
+// Load environment variables from .env file
+dotenv.config();
+
+// Initialize Stripe only if the secret key is provided
+let stripe = null;
+if (process.env.STRIPE_SECRET_KEY && process.env.STRIPE_SECRET_KEY !== 'sk_test_your_stripe_secret_key_here') {
+    stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+    console.log("Stripe initialized successfully");
+} else {
+    console.warn("Stripe secret key not configured. Payment functionality will be disabled.");
+}
 
 // Note: Prices are now stored directly in INR, no conversion needed
 
@@ -11,6 +22,14 @@ const placeOrder = async (req,res) =>{
     const FRONTEND_URL = "http://localhost:5173"
 
     try {
+        // Check if Stripe is configured
+        if (!stripe) {
+            return res.json({
+                success: false,
+                message: "Payment processing is currently unavailable. Please configure Stripe."
+            });
+        }
+
         console.log("Received order data (INR prices):", req.body);
 
         // Validate required fields
@@ -162,7 +181,8 @@ const userOrders = async (req,res) =>{
         const userId = req.userId || req.body.userId;
         console.log("Fetching orders for user:", userId);
 
-        const orders = await orderModel.find({userId:userId})
+        // Sort orders by date in descending order (latest first)
+        const orders = await orderModel.find({userId:userId}).sort({date: -1})
         console.log("Found orders:", orders.length);
 
         res.json({success:true,data:orders})
@@ -175,7 +195,8 @@ const userOrders = async (req,res) =>{
 //Listing orders for admin panel
 const listOrders = async (req,res)=>{
     try {
-        const orders = await orderModel.find({});
+        // Sort orders by date in descending order (latest first)
+        const orders = await orderModel.find({}).sort({date: -1});
         res.json({success:true,data:orders})
     } catch (error) {
         console.log(error);

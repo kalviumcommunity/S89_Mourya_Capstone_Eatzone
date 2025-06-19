@@ -24,21 +24,8 @@ const createToken = (id) => {
     }
 };
 
-// Login user
-const loginUser = async (req, res) => {
-    const { email, password } = req.body;
-    try {
-        console.log("Login attempt for email:", email);
+// Login user 28 to 41
 
-        const user = await userModel.findOne({ email });
-
-        if (!user) {
-            console.log("User not found with email:", email);
-            return res.json({
-                success: false,
-                message: "No account found with this email. Please register first or use Google Sign-In."
-            });
-        }
 
         // Check if this is a Google account (no password)
         if (user.googleId && !user.password) {
@@ -84,29 +71,8 @@ const loginUser = async (req, res) => {
     }
 };
 
-// Register user
-const registerUser = async (req, res) => {
-    const { name, password, email } = req.body;
-    try {
-        console.log("Registration attempt for email:", email);
+// Register user 88 t0 109
 
-        // Check if user already exists
-        const exists = await userModel.findOne({ email });
-        if (exists) {
-            console.log("User already exists with email:", email);
-            return res.json({ success: false, message: "User already exists" });
-        }
-
-        // Validate email format & strong password
-        if (!validator.isEmail(email)) {
-            console.log("Invalid email format:", email);
-            return res.json({ success: false, message: "Please enter a valid email" });
-        }
-
-        if (password.length < 8) {
-            console.log("Password too short for user:", email);
-            return res.json({ success: false, message: "Please enter a strong password (at least 8 characters)" });
-        }
 
         // Hash the user password
         const salt = await bcrypt.genSalt(10);
