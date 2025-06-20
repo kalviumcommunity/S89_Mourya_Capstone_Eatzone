@@ -346,3 +346,57 @@
   align-items: center;
   gap: 5px;
 }
+
+.cloudinary-url {
+  margin-top: 5px;
+}
+
+.cloudinary-url small {
+  color: #666;
+  font-size: 12px;
+  word-break: break-all;
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.error-fallback {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.error-fallback .upload-text {
+  color: #f39c12;
+}
+
+.error-fallback .upload-text h3 {
+  color: #f39c12;
+}
+
+.test-actions {
+  margin-top: 10px;
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.test-btn {
+  background: #3498db;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.test-btn:hover {
+  background: #2980b9;
+  transform: translateY(-1px);
+}

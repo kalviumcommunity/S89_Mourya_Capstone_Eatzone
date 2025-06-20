@@ -157,6 +157,30 @@
     color: #888;
 }
 
+.search-add-to-cart {
+    background: tomato;
+    border: none;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    flex-shrink: 0;
+}
+
+.search-add-to-cart:hover {
+    background: #ff4500;
+    transform: scale(1.1);
+}
+
+.search-add-to-cart img {
+    width: 16px;
+    height: 16px;
+}
+
 .navbar-search-icon{
     position: relative;
 }
@@ -239,5 +263,13 @@
     }
     .search-result-info p {
         font-size: 10px;
+    }
+    .search-add-to-cart {
+        width: 28px;
+        height: 28px;
+    }
+    .search-add-to-cart img {
+        width: 14px;
+        height: 14px;
     }
 }

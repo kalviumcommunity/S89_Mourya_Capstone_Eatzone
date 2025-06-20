@@ -2,6 +2,34 @@ import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import './RestaurantList.css';
 
+// Utility function to get proper image URL
+const getImageUrl = (image, serverUrl) => {
+  if (!image) {
+    return '/api/placeholder/50/50'; // Default fallback
+  }
+
+  const imageStr = String(image);
+
+  // Check if it's a Cloudinary URL
+  if (imageStr.includes('cloudinary.com')) {
+    return imageStr; // Return Cloudinary URL as-is
+  }
+
+  // Check if image is already a processed URL
+  if (imageStr.startsWith('http') || imageStr.startsWith('/') || imageStr.startsWith('data:')) {
+    return imageStr;
+  }
+
+  // Server uploaded image filename - construct server URL
+  if (imageStr.includes('.png') || imageStr.includes('.jpg') || imageStr.includes('.jpeg')) {
+    const cleanImagePath = imageStr.startsWith('/') ? imageStr.substring(1) : imageStr;
+    return `${serverUrl}/images/${cleanImagePath}`;
+  }
+
+  // Fallback - treat as server image
+  return `${serverUrl}/images/${imageStr}`;
+};
+
 const RestaurantList = ({ url, token }) => {
   const [restaurants, setRestaurants] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -94,10 +122,11 @@ const RestaurantList = ({ url, token }) => {
           
           {restaurants.map((restaurant, index) => (
             <div key={index} className='restaurant-list-table-format'>
-              <img 
-                src={`${url}/images/${restaurant.image}`} 
+              <img
+                src={getImageUrl(restaurant.image, url)}
                 alt={restaurant.name}
                 onError={(e) => {
+                  console.error("Failed to load restaurant image:", restaurant.image);
                   e.target.src = "/api/placeholder/50/50";
                 }}
               />
