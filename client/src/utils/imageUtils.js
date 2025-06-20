@@ -12,7 +12,12 @@ export const getImageUrl = (image, serverUrl = "http://localhost:4000") => {
   // Convert to string if it's not already
   const imageStr = String(image);
 
-  // Check if image is already a processed URL (from Vite imports)
+  // Check if it's a Cloudinary URL
+  if (imageStr.includes('cloudinary.com')) {
+    return imageStr; // Return Cloudinary URL as-is
+  }
+
+  // Check if image is already a processed URL (from Vite imports or other CDNs)
   if (imageStr.startsWith('http') || imageStr.startsWith('/') || imageStr.startsWith('data:')) {
     // Already a valid URL (from static imports or full URLs)
     return imageStr;
@@ -51,7 +56,16 @@ export const handleImageError = (event, originalImage) => {
     return;
   }
 
-  // First fallback: If it's a server image that failed, try to find a matching static asset
+  // First fallback: If it's a Cloudinary image that failed, try server image or static asset
+  if (currentSrc.includes('cloudinary.com') && !img.dataset.cloudinaryFallback) {
+    img.dataset.cloudinaryFallback = 'true';
+
+    // Try to use a generic food image
+    img.src = '/src/assets/food_1.png';
+    return;
+  }
+
+  // Second fallback: If it's a server image that failed, try to find a matching static asset
   if (currentSrc.includes('/images/') && !img.dataset.fallbackAttempted) {
     img.dataset.fallbackAttempted = 'true';
 

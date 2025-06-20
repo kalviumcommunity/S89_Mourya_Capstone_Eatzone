@@ -11,18 +11,23 @@ const FloatingChatbot = () => {
   const [loading, setLoading] = useState(false);
   const [chatMode, setChatMode] = useState(null); // 'support', 'recommendation', or 'feedback'
 
-  // Function to parse bot response and extract food items
+  // Function to parse bot response and extract food items with cart buttons
   const parseMessageForItems = (text) => {
+    // Legacy ITEM: format support
     const itemRegex = /ITEM:([^|]+)\|PRICE:₹([^|]+)\|CATEGORY:([^|\s]+)/g;
+    // New cart button format: [Add to Cart - itemId]
+    const cartButtonRegex = /\[Add to Cart - ([^\]]+)\]/g;
+
     const items = [];
+    const cartButtons = [];
     let match;
 
+    // Parse legacy ITEM: format
     while ((match = itemRegex.exec(text)) !== null) {
       const itemName = match[1].trim();
       const price = match[2].trim();
       const category = match[3].trim();
 
-      // Find the actual food item from food_list
       const foodItem = food_list.find(item =>
         item.name.toLowerCase() === itemName.toLowerCase()
       );
@@ -38,10 +43,26 @@ const FloatingChatbot = () => {
       }
     }
 
-    // Remove the ITEM: format from the text for display
-    const cleanText = text.replace(itemRegex, '').replace(/\s+/g, ' ').trim();
+    // Parse new cart button format and extract food items
+    while ((match = cartButtonRegex.exec(text)) !== null) {
+      const itemId = match[1];
+      const foodItem = food_list.find(item => item._id === itemId);
+      if (foodItem) {
+        cartButtons.push({
+          itemId: itemId,
+          foodItem: foodItem
+        });
+      }
+    }
 
-    return { cleanText, items };
+    // Remove both formats from the text for display
+    const cleanText = text
+      .replace(itemRegex, '')
+      .replace(cartButtonRegex, '')
+      .replace(/\s+/g, ' ')
+      .trim();
+
+    return { cleanText, items, cartButtons };
   };
 
   // Function to handle adding item to cart
@@ -87,11 +108,12 @@ const FloatingChatbot = () => {
 
     try {
       const data = await sendChatMessage(input, chatMode, token);
-      const { cleanText, items } = parseMessageForItems(data.reply);
+      const { cleanText, items, cartButtons } = parseMessageForItems(data.reply);
       const botMessage = {
         role: "bot",
         text: cleanText || data.reply,
-        items: items.length > 0 ? items : null
+        items: items.length > 0 ? items : null,
+        cartButtons: cartButtons.length > 0 ? cartButtons : null
       };
       setMessages((prev) => [...prev, botMessage]);
     } catch (err) {
@@ -149,11 +171,12 @@ const FloatingChatbot = () => {
 
     try {
       const data = await sendChatMessage(suggestion, chatMode, token);
-      const { cleanText, items } = parseMessageForItems(data.reply);
+      const { cleanText, items, cartButtons } = parseMessageForItems(data.reply);
       const botMessage = {
         role: "bot",
         text: cleanText || data.reply,
-        items: items.length > 0 ? items : null
+        items: items.length > 0 ? items : null,
+        cartButtons: cartButtons.length > 0 ? cartButtons : null
       };
       setMessages((prev) => [...prev, botMessage]);
     } catch (err) {
@@ -276,7 +299,7 @@ const FloatingChatbot = () => {
                       >
                         {msg.text}
                       </div>
-                      {/* Show Add to Cart buttons for food items */}
+                      {/* Show Add to Cart buttons for food items (legacy format) */}
                       {msg.items && msg.items.length > 0 && (
                         <div className="food-items-container">
                           {msg.items.map((item, itemIndex) => (
@@ -291,6 +314,34 @@ const FloatingChatbot = () => {
                                 onClick={() => handleAddToCart(item.foodItem)}
                               >
                                 Add to Cart
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
+                      {/* Show Add to Cart buttons for new format */}
+                      {msg.cartButtons && msg.cartButtons.length > 0 && (
+                        <div className="cart-buttons-container">
+                          {msg.cartButtons.map((cartBtn, btnIndex) => (
+                            <div key={btnIndex} className="cart-button-item">
+                              <div className="cart-item-info">
+                                <img
+                                  src={`http://localhost:4000/images/${cartBtn.foodItem.image}`}
+                                  alt={cartBtn.foodItem.name}
+                                  className="cart-item-image"
+                                />
+                                <div className="cart-item-details">
+                                  <span className="cart-item-name">{cartBtn.foodItem.name}</span>
+                                  <span className="cart-item-price">₹{cartBtn.foodItem.price}</span>
+                                  <span className="cart-item-category">{cartBtn.foodItem.category}</span>
+                                </div>
+                              </div>
+                              <button
+                                className="add-to-cart-btn-new"
+                                onClick={() => handleAddToCart(cartBtn.foodItem)}
+                              >
+                                🛒 Add to Cart
                               </button>
                             </div>
                           ))}

@@ -77,7 +77,7 @@ const RestaurantList = () => {
       <div className="restaurant-list-container">
         <h2>Popular Restaurants</h2>
         <div className="no-restaurants">
-          <p>🍽️ No restaurants or hotels available at the moment</p>
+          <p>🍽️ No restaurants available at the moment</p>
           <p>Check back later for delicious options!</p>
         </div>
       </div>
@@ -89,9 +89,9 @@ const RestaurantList = () => {
       <div className="restaurant-list-header">
         <div className="header-icon"> 🍽️</div>
         <h2>Popular Restaurants </h2>
-        <p className="restaurant-subtitle">Discover amazing dining experiences and comfortable stays</p>
+        <p className="restaurant-subtitle">Discover amazing dining experiences</p>
         <div className="header-bottom">
-          <p className="restaurant-count">{restaurants.length} restaurants & hotels available</p>
+          <p className="restaurant-count">{restaurants.length} restaurants available</p>
           {restaurants.length > 3 && (
             <div className="scroll-hint">
               <span>👈 Scroll to see more 👉</span>

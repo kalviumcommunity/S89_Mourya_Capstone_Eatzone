@@ -15,7 +15,12 @@ const List = ({ url }) => {
     description: '',
     price: '',
     category: '',
-    image: null
+    image: null,
+    discountPercentage: '',
+    discountLabel: '',
+    isPopular: false,
+    isFeatured: false,
+    tags: ''
   });
 
   const fetchList = async () => {
@@ -83,9 +88,14 @@ const List = ({ url }) => {
     setEditForm({
       name: item.name,
       description: item.description || '',
-      price: item.price.toString(),
+      price: (item.originalPrice || item.price).toString(), // Use original price if available
       category: item.category,
-      image: null
+      image: null,
+      discountPercentage: item.discountPercentage?.toString() || '',
+      discountLabel: item.discountLabel || '',
+      isPopular: item.isPopular || false,
+      isFeatured: item.isFeatured || false,
+      tags: item.tags ? item.tags.join(', ') : ''
     });
   };
 
@@ -96,14 +106,21 @@ const List = ({ url }) => {
       description: '',
       price: '',
       category: '',
-      image: null
+      image: null,
+      discountPercentage: '',
+      discountLabel: '',
+      isPopular: false,
+      isFeatured: false,
+      tags: ''
     });
   };
 
   const handleEditFormChange = (e) => {
-    const { name, value, files } = e.target;
+    const { name, value, files, type, checked } = e.target;
     if (name === 'image') {
       setEditForm(prev => ({ ...prev, image: files[0] }));
+    } else if (type === 'checkbox') {
+      setEditForm(prev => ({ ...prev, [name]: checked }));
     } else {
       setEditForm(prev => ({ ...prev, [name]: value }));
     }
@@ -135,6 +152,21 @@ const List = ({ url }) => {
       formData.append('description', editForm.description.trim());
       formData.append('price', editForm.price);
       formData.append('category', editForm.category);
+
+      // Add discount fields
+      if (editForm.discountPercentage) {
+        formData.append('discountPercentage', Number(editForm.discountPercentage));
+      } else {
+        formData.append('discountPercentage', 0); // Remove discount
+      }
+      if (editForm.discountLabel) {
+        formData.append('discountLabel', editForm.discountLabel);
+      }
+      formData.append('isPopular', editForm.isPopular);
+      formData.append('isFeatured', editForm.isFeatured);
+      if (editForm.tags) {
+        formData.append('tags', editForm.tags);
+      }
 
       if (editForm.image) {
         console.log("Adding image to form data:", editForm.image.name);
@@ -297,7 +329,19 @@ const List = ({ url }) => {
                   <p className="food-description">{item.description || 'No description available'}</p>
                 </div>
                 <span className="food-category">{item.category}</span>
-                <span className="food-price">₹{item.price}</span>
+                <div className="food-price-container">
+                  {item.isOnSale && item.originalPrice ? (
+                    <div className="price-with-discount">
+                      <span className="original-price">₹{item.originalPrice}</span>
+                      <span className="discounted-price">₹{item.price}</span>
+                      <span className="discount-badge-small">{item.discountPercentage}% OFF</span>
+                    </div>
+                  ) : (
+                    <span className="food-price">₹{item.price}</span>
+                  )}
+                  {item.isPopular && <span className="item-tag popular">🔥 Popular</span>}
+                  {item.isFeatured && <span className="item-tag featured">⭐ Featured</span>}
+                </div>
                 <span className="badge badge-success">Available</span>
                 <div className="food-actions">
                   <button
@@ -395,6 +439,15 @@ const List = ({ url }) => {
                     <option value="Veg">Veg</option>
                     <option value="Pasta">Pasta</option>
                     <option value="Noodles">Noodles</option>
+                    <option value="Main Course">Main Course</option>
+                    <option value="Appetizer">Appetizer</option>
+                    <option value="Dessert">Dessert</option>
+                    <option value="Pizza">Pizza</option>
+                    <option value="Sushi">Sushi</option>
+                    <option value="Sashimi">Sashimi</option>
+                    <option value="Soup">Soup</option>
+                    <option value="Tacos">Tacos</option>
+                    <option value="Burritos">Burritos</option>
                   </select>
                 </div>
 
@@ -410,6 +463,77 @@ const List = ({ url }) => {
                     min="1"
                     required
                   />
+                  <small>This is the original price before discount</small>
+                </div>
+              </div>
+
+              {/* Discount Fields */}
+              <div className="form-row">
+                <div className="form-group">
+                  <label htmlFor="edit-discount">Discount (%)</label>
+                  <input
+                    type="number"
+                    id="edit-discount"
+                    name="discountPercentage"
+                    value={editForm.discountPercentage}
+                    onChange={handleEditFormChange}
+                    placeholder="0"
+                    min="0"
+                    max="100"
+                  />
+                  <small>Enter 0 to remove discount</small>
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="edit-discount-label">Discount Label</label>
+                  <input
+                    type="text"
+                    id="edit-discount-label"
+                    name="discountLabel"
+                    value={editForm.discountLabel}
+                    onChange={handleEditFormChange}
+                    placeholder="e.g., MEGA SALE, LIMITED TIME"
+                  />
+                </div>
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="edit-tags">Tags</label>
+                <input
+                  type="text"
+                  id="edit-tags"
+                  name="tags"
+                  value={editForm.tags}
+                  onChange={handleEditFormChange}
+                  placeholder="e.g., Bestseller, New, Spicy (comma separated)"
+                />
+              </div>
+
+              <div className="form-row">
+                <div className="form-group checkbox-group">
+                  <label className="checkbox-label">
+                    <input
+                      type="checkbox"
+                      name="isPopular"
+                      checked={editForm.isPopular}
+                      onChange={handleEditFormChange}
+                    />
+                    <span className="checkmark"></span>
+                    Mark as Popular Item
+                  </label>
+                </div>
+
+                <div className="form-group checkbox-group">
+                  <label className="checkbox-label">
+                    <input
+                      type="checkbox"
+                      name="isFeatured"
+                      checked={editForm.isFeatured}
+                      onChange={handleEditFormChange}
+                    />
+                    <span className="checkmark"></span>
+                    Mark as Featured Item
+                  </label>
                 </div>
               </div>
 
