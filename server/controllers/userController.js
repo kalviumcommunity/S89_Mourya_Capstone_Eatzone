@@ -20,7 +20,7 @@ const createToken = (id) => {
   }
 };
 
-// Login user
+// Login user 
 const loginUser = async (req, res) => {
   const { email, password } = req.body;
   try {
