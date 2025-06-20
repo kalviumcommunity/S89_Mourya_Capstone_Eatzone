@@ -35,7 +35,7 @@ app.use(cors({
             'http://localhost:5173',  // Client app (fixed port)
             process.env.ADMIN_URL || 'http://localhost:5175',
             'http://localhost:5175' ,
-            'https://eatzone.netlify.app/'  // Admin panel (fixed port) ,
+            'https://eatzone.netlify.app'  // Admin panel (fixed port) ,
         ];
 
         // Allow requests with no origin (mobile apps, curl, etc.)
