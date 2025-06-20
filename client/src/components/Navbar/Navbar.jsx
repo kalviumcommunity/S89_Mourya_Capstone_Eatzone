@@ -3,12 +3,13 @@ import './Navbar.css'
 import { assets } from '../../assets/assets'
 import { Link, useNavigate } from 'react-router-dom';
 import { StoreContext } from '../../context/StoreContext';
-import ProfileDropdown from '../ProfileDropdown/ProfileDropdown';
+import ProfileDropdown from '../ProfileDropdown/ProfileDropdown'
+import { getImageUrl } from '../../utils/imageUtils';
 
 const Navbar = ({setShowLogin}) => {
 
     const [menu, setMenu] = useState("menu");
-    const {getTotalCartAmount, token, foodData, url} = useContext(StoreContext);
+    const {getTotalCartAmount, token, foodData, url, addToCart} = useContext(StoreContext);
     const [searchQuery, setSearchQuery] = useState('');
     const [searchResults, setSearchResults] = useState([]);
     const [showSearchResults, setShowSearchResults] = useState(false);
@@ -149,10 +150,11 @@ const Navbar = ({setShowLogin}) => {
                     onClick={() => handleResultClick(item)}
                   >
                     <img
-                      src={item.address ? `${url}/images/${item.image}` : `${url}/images/${item.image}`}
+                      src={getImageUrl(item.image, url)}
                       alt={item.name}
                       className="search-result-image"
                       onError={(e) => {
+                        console.error("Failed to load search result image:", item.image);
                         e.target.src = "/api/placeholder/40/40";
                       }}
                     />
@@ -172,6 +174,18 @@ const Navbar = ({setShowLogin}) => {
                         )}
                       </p>
                     </div>
+                    {!item.address && (
+                      <button
+                        className="search-add-to-cart"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          addToCart(item._id);
+                        }}
+                        title="Add to cart"
+                      >
+                        <img src={assets.add_icon_white} alt="Add to cart" />
+                      </button>
+                    )}
                   </div>
                 ))}
 

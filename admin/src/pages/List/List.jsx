@@ -3,6 +3,34 @@ import './List.css'
 import axios from "axios"
 import { toast } from "react-toastify"
 
+// Utility function to get proper image URL
+const getImageUrl = (image, serverUrl) => {
+  if (!image) {
+    return '/api/placeholder/50/50'; // Default fallback
+  }
+
+  const imageStr = String(image);
+
+  // Check if it's a Cloudinary URL
+  if (imageStr.includes('cloudinary.com')) {
+    return imageStr; // Return Cloudinary URL as-is
+  }
+
+  // Check if image is already a processed URL
+  if (imageStr.startsWith('http') || imageStr.startsWith('/') || imageStr.startsWith('data:')) {
+    return imageStr;
+  }
+
+  // Server uploaded image filename - construct server URL
+  if (imageStr.includes('.png') || imageStr.includes('.jpg') || imageStr.includes('.jpeg')) {
+    const cleanImagePath = imageStr.startsWith('/') ? imageStr.substring(1) : imageStr;
+    return `${serverUrl}/images/${cleanImagePath}`;
+  }
+
+  // Fallback - treat as server image
+  return `${serverUrl}/images/${imageStr}`;
+};
+
 const List = ({ url }) => {
   const [list, setList] = useState([]);
   const [filteredList, setFilteredList] = useState([]);
@@ -320,9 +348,13 @@ const List = ({ url }) => {
             filteredList.map((item, index) => (
               <div key={index} className='list-table-format'>
                 <img
-                  src={`${url}/images/${item.image}`}
+                  src={getImageUrl(item.image, url)}
                   alt={item.name}
                   className="food-image"
+                  onError={(e) => {
+                    console.error("Failed to load image:", item.image);
+                    e.target.src = '/api/placeholder/50/50';
+                  }}
                 />
                 <div className="food-info">
                   <h4 className="food-name">{item.name}</h4>
