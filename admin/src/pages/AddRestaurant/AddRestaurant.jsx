@@ -3,9 +3,49 @@ import { useAdmin } from '../../context/AdminContext';
 import { toast } from 'react-toastify';
 import './AddRestaurant.css';
 
+// Temporary simple upload function
+const uploadToCloudinary = async (file, folder = 'eatzone', options = {}) => {
+  try {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('upload_preset', 'eatzone_admin');
+
+    if (folder) {
+      formData.append('folder', folder);
+    }
+
+    const response = await fetch(
+      `https://api.cloudinary.com/v1_1/dodxdudew/image/upload`,
+      {
+        method: 'POST',
+        body: formData
+      }
+    );
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error?.message || 'Upload failed');
+    }
+
+    const result = await response.json();
+    return {
+      success: true,
+      url: result.secure_url,
+      publicId: result.public_id
+    };
+  } catch (error) {
+    return {
+      success: false,
+      error: error.message
+    };
+  }
+};
+
 const AddRestaurant = ({ url, token }) => {
   const { admin } = useAdmin();
   const [image, setImage] = useState(null);
+  const [imageUploading, setImageUploading] = useState(false);
+  const [cloudinaryUrl, setCloudinaryUrl] = useState("");
   const [data, setData] = useState({
     name: "",
     description: "",
@@ -43,11 +83,44 @@ const AddRestaurant = ({ url, token }) => {
     }));
   };
 
+  // Handle image upload to Cloudinary
+  const handleImageUpload = async (file) => {
+    if (!file) return;
+
+    setImageUploading(true);
+    toast.info("Uploading restaurant image to Cloudinary...");
+
+    try {
+      const uploadResult = await uploadToCloudinary(file, 'eatzone/restaurants', {
+        tags: ['restaurant', 'cover']
+      });
+
+      if (uploadResult.success) {
+        setCloudinaryUrl(uploadResult.url);
+        toast.success("Restaurant image uploaded successfully!");
+      } else {
+        toast.error(uploadResult.error || "Failed to upload restaurant image");
+      }
+    } catch (error) {
+      console.error("Restaurant image upload error:", error);
+      toast.error("Failed to upload restaurant image");
+    } finally {
+      setImageUploading(false);
+    }
+  };
+
   const onSubmitHandler = async (event) => {
     event.preventDefault();
-    
-    if (!image) {
-      toast.error("Please select a restaurant image");
+
+    if (!image && !cloudinaryUrl) {
+      toast.error("Please select and upload a restaurant image");
+      return;
+    }
+
+    // If image is selected but not uploaded to Cloudinary, upload it first
+    if (image && !cloudinaryUrl) {
+      await handleImageUpload(image);
+      toast.info("Please submit again after image upload completes");
       return;
     }
 
@@ -61,7 +134,7 @@ const AddRestaurant = ({ url, token }) => {
     formData.append("deliveryFee", data.deliveryFee);
     formData.append("minimumOrder", data.minimumOrder);
     formData.append("cuisineTypes", JSON.stringify(data.cuisineTypes));
-    formData.append("image", image);
+    formData.append("image", cloudinaryUrl); // Use Cloudinary URL instead of file
     // Remove firebaseUID - it will be set by the server from authenticated admin
 
     try {
@@ -88,6 +161,7 @@ const AddRestaurant = ({ url, token }) => {
           cuisineTypes: []
         });
         setImage(null);
+        setCloudinaryUrl("");
         toast.success(result.message);
       } else {
         toast.error(result.message);
@@ -104,18 +178,35 @@ const AddRestaurant = ({ url, token }) => {
         <div className="add-img-upload flex-col">
           <p>Upload Restaurant Image</p>
           <label htmlFor="image">
-            <img 
-              src={image ? URL.createObjectURL(image) : "/api/placeholder/150/150"} 
-              alt="Restaurant" 
+            <img
+              src={cloudinaryUrl ? cloudinaryUrl : image ? URL.createObjectURL(image) : "/api/placeholder/150/150"}
+              alt="Restaurant"
             />
           </label>
-          <input 
-            onChange={(e) => setImage(e.target.files[0])} 
-            type="file" 
-            id="image" 
-            hidden 
-            required 
+          <input
+            onChange={(e) => setImage(e.target.files[0])}
+            type="file"
+            id="image"
+            hidden
+            required
           />
+          {image && !cloudinaryUrl && (
+            <div className="upload-actions">
+              <button
+                type="button"
+                onClick={() => handleImageUpload(image)}
+                disabled={imageUploading}
+                className="upload-btn"
+              >
+                {imageUploading ? "Uploading..." : "Upload to Cloudinary"}
+              </button>
+            </div>
+          )}
+          {cloudinaryUrl && (
+            <div className="upload-success">
+              <span className="success-text">✅ Restaurant image uploaded to Cloudinary successfully!</span>
+            </div>
+          )}
         </div>
 
         <div className="add-restaurant-name flex-col">

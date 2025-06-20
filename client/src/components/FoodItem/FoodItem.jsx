@@ -5,7 +5,7 @@ import { StoreContext } from '../../context/StoreContext';
 import { getImageUrl, handleImageError } from '../../utils/imageUtils'
 import { formatINR } from '../../utils/currencyUtils';
 
-const FoodItem = ({id,name,price,description,image}) => {
+const FoodItem = ({id,name,price,description,image,originalPrice,discountPercentage,isOnSale,discountLabel,isPopular,isFeatured,tags}) => {
     //const [itemCount, setItemCount] = useState(0);
     const {cartItems,addToCart,removeFromCart,url} = useContext(StoreContext);
 
@@ -21,6 +21,22 @@ const FoodItem = ({id,name,price,description,image}) => {
                     alt={name}
                     onError={(e) => handleImageError(e, image)}
                 />
+
+                {/* Discount Badge */}
+                {isOnSale && discountPercentage > 0 && (
+                    <div className={`discount-badge ${discountPercentage >= 25 ? 'mega-deal' : ''}`}>
+                        {discountLabel || `${discountPercentage}% OFF`}
+                    </div>
+                )}
+
+                {/* Popular/Featured Badges */}
+                {(isPopular || isFeatured) && (
+                    <div className="item-badges">
+                        {isPopular && <span className="badge popular">🔥 Popular</span>}
+                        {isFeatured && <span className="badge featured">⭐ Featured</span>}
+                    </div>
+                )}
+
                 {!cartItems[id]
                     ?(<img
                         className='add'
@@ -50,7 +66,32 @@ const FoodItem = ({id,name,price,description,image}) => {
                     <img src={assets.rating_stars} alt="" />
                 </div>
                 <p className="food-item-desc">{description}</p>
-                <p className="food-item-price">{formatINR(price)}</p>
+
+                {/* Tags */}
+                {tags && tags.length > 0 && (
+                    <div className="food-item-tags">
+                        {tags.map((tag, index) => (
+                            <span key={index} className="tag">{tag}</span>
+                        ))}
+                    </div>
+                )}
+
+                {/* Price with discount */}
+                <div className="food-item-price-container">
+                    {isOnSale && originalPrice ? (
+                        <div className="price-with-discount">
+                            <div className="price-row">
+                                <div className="price-info">
+                                    <span className="original-price">{formatINR(originalPrice)}</span>
+                                    <span className="discounted-price">{formatINR(price)}</span>
+                                </div>
+                                <span className="savings">You Save {formatINR(originalPrice - price)}!</span>
+                            </div>
+                        </div>
+                    ) : (
+                        <p className="food-item-price">{formatINR(price)}</p>
+                    )}
+                </div>
             </div>
         </div>
     );

@@ -194,6 +194,13 @@ const Restaurant = () => {
                   description={item.description}
                   price={item.price}
                   image={item.image}
+                  originalPrice={item.originalPrice}
+                  discountPercentage={item.discountPercentage}
+                  isOnSale={item.isOnSale}
+                  discountLabel={item.discountLabel}
+                  isPopular={item.isPopular}
+                  isFeatured={item.isFeatured}
+                  tags={item.tags}
                 />
               ))}
             </div>

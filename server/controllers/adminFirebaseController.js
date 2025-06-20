@@ -25,8 +25,8 @@ const addFoodWithAdmin = async (req, res) => {
         }
 
         let image_filename = req.file ? req.file.filename : null;
-        
-        const food = new foodModel({
+
+        const foodData = {
             name: req.body.name,
             description: req.body.description,
             price: req.body.price,
@@ -34,7 +34,32 @@ const addFoodWithAdmin = async (req, res) => {
             image: image_filename,
             adminId: admin._id,
             firebaseUID: firebaseUID
-        });
+        };
+
+        // Handle discount fields if provided
+        if (req.body.discountPercentage && req.body.discountPercentage > 0) {
+            foodData.originalPrice = req.body.price;
+            foodData.discountPercentage = Number(req.body.discountPercentage);
+            foodData.isOnSale = true;
+            // Calculate discounted price
+            const discountAmount = (req.body.price * req.body.discountPercentage) / 100;
+            foodData.price = req.body.price - discountAmount;
+            foodData.discountAmount = discountAmount;
+        }
+
+        // Handle other optional fields
+        if (req.body.discountLabel) foodData.discountLabel = req.body.discountLabel;
+        if (req.body.saleStartDate) foodData.saleStartDate = new Date(req.body.saleStartDate);
+        if (req.body.saleEndDate) foodData.saleEndDate = new Date(req.body.saleEndDate);
+        if (req.body.isPopular) foodData.isPopular = req.body.isPopular === 'true';
+        if (req.body.isFeatured) foodData.isFeatured = req.body.isFeatured === 'true';
+        if (req.body.tags) {
+            foodData.tags = typeof req.body.tags === 'string' ?
+                req.body.tags.split(',').map(tag => tag.trim()) :
+                req.body.tags;
+        }
+
+        const food = new foodModel(foodData);
 
         await food.save();
         
@@ -95,6 +120,41 @@ const updateFoodWithAdmin = async (req, res) => {
             category: category.trim(),
             image: existingFood.image
         };
+
+        // Handle discount fields if provided
+        if (req.body.discountPercentage !== undefined) {
+            const discountPercentage = Number(req.body.discountPercentage);
+            if (discountPercentage > 0) {
+                updateData.originalPrice = Number(price);
+                updateData.discountPercentage = discountPercentage;
+                updateData.isOnSale = true;
+                // Calculate discounted price
+                const discountAmount = (Number(price) * discountPercentage) / 100;
+                updateData.price = Number(price) - discountAmount;
+                updateData.discountAmount = discountAmount;
+            } else {
+                // Remove discount
+                updateData.originalPrice = undefined;
+                updateData.discountPercentage = 0;
+                updateData.discountAmount = 0;
+                updateData.isOnSale = false;
+                updateData.price = Number(price);
+            }
+        }
+
+        // Handle other optional fields
+        if (req.body.discountLabel !== undefined) updateData.discountLabel = req.body.discountLabel;
+        if (req.body.saleStartDate !== undefined) updateData.saleStartDate = req.body.saleStartDate ? new Date(req.body.saleStartDate) : undefined;
+        if (req.body.saleEndDate !== undefined) updateData.saleEndDate = req.body.saleEndDate ? new Date(req.body.saleEndDate) : undefined;
+        if (req.body.isPopular !== undefined) updateData.isPopular = req.body.isPopular === 'true';
+        if (req.body.isFeatured !== undefined) updateData.isFeatured = req.body.isFeatured === 'true';
+        if (req.body.tags !== undefined) {
+            updateData.tags = req.body.tags ?
+                (typeof req.body.tags === 'string' ?
+                    req.body.tags.split(',').map(tag => tag.trim()) :
+                    req.body.tags) :
+                [];
+        }
 
         // Handle image update if new image is provided
         if (req.file && req.file.filename) {

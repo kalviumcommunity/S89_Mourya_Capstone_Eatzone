@@ -128,6 +128,66 @@
   gap: 2rem;
 }
 
+.add-discount,
+.add-discount-label,
+.add-tags {
+  width: 100%;
+}
+
+.add-discount input,
+.add-discount-label input,
+.add-tags input {
+  width: 100%;
+  padding: 1rem;
+  border: 1px solid var(--medium-gray);
+  border-radius: var(--radius-md);
+  font-size: 1rem;
+  transition: var(--transition);
+  background: var(--white);
+}
+
+.add-discount input:focus,
+.add-discount-label input:focus,
+.add-tags input:focus {
+  outline: none;
+  border-color: var(--primary-red);
+  box-shadow: 0 0 0 3px rgba(255, 71, 87, 0.1);
+}
+
+/* Checkboxes */
+.add-checkboxes {
+  display: flex;
+  gap: 2rem;
+  align-items: center;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: pointer;
+  font-weight: 500;
+  color: var(--accent-black);
+}
+
+.checkbox-label input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--primary-red);
+  cursor: pointer;
+}
+
+.checkmark {
+  position: relative;
+}
+
+/* Form Submit */
+.form-submit {
+  display: flex;
+  justify-content: center;
+  margin-top: 1rem;
+}
+
 .add-category select,
 .add-restaurant select,
 .add-price input {
@@ -221,6 +281,12 @@
     gap: 1.5rem;
   }
 
+  .add-checkboxes {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
   .add-img-upload label {
     padding: 1.5rem;
     min-height: 150px;
@@ -234,4 +300,49 @@
   .add .card-title {
     font-size: 1.5rem;
   }
+}
+
+/* Cloudinary Upload Styles */
+.upload-actions {
+  margin-top: 10px;
+  text-align: center;
+}
+
+.upload-btn {
+  background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.upload-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #ee5a24, #ff6b6b);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
+}
+
+.upload-btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.upload-success {
+  margin-top: 10px;
+  text-align: center;
+}
+
+.success-text {
+  color: #27ae60;
+  font-size: 14px;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
 }

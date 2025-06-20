@@ -1,5 +1,5 @@
 import express from "express";
-import { newChatWithBot } from "../controllers/newChatbotController.js";
+import { chatWithBot, addToCartFromChat } from "../controllers/newChatbotController.js";
 import authMiddleware from "../middleware/auth.js";
 
 // Enhanced input validation middleware with security checks
@@ -87,7 +87,8 @@ const optionalAuth = (req, res, next) => {
   }
 };
 
-router.post("/chat", validateChatInput, optionalAuth, newChatWithBot);
+router.post("/chat", validateChatInput, optionalAuth, chatWithBot);
+router.post("/add-to-cart", optionalAuth, addToCartFromChat);
 
 // Health check endpoint
 router.get("/health", (_req, res) => {
