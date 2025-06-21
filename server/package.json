@@ -9,8 +9,7 @@
     "start": "node server.js",
     "add-sample-restaurants": "node scripts/addSampleRestaurants.js",
     "add-restaurant-food": "node scripts/addRestaurantFoodItems.js",
-    "add-category-food": "node scripts/addCategoryFoodItems.js",
-    "seed-categories": "node scripts/seedCategories.js"
+    "add-category-food": "node scripts/addCategoryFoodItems.js"
   },
   "author": "",
   "license": "ISC",
