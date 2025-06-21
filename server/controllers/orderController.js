@@ -20,7 +20,7 @@ if (process.env.STRIPE_SECRET_KEY && process.env.STRIPE_SECRET_KEY !== 'sk_test_
 
 //placing user order for client
 const placeOrder = async (req,res) =>{
-    const FRONTEND_URL = "http://localhost:5173"
+    const FRONTEND_URL = "https://eatzone1.netlify.app"
 
     try {
         // Check if Stripe is configured

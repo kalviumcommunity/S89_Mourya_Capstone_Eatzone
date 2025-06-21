@@ -6,7 +6,7 @@ export const StoreContext = createContext(null);
 
 const StoreContextProvider = (props) => {
   // Use full server URL for API calls
-  const url = "http://localhost:4000";
+  const url = "https://eatzone.onrender.com";
 
   // Initialize token from localStorage
   const storedToken = localStorage.getItem("token");

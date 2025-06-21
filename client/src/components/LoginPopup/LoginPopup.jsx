@@ -7,7 +7,7 @@ import GoogleIcon from '../icons/GoogleIcon'
 
 const LoginPopup = ({setShowLogin}) => {
 
-    const {url, setToken, fetchUserProfile} = useContext(StoreContext)
+    const {url, setToken} = useContext(StoreContext)
 
     const [currState,setCurrState] = useState("Login")
     const [data,setData] = useState({
@@ -67,7 +67,7 @@ const LoginPopup = ({setShowLogin}) => {
     const handleGoogleSignIn = () => {
         // Open Google OAuth in a popup window
         // Use full server URL for Google OAuth to avoid proxy issues
-        const googleAuthUrl = `http://localhost:4000/api/user/auth/google`;
+        const googleAuthUrl = `https://eatzone.onrender.com/api/user/auth/google`;
 
         // Use popup window approach
         const width = 500;

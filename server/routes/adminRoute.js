@@ -30,7 +30,7 @@ adminRouter.get("/auth/google", (req, res) => {
     // Redirect to Google OAuth
     const googleAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?` +
         `client_id=${process.env.GOOGLE_CLIENT_ID}&` +
-        `redirect_uri=${encodeURIComponent('http://localhost:4000/api/admin/auth/google/callback')}&` +
+        `redirect_uri=${encodeURIComponent('https://eatzone.onrender.com/api/admin/auth/google/callback')}&` +
         `response_type=code&` +
         `scope=${encodeURIComponent('profile email')}&` +
         `access_type=offline&` +

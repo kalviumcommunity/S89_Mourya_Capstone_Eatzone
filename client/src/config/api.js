@@ -1,7 +1,7 @@
 // API Configuration
 const API_CONFIG = {
   // Get base URL from environment variables with fallback
-  BASE_URL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000',
+  BASE_URL: import.meta.env.VITE_API_BASE_URL || 'https://eatzone.onrender.com',
   
   // Environment
   ENV: import.meta.env.VITE_APP_ENV || 'development',

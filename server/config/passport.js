@@ -10,7 +10,7 @@ passport.use(
     {
       clientID: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL: `${process.env.SERVER_URL || 'http://localhost:4000'}/api/user/auth/google/callback`,
+      callbackURL: `${process.env.SERVER_URL || 'https://eatzone.onrender.com'}/api/user/auth/google/callback`,
       scope: ['profile', 'email']
     },
     async (accessToken, refreshToken, profile, done) => {
@@ -65,7 +65,7 @@ passport.use('google-admin',
     {
       clientID: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL: `${process.env.SERVER_URL || 'http://localhost:4000'}/api/admin/auth/google/callback`,
+      callbackURL: `${process.env.SERVER_URL || 'https://eatzone.onrender.com'}/api/admin/auth/google/callback`,
       scope: ['profile', 'email']
     },
     async (accessToken, refreshToken, profile, done) => {
