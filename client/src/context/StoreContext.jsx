@@ -5,7 +5,7 @@ import axios from "axios";
 export const StoreContext = createContext(null);
 
 const StoreContextProvider = (props) => {
-  // Use full server URL for API calls
+  // Use production server URL for API calls
   const url = "https://eatzone.onrender.com";
 
   // Initialize token from localStorage
