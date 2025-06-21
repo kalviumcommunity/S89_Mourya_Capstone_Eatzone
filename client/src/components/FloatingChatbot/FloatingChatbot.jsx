@@ -327,7 +327,7 @@ const FloatingChatbot = () => {
                             <div key={btnIndex} className="cart-button-item">
                               <div className="cart-item-info">
                                 <img
-                                  src={`http://localhost:4000/images/${cartBtn.foodItem.image}`}
+                                  src={`https://eatzone.onrender.com/images/${cartBtn.foodItem.image}`}
                                   alt={cartBtn.foodItem.name}
                                   className="cart-item-image"
                                 />

@@ -3,7 +3,7 @@
  * Handles both static assets and server-uploaded images
  */
 
-export const getImageUrl = (image, serverUrl = "http://localhost:4000") => {
+export const getImageUrl = (image, serverUrl = "https://eatzone.onrender.com") => {
   // Handle null or undefined images
   if (!image) {
     return '/src/assets/food_1.png'; // Default fallback
