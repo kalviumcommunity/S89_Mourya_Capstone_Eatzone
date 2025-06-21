@@ -30,7 +30,9 @@ const ProfileDropdown = () => {
 
   // For debugging
   useEffect(() => {
-    console.log("ProfileDropdown - Current user data:", user);
+    console.log("🎭 ProfileDropdown - Current user data:", user);
+    console.log("🎭 ProfileDropdown - User name:", user?.name);
+    console.log("🎭 ProfileDropdown - User email:", user?.email);
   }, [user]);
 
   return (

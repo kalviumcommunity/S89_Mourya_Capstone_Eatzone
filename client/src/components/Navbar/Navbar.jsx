@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect, useRef } from 'react'
+import { useContext, useState, useEffect, useRef } from 'react'
 import './Navbar.css'
 import { assets } from '../../assets/assets'
 import { Link, useNavigate } from 'react-router-dom';
@@ -9,7 +9,13 @@ import { getImageUrl } from '../../utils/imageUtils';
 const Navbar = ({setShowLogin}) => {
 
     const [menu, setMenu] = useState("menu");
-    const {getTotalCartAmount, token, foodData, url, addToCart} = useContext(StoreContext);
+    const {getTotalCartAmount, token, foodData, url, addToCart, user} = useContext(StoreContext);
+
+    // Debug logging
+    useEffect(() => {
+        console.log("🔍 Navbar - Token status:", token ? "Has token" : "No token");
+        console.log("🔍 Navbar - User status:", user ? `User: ${user.name}` : "No user");
+    }, [token, user]);
     const [searchQuery, setSearchQuery] = useState('');
     const [searchResults, setSearchResults] = useState([]);
     const [showSearchResults, setShowSearchResults] = useState(false);
