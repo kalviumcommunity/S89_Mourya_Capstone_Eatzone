@@ -345,23 +345,28 @@ const StoreContextProvider = (props) => {
 
   // Add useEffect to handle token changes
   useEffect(() => {
-    console.log("Token changed:", token ? "Token exists" : "No token");
+    console.log("🔄 Token changed:", token ? "Token exists" : "No token");
+    console.log("🔄 Current user state:", user ? `User: ${user.name}` : "No user");
 
     if (token) {
       localStorage.setItem("token", token);
-      console.log("Token saved to localStorage");
+      console.log("💾 Token saved to localStorage");
 
       // Fetch user profile when token is available
-      console.log("Fetching user profile after token change");
+      console.log("🔍 Fetching user profile after token change");
       fetchUserProfile()
         .then(userData => {
-          console.log("User profile fetch result:", userData ? "Success" : "Failed");
+          console.log("✅ User profile fetch result:", userData ? `Success - ${userData.name}` : "Failed");
+          if (userData) {
+            console.log("👤 User data set in context:", userData);
+          }
         })
         .catch(error => {
-          console.error("Error fetching user profile after token change:", error);
+          console.error("❌ Error fetching user profile after token change:", error);
         });
     } else {
       // Clear all user data when token is removed
+      console.log("🧹 Clearing user data - no token");
       clearUserData();
     }
   }, [token, fetchUserProfile]);
@@ -369,7 +374,7 @@ const StoreContextProvider = (props) => {
   // Load cart when user changes or on initial load
   useEffect(() => {
     loadCart();
-  }, [user?.id]);
+  }, [user?.id, loadCart]);
 
   // Function to clear cart data for user isolation - SECURE VERSION
   const clearUserData = () => {

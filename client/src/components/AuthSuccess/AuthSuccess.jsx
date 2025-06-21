@@ -24,6 +24,8 @@ const AuthSuccess = () => {
           return;
         }
 
+        console.log('Setting token and fetching user profile...');
+
         // Save token to context and localStorage
         setToken(token);
         localStorage.setItem('token', token);
@@ -31,6 +33,7 @@ const AuthSuccess = () => {
         // Also save user data to localStorage as a fallback
         // This will be used if the server is not available
         const userData = {
+          id: params.get('id'),
           name: params.get('name'),
           email: params.get('email'),
           googleId: params.get('googleId'),
@@ -40,10 +43,25 @@ const AuthSuccess = () => {
         // Store user data in localStorage as fallback
         localStorage.setItem('user', JSON.stringify(userData));
 
-        // Since we're not using popups anymore, simply redirect to home page
-        setTimeout(() => {
-          navigate('/', { replace: true });
-        }, 1500);
+        // Wait for user profile to be fetched from server
+        try {
+          console.log('Attempting to fetch user profile from server...');
+          const userProfile = await fetchUserProfile();
+          console.log('User profile fetch result:', userProfile);
+
+          // Give a moment for the context to update
+          setTimeout(() => {
+            console.log('Redirecting to home page after successful authentication');
+            navigate('/', { replace: true });
+          }, 1000);
+        } catch (profileError) {
+          console.error('Error fetching user profile:', profileError);
+          // Even if profile fetch fails, we have fallback data, so continue
+          setTimeout(() => {
+            console.log('Redirecting to home page with fallback user data');
+            navigate('/', { replace: true });
+          }, 1000);
+        }
       } catch (error) {
         console.error('Error during authentication:', error);
         setTimeout(() => {
