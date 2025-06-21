@@ -12,8 +12,20 @@ const StoreContextProvider = (props) => {
   const storedToken = localStorage.getItem("token");
   const [token, setToken] = useState(storedToken || "");
 
-  // Initialize user state (will be fetched from server if token exists)
-  const [user, setUser] = useState(null);
+  // Initialize user state - try to get from localStorage first
+  const [user, setUser] = useState(() => {
+    try {
+      const storedUser = localStorage.getItem("user");
+      if (storedUser) {
+        const userData = JSON.parse(storedUser);
+        console.log("🔄 Initializing user from localStorage:", userData);
+        return userData;
+      }
+    } catch (error) {
+      console.error("Error parsing stored user data:", error);
+    }
+    return null;
+  });
   const [isUserLoading, setIsUserLoading] = useState(false);
 
   // Add dynamic food data state
@@ -343,41 +355,8 @@ const StoreContextProvider = (props) => {
     loadCart();
   }, []);
 
-  // Add useEffect to handle token changes
-  useEffect(() => {
-    console.log("🔄 Token changed:", token ? "Token exists" : "No token");
-    console.log("🔄 Current user state:", user ? `User: ${user.name}` : "No user");
-
-    if (token) {
-      localStorage.setItem("token", token);
-      console.log("💾 Token saved to localStorage");
-
-      // Fetch user profile when token is available
-      console.log("🔍 Fetching user profile after token change");
-      fetchUserProfile()
-        .then(userData => {
-          console.log("✅ User profile fetch result:", userData ? `Success - ${userData.name}` : "Failed");
-          if (userData) {
-            console.log("👤 User data set in context:", userData);
-          }
-        })
-        .catch(error => {
-          console.error("❌ Error fetching user profile after token change:", error);
-        });
-    } else {
-      // Clear all user data when token is removed
-      console.log("🧹 Clearing user data - no token");
-      clearUserData();
-    }
-  }, [token, fetchUserProfile]);
-
-  // Load cart when user changes or on initial load
-  useEffect(() => {
-    loadCart();
-  }, [user?.id, loadCart]);
-
   // Function to clear cart data for user isolation - SECURE VERSION
-  const clearUserData = () => {
+  const clearUserData = useCallback(() => {
     setCartItems({});
     setUser(null);
     setToken("");
@@ -392,13 +371,64 @@ const StoreContextProvider = (props) => {
         localStorage.removeItem(key);
       }
     });
-  };
+  }, []);
+
+  // Custom setToken function that also handles user data
+  const setTokenAndUser = useCallback((newToken, userData = null) => {
+    console.log("🔄 Setting token and user data:", newToken ? "Token provided" : "No token", userData ? `User: ${userData.name}` : "No user data");
+
+    setToken(newToken);
+
+    if (newToken) {
+      localStorage.setItem("token", newToken);
+      console.log("💾 Token saved to localStorage");
+
+      if (userData) {
+        console.log("👤 Setting user data immediately:", userData);
+        setUser(userData);
+        localStorage.setItem("user", JSON.stringify(userData));
+      }
+    } else {
+      console.log("🧹 Clearing user data - no token");
+      clearUserData();
+    }
+  }, [clearUserData]);
+
+  // Add useEffect to handle token changes (for cases where token is set without user data)
+  useEffect(() => {
+    console.log("� Token changed:", token ? "Token exists" : "No token");
+    console.log("🔄 Current user state:", user ? `User: ${user.name}` : "No user");
+
+    if (token && !user) {
+      // Only fetch if we have token but no user data
+      console.log("🔍 Token exists but no user data - fetching user profile");
+      fetchUserProfile()
+        .then(userData => {
+          console.log("✅ User profile fetch result:", userData ? `Success - ${userData.name}` : "Failed");
+          if (userData) {
+            console.log("👤 User data set in context:", userData);
+          }
+        })
+        .catch(error => {
+          console.error("❌ Error fetching user profile after token change:", error);
+        });
+    } else if (!token) {
+      // Clear all user data when token is removed
+      console.log("🧹 Clearing user data - no token");
+      clearUserData();
+    }
+  }, [token, user, fetchUserProfile]);
+
+  // Load cart when user changes or on initial load
+  useEffect(() => {
+    loadCart();
+  }, [user?.id, loadCart]);
 
   // Add logout function
-  const logout = () => {
+  const logout = useCallback(() => {
     console.log("Logging out user:", user?.id);
     clearUserData();
-  };
+  }, [clearUserData, user?.id]);
 
   const contextValue = {
     food_list,
@@ -417,6 +447,7 @@ const StoreContextProvider = (props) => {
     url,
     token,
     setToken,
+    setTokenAndUser, // Export the custom function for proper auth handling
     user,
     setUser,
     isUserLoading,

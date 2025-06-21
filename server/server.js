@@ -14,6 +14,7 @@ import restaurantRouter from "./routes/restaurantRoute.js";
 import orderRouter from "./routes/orderRoute.js";
 import chatbotRoute from "./routes/chatbotRoute.js";
 import adminAuthRouter from "./routes/adminAuthRoute.js";
+import testAuthRouter from "./routes/testAuthRoute.js";
 
 const app = express();
 const port = process.env.SERVER_PORT || 4000;
@@ -63,6 +64,7 @@ app.use("/api/cart", cartRouter);
 app.use("/api/order", orderRouter);
 app.use("/api/chatbot", chatbotRoute);
 app.use("/api/admin/auth", adminAuthRouter);
+app.use("/api/test", testAuthRouter);
 
 // Global error handling middleware
 app.use((err, req, res, _next) => {

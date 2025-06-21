@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { StoreContext } from '../../context/StoreContext';
 
 const AuthSuccess = () => {
-  const { setToken, fetchUserProfile } = useContext(StoreContext);
+  const { setTokenAndUser, fetchUserProfile } = useContext(StoreContext);
   const navigate = useNavigate();
   const location = useLocation();
   const [isLoading, setIsLoading] = useState(true);
@@ -11,27 +11,40 @@ const AuthSuccess = () => {
   useEffect(() => {
     const handleAuth = async () => {
       try {
-        // Get token from URL query parameters
+        // Get all URL parameters for debugging
         const params = new URLSearchParams(location.search);
-        const token = params.get('token');
+        console.log('🔍 All URL params:', Object.fromEntries(params.entries()));
 
-        if (!token) {
-          console.error('No token received from authentication');
-          // If no token, redirect to home after a short delay
+        // Check for authentication errors first
+        const authError = params.get('authError');
+        const errorMessage = params.get('message');
+
+        if (authError === 'true') {
+          console.error('❌ Authentication error received:', errorMessage);
+          alert(`Authentication failed: ${errorMessage || 'Unknown error'}`);
           setTimeout(() => {
             navigate('/', { replace: true });
-          }, 1500);
+          }, 2000);
           return;
         }
 
-        console.log('Setting token and fetching user profile...');
+        // Get token from URL query parameters
+        const token = params.get('token');
 
-        // Save token to context and localStorage
-        setToken(token);
-        localStorage.setItem('token', token);
+        if (!token) {
+          console.error('❌ No token received from authentication');
+          console.log('🔍 Available params:', Object.fromEntries(params.entries()));
+          alert('Authentication failed: No token received');
+          // If no token, redirect to home after a short delay
+          setTimeout(() => {
+            navigate('/', { replace: true });
+          }, 2000);
+          return;
+        }
 
-        // Also save user data to localStorage as a fallback
-        // This will be used if the server is not available
+        console.log('Setting token and user data...');
+
+        // Extract user data from URL parameters
         const userData = {
           id: params.get('id'),
           name: params.get('name'),
@@ -40,28 +53,16 @@ const AuthSuccess = () => {
           profileImage: params.get('picture')
         };
 
-        // Store user data in localStorage as fallback
-        localStorage.setItem('user', JSON.stringify(userData));
+        console.log('User data from URL params:', userData);
 
-        // Wait for user profile to be fetched from server
-        try {
-          console.log('Attempting to fetch user profile from server...');
-          const userProfile = await fetchUserProfile();
-          console.log('User profile fetch result:', userProfile);
+        // Use the custom setTokenAndUser function to properly set both token and user data
+        setTokenAndUser(token, userData);
 
-          // Give a moment for the context to update
-          setTimeout(() => {
-            console.log('Redirecting to home page after successful authentication');
-            navigate('/', { replace: true });
-          }, 1000);
-        } catch (profileError) {
-          console.error('Error fetching user profile:', profileError);
-          // Even if profile fetch fails, we have fallback data, so continue
-          setTimeout(() => {
-            console.log('Redirecting to home page with fallback user data');
-            navigate('/', { replace: true });
-          }, 1000);
-        }
+        // Give a moment for the context to update, then redirect
+        setTimeout(() => {
+          console.log('Redirecting to home page after successful authentication');
+          navigate('/', { replace: true });
+        }, 1000);
       } catch (error) {
         console.error('Error during authentication:', error);
         setTimeout(() => {
@@ -73,7 +74,7 @@ const AuthSuccess = () => {
     };
 
     handleAuth();
-  }, [location.search, navigate, setToken, fetchUserProfile]);
+  }, [location.search, navigate, setTokenAndUser, fetchUserProfile]);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
