@@ -357,6 +357,7 @@ const StoreContextProvider = (props) => {
 
   // Function to clear cart data for user isolation - SECURE VERSION
   const clearUserData = useCallback(() => {
+    console.log("🧹 Clearing all user data");
     setCartItems({});
     setUser(null);
     setToken("");
@@ -377,9 +378,9 @@ const StoreContextProvider = (props) => {
   const setTokenAndUser = useCallback((newToken, userData = null) => {
     console.log("🔄 Setting token and user data:", newToken ? "Token provided" : "No token", userData ? `User: ${userData.name}` : "No user data");
 
-    setToken(newToken);
-
     if (newToken) {
+      // Set token first
+      setToken(newToken);
       localStorage.setItem("token", newToken);
       console.log("💾 Token saved to localStorage");
 
@@ -387,6 +388,7 @@ const StoreContextProvider = (props) => {
         console.log("👤 Setting user data immediately:", userData);
         setUser(userData);
         localStorage.setItem("user", JSON.stringify(userData));
+        console.log("✅ Authentication complete - token and user data set");
       }
     } else {
       console.log("🧹 Clearing user data - no token");
@@ -396,7 +398,7 @@ const StoreContextProvider = (props) => {
 
   // Add useEffect to handle token changes (for cases where token is set without user data)
   useEffect(() => {
-    console.log("� Token changed:", token ? "Token exists" : "No token");
+    console.log("🔍 Token changed:", token ? "Token exists" : "No token");
     console.log("🔄 Current user state:", user ? `User: ${user.name}` : "No user");
 
     if (token && !user) {
@@ -412,11 +414,8 @@ const StoreContextProvider = (props) => {
         .catch(error => {
           console.error("❌ Error fetching user profile after token change:", error);
         });
-    } else if (!token) {
-      // Clear all user data when token is removed
-      console.log("🧹 Clearing user data - no token");
-      clearUserData();
     }
+    // Note: Removed the clearUserData call from here to prevent infinite loops
   }, [token, user, fetchUserProfile]);
 
   // Load cart when user changes or on initial load
