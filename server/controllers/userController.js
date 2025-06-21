@@ -145,14 +145,26 @@ const googleAuthCallback = (req, res) => {
   // This function will be called after successful Google authentication
   // The user object will be available in req.user (set by Passport)
   try {
+    console.log("🔐 Google OAuth callback triggered");
+    console.log("🔍 Request query params:", req.query);
+    console.log("🔍 Request user object:", req.user);
+    console.log("🔍 Environment - FRONTEND_URL:", process.env.FRONTEND_URL);
+    console.log("🔍 Environment - SERVER_URL:", process.env.SERVER_URL);
+
     const user = req.user;
     if (!user) {
-      console.error("Authentication failed - no user object");
+      console.error("❌ Authentication failed - no user object");
       const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
       return res.redirect(`${frontendUrl}?authError=true&message=Authentication failed`);
     }
 
-    console.log("Google authentication successful for user:", user.email);
+    console.log("✅ Google authentication successful for user:", user.email);
+    console.log("👤 User details:", {
+      id: user._id,
+      name: user.name,
+      email: user.email,
+      googleId: user.googleId
+    });
 
     // Generate JWT Token
     const token = createToken(user._id);
@@ -174,7 +186,8 @@ const googleAuthCallback = (req, res) => {
     }
 
     const finalRedirectUrl = redirectUrl.toString();
-    console.log("Redirecting to:", finalRedirectUrl);
+    console.log("🔗 Final redirect URL:", finalRedirectUrl);
+    console.log("🚀 Redirecting user to frontend...");
 
     // Redirect to frontend with token and user data
     res.redirect(finalRedirectUrl);
