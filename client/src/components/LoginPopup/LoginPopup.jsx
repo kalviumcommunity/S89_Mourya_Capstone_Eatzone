@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect } from 'react'
+import React, { useContext, useState } from 'react'
 import './LoginPopup.css'
 import { assets } from '../../assets/assets'
 import { StoreContext } from '../../context/StoreContext'
@@ -16,47 +16,7 @@ const LoginPopup = ({setShowLogin}) => {
         password:""
     })
 
-    // Add event listener to listen for messages from the popup window
-    useEffect(() => {
-        const handleMessage = async (event) => {
-            // Only accept messages from the same origin for security
-            if (event.origin !== window.location.origin) return;
 
-            console.log("Received message from popup:", event.data);
-
-            // Check if the message is from our authentication popup
-            if (event.data && event.data.type === 'AUTH_SUCCESS') {
-                // Handle successful authentication
-                const { token, user } = event.data;
-
-                // Authentication successful
-
-                // Save token - user data will be fetched automatically in StoreContext
-                if (token) {
-                    setToken(token);
-
-                    // Also save user data to localStorage as a fallback if provided
-                    if (user) {
-                        localStorage.setItem('user', JSON.stringify(user));
-                    }
-
-                    // Close the login popup
-                    setShowLogin(false);
-                } else {
-                    console.error("No token received from authentication popup");
-                    alert("Authentication failed. Please try again.");
-                }
-            }
-        };
-
-        // Add event listener
-        window.addEventListener('message', handleMessage);
-
-        // Clean up
-        return () => {
-            window.removeEventListener('message', handleMessage);
-        };
-    }, [setToken, setShowLogin]);
 
     const onChangeHandler = (event) => {
         const name = event.target.name;
@@ -65,30 +25,11 @@ const LoginPopup = ({setShowLogin}) => {
     }
 
     const handleGoogleSignIn = () => {
-        // Open Google OAuth in a popup window
-        // Use full server URL for Google OAuth to avoid proxy issues
-        const googleAuthUrl = `https://eatzone.onrender.com/api/user/auth/google`;
+        // Redirect to Google OAuth in the same tab
+        const googleAuthUrl = `${url}/api/user/auth/google`;
 
-        // Use popup window approach
-        const width = 500;
-        const height = 600;
-        const left = (window.innerWidth - width) / 2;
-        const top = (window.innerHeight - height) / 2;
-
-        // Open the popup with specific features to ensure it's recognized as a popup
-        const popup = window.open(
-            googleAuthUrl,
-            'googleAuth',
-            `width=${width},height=${height},left=${left},top=${top},resizable=yes,scrollbars=yes,status=yes`
-        );
-
-        // Focus on the popup to ensure it's in the foreground
-        if (popup) {
-            popup.focus();
-        }
-
-        // Uncomment this if you prefer redirect in the same window
-        // window.location.href = googleAuthUrl;
+        // Navigate to Google OAuth in the same window
+        window.location.href = googleAuthUrl;
     }
 
     const onLogin = async (event) => {
