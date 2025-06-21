@@ -17,7 +17,8 @@ export const AdminProvider = ({ children }) => {
     const [token, setToken] = useState(localStorage.getItem('adminToken') || null);
     const [loading, setLoading] = useState(false);
 
-    const url = "http://localhost:4000";
+    // Use environment variable for API URL with fallback
+    const url = import.meta.env.VITE_API_BASE_URL || "https://eatzone.onrender.com";
 
     // Check if admin is authenticated
     const isAuthenticated = !!(admin && token);

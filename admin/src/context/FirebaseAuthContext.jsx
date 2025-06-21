@@ -78,7 +78,8 @@ export const FirebaseAuthProvider = ({ children }) => {
   // Register admin in backend
   const registerAdminInBackend = async (firebaseUID, name, email) => {
     try {
-      const response = await fetch('http://localhost:4000/api/admin/register', {
+      const apiUrl = import.meta.env.VITE_API_BASE_URL || 'https://eatzone.onrender.com';
+      const response = await fetch(`${apiUrl}/api/admin/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -105,7 +106,8 @@ export const FirebaseAuthProvider = ({ children }) => {
   const fetchAdminData = async (uid) => {
     try {
       setLoading(true);
-      const response = await fetch(`http://localhost:4000/api/admin/data/${uid}`);
+      const apiUrl = import.meta.env.VITE_API_BASE_URL || 'https://eatzone.onrender.com';
+      const response = await fetch(`${apiUrl}/api/admin/data/${uid}`);
       
       if (!response.ok) {
         throw new Error('Failed to fetch admin data');

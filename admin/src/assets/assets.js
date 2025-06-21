@@ -16,4 +16,5 @@ export const assets ={
     parcel_icon
 }
 
-export const url = 'http://localhost:4000'
+// Use environment variable for API URL with fallback
+export const url = import.meta.env.VITE_API_BASE_URL || 'https://eatzone.onrender.com'
