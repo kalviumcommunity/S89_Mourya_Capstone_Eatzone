@@ -26,8 +26,9 @@ const useAdminData = () => {
 
     setLoading(true);
     try {
+      const apiUrl = import.meta.env.VITE_API_BASE_URL || 'https://eatzone.onrender.com';
       const response = await fetch(
-        `http://localhost:4000/api/admin/food-items/${currentUser.uid}?page=${page}&limit=${limit}`
+        `${apiUrl}/api/admin/food-items/${currentUser.uid}?page=${page}&limit=${limit}`
       );
       const data = await response.json();
 
@@ -100,7 +101,8 @@ const useAdminData = () => {
       formData.append('firebaseUID', currentUser.uid);
       formData.append('id', id);
 
-      const response = await fetch('http://localhost:4000/api/admin/food/update', {
+      const apiUrl = import.meta.env.VITE_API_BASE_URL || 'https://eatzone.onrender.com';
+      const response = await fetch(`${apiUrl}/api/admin/food/update`, {
         method: 'POST',
         body: formData
       });
