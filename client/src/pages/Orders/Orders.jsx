@@ -96,39 +96,44 @@ const Orders = () => {
           <div className="orders-list">
             {orders.map((order) => (
               <div key={order._id} className="order-card">
-                <div className="order-icon">
-                  📦
-                </div>
-                <div className="order-details">
-                  <div className="order-items-text">
-                    {order.items && order.items.length > 0 ? (
-                      order.items.map((item, index) => (
-                        <span key={item._id || index}>
-                          {item.name}
-                          {item.quantity > 1 && ` x ${item.quantity}`}
-                          {index < order.items.length - 1 ? ', ' : ''}
-                        </span>
-                      ))
-                    ) : (
-                      'No items'
-                    )}
+                <div className="order-card-header">
+                  <div className="order-icon">
+                    📦
+                  </div>
+                  <div className="order-details">
+                    <div className="order-items-text">
+                      {order.items && order.items.length > 0 ? (
+                        order.items.map((item, index) => (
+                          <span key={item._id || index}>
+                            {item.name}
+                            {item.quantity > 1 && ` x ${item.quantity}`}
+                            {index < order.items.length - 1 ? ', ' : ''}
+                          </span>
+                        ))
+                      ) : (
+                        'No items'
+                      )}
+                    </div>
+                    <div className="order-items-count">
+                      Items: {order.items ? order.items.reduce((total, item) => total + (item.quantity || 0), 0) : 0}
+                    </div>
+                  </div>
+                  <div className="order-amount">
+                    {formatINR(order.amount || 0)}
                   </div>
                 </div>
-                <div className="order-amount">
-                  {formatINR(order.amount || 0)}
-                </div>
-                <div className="order-items-count">
-                  Items: {order.items ? order.items.reduce((total, item) => total + (item.quantity || 0), 0) : 0}
-                </div>
-                <div className="order-status">
-                  <span className={`status-badge ${order.status ? order.status.toLowerCase().replace(/\s+/g, '-') : 'pending'}`}>
-                    ● {order.status || 'Pending'}
-                  </span>
-                </div>
-                <div className="order-actions">
-                  <button className="track-order-btn">
-                    Track Order
-                  </button>
+
+                <div className="order-card-footer">
+                  <div className="order-status">
+                    <span className={`status-badge ${order.status ? order.status.toLowerCase().replace(/\s+/g, '-') : 'pending'}`}>
+                      ● {order.status || 'Pending'}
+                    </span>
+                  </div>
+                  <div className="order-actions">
+                    <button className="track-order-btn">
+                      Track Order
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}
