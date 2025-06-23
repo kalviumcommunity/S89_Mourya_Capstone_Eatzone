@@ -11,6 +11,8 @@ const Orders = ({ url }) => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState('all');
+  const [editingOrder, setEditingOrder] = useState(null);
+  const [showEditModal, setShowEditModal] = useState(false);
 
   const fetchAllOrders = useCallback(async () => {
     try {
@@ -43,6 +45,55 @@ const Orders = ({ url }) => {
     } catch (error) {
       console.error("Error updating status:", error);
       toast.error("An error occurred while updating status");
+    }
+  }
+
+  const deleteHandler = async (orderId) => {
+    if (window.confirm("Are you sure you want to delete this order? This action cannot be undone.")) {
+      try {
+        const response = await axios.post(url + "/api/order/delete", { orderId });
+        if (response.data.success) {
+          toast.success("Order deleted successfully");
+          fetchAllOrders();
+        } else {
+          toast.error(response.data.message || "Failed to delete order");
+        }
+      } catch (error) {
+        console.error("Error deleting order:", error);
+        toast.error("An error occurred while deleting order");
+      }
+    }
+  }
+
+  const editHandler = (order) => {
+    setEditingOrder({
+      _id: order._id,
+      status: order.status,
+      amount: order.amount,
+      address: { ...order.address }
+    });
+    setShowEditModal(true);
+  }
+
+  const saveEditHandler = async () => {
+    try {
+      const response = await axios.post(url + "/api/order/edit", {
+        orderId: editingOrder._id,
+        status: editingOrder.status,
+        amount: editingOrder.amount,
+        address: editingOrder.address
+      });
+      if (response.data.success) {
+        toast.success("Order updated successfully");
+        setShowEditModal(false);
+        setEditingOrder(null);
+        fetchAllOrders();
+      } else {
+        toast.error(response.data.message || "Failed to update order");
+      }
+    } catch (error) {
+      console.error("Error updating order:", error);
+      toast.error("An error occurred while updating order");
     }
   }
 
@@ -228,8 +279,19 @@ const Orders = ({ url }) => {
                       <option value="Out for delivery">Out for delivery</option>
                       <option value="Delivered">Delivered</option>
                     </select>
-                    <button className="view-details-btn">
-                      View Details
+                    <button
+                      className="edit-order-btn"
+                      onClick={() => editHandler(order)}
+                      title="Edit Order"
+                    >
+                      ✏️ Edit
+                    </button>
+                    <button
+                      className="delete-order-btn"
+                      onClick={() => deleteHandler(order._id)}
+                      title="Delete Order"
+                    >
+                      🗑️ Delete
                     </button>
                   </div>
                 </div>
@@ -247,6 +309,156 @@ const Orders = ({ url }) => {
           )}
         </div>
       </div>
+
+      {/* Edit Order Modal */}
+      {showEditModal && editingOrder && (
+        <div className="modal-overlay">
+          <div className="edit-modal">
+            <div className="modal-header">
+              <h3>Edit Order #{editingOrder._id.slice(-6)}</h3>
+              <button
+                className="close-modal-btn"
+                onClick={() => {
+                  setShowEditModal(false);
+                  setEditingOrder(null);
+                }}
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="modal-content">
+              <div className="form-group">
+                <label>Order Status:</label>
+                <select
+                  value={editingOrder.status}
+                  onChange={(e) => setEditingOrder({...editingOrder, status: e.target.value})}
+                  className="edit-select"
+                >
+                  <option value="Food Processing">Food Processing</option>
+                  <option value="Out for delivery">Out for delivery</option>
+                  <option value="Delivered">Delivered</option>
+                </select>
+              </div>
+
+              <div className="form-group">
+                <label>Order Amount (₹):</label>
+                <input
+                  type="number"
+                  value={editingOrder.amount}
+                  onChange={(e) => setEditingOrder({...editingOrder, amount: parseFloat(e.target.value)})}
+                  className="edit-input"
+                  min="0"
+                  step="0.01"
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Customer Name:</label>
+                <div className="name-inputs">
+                  <input
+                    type="text"
+                    placeholder="First Name"
+                    value={editingOrder.address.firstName}
+                    onChange={(e) => setEditingOrder({
+                      ...editingOrder,
+                      address: {...editingOrder.address, firstName: e.target.value}
+                    })}
+                    className="edit-input"
+                  />
+                  <input
+                    type="text"
+                    placeholder="Last Name"
+                    value={editingOrder.address.lastName}
+                    onChange={(e) => setEditingOrder({
+                      ...editingOrder,
+                      address: {...editingOrder.address, lastName: e.target.value}
+                    })}
+                    className="edit-input"
+                  />
+                </div>
+              </div>
+
+              <div className="form-group">
+                <label>Phone Number:</label>
+                <input
+                  type="text"
+                  value={editingOrder.address.phone}
+                  onChange={(e) => setEditingOrder({
+                    ...editingOrder,
+                    address: {...editingOrder.address, phone: e.target.value}
+                  })}
+                  className="edit-input"
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Delivery Address:</label>
+                <input
+                  type="text"
+                  placeholder="Street"
+                  value={editingOrder.address.street}
+                  onChange={(e) => setEditingOrder({
+                    ...editingOrder,
+                    address: {...editingOrder.address, street: e.target.value}
+                  })}
+                  className="edit-input"
+                />
+                <div className="address-inputs">
+                  <input
+                    type="text"
+                    placeholder="City"
+                    value={editingOrder.address.city}
+                    onChange={(e) => setEditingOrder({
+                      ...editingOrder,
+                      address: {...editingOrder.address, city: e.target.value}
+                    })}
+                    className="edit-input"
+                  />
+                  <input
+                    type="text"
+                    placeholder="State"
+                    value={editingOrder.address.state}
+                    onChange={(e) => setEditingOrder({
+                      ...editingOrder,
+                      address: {...editingOrder.address, state: e.target.value}
+                    })}
+                    className="edit-input"
+                  />
+                  <input
+                    type="text"
+                    placeholder="ZIP Code"
+                    value={editingOrder.address.zipCode}
+                    onChange={(e) => setEditingOrder({
+                      ...editingOrder,
+                      address: {...editingOrder.address, zipCode: e.target.value}
+                    })}
+                    className="edit-input"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="modal-actions">
+              <button
+                className="cancel-btn"
+                onClick={() => {
+                  setShowEditModal(false);
+                  setEditingOrder(null);
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                className="save-btn"
+                onClick={saveEditHandler}
+              >
+                Save Changes
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

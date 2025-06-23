@@ -216,5 +216,60 @@ const updateStatus = async (req,res)=>{
     }
 }
 
+// api for deleting order (admin only)
+const deleteOrder = async (req,res)=>{
+    try {
+        const {orderId} = req.body;
 
-export {placeOrder,verifyOrder,userOrders,listOrders,updateStatus}
+        if (!orderId) {
+            return res.json({success:false,message:"Order ID is required"});
+        }
+
+        const deletedOrder = await orderModel.findByIdAndDelete(orderId);
+
+        if (!deletedOrder) {
+            return res.json({success:false,message:"Order not found"});
+        }
+
+        res.json({success:true,message:"Order deleted successfully"})
+    } catch (error) {
+        console.log("Error deleting order:", error);
+        res.json({success:false,message:"Error deleting order"})
+    }
+}
+
+// api for editing order details (admin only)
+const editOrder = async (req,res)=>{
+    try {
+        const {orderId, items, amount, address, status} = req.body;
+
+        if (!orderId) {
+            return res.json({success:false,message:"Order ID is required"});
+        }
+
+        // Build update object with only provided fields
+        const updateData = {};
+        if (items !== undefined) updateData.items = items;
+        if (amount !== undefined) updateData.amount = amount;
+        if (address !== undefined) updateData.address = address;
+        if (status !== undefined) updateData.status = status;
+
+        const updatedOrder = await orderModel.findByIdAndUpdate(
+            orderId,
+            updateData,
+            { new: true, runValidators: true }
+        );
+
+        if (!updatedOrder) {
+            return res.json({success:false,message:"Order not found"});
+        }
+
+        res.json({success:true,message:"Order updated successfully", data:updatedOrder})
+    } catch (error) {
+        console.log("Error editing order:", error);
+        res.json({success:false,message:"Error updating order"})
+    }
+}
+
+
+export {placeOrder,verifyOrder,userOrders,listOrders,updateStatus,deleteOrder,editOrder}
