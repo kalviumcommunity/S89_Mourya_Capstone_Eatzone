@@ -5,8 +5,8 @@ import axios from "axios";
 export const StoreContext = createContext(null);
 
 const StoreContextProvider = (props) => {
-  // Use production server URL for API calls
-  const url = "https://eatzone.onrender.com";
+  // Use environment variable for API URL with fallback
+  const url = import.meta.env.VITE_API_BASE_URL || "https://eatzone.onrender.com";
 
   // Initialize token from localStorage
   const storedToken = localStorage.getItem("token");

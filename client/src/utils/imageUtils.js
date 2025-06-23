@@ -3,7 +3,7 @@
  * Handles both static assets and server-uploaded images
  */
 
-export const getImageUrl = (image, serverUrl = "https://eatzone.onrender.com") => {
+export const getImageUrl = (image, serverUrl = import.meta.env.VITE_API_BASE_URL || "https://eatzone.onrender.com") => {
   // Handle null or undefined images
   if (!image) {
     return '/src/assets/food_1.png'; // Default fallback

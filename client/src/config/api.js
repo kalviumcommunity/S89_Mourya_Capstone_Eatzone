@@ -1,7 +1,7 @@
 // API Configuration
 const API_CONFIG = {
   // Get base URL from environment variables with fallback
-  BASE_URL: import.meta.env.VITE_API_BASE_URL || 'https://eatzone.onrender.com',
+  BASE_URL: (import.meta.env.VITE_API_BASE_URL || 'https://eatzone.onrender.com').replace(/\/$/, ''),
   
   // Environment
   ENV: import.meta.env.VITE_APP_ENV || 'development',
@@ -26,7 +26,8 @@ const API_CONFIG = {
 
 // Helper function to build full URL
 export const buildApiUrl = (endpoint) => {
-  return `${API_CONFIG.BASE_URL}${endpoint}`;
+  const url = `${API_CONFIG.BASE_URL}${endpoint}`;
+  return url;
 };
 
 // Helper function to get auth headers
