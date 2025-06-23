@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test API Configuration</title>
+</head>
+<body>
+    <h1>API Configuration Test</h1>
+    <div id="results"></div>
+    
+    <script>
+        // Test environment variables
+        const baseUrl = import.meta.env?.VITE_API_BASE_URL || 'https://eatzone.onrender.com';
+        const cleanBaseUrl = baseUrl.replace(/\/$/, '');
+        const endpoint = '/api/chatbot/chat';
+        const finalUrl = `${cleanBaseUrl}${endpoint}`;
+        
+        document.getElementById('results').innerHTML = `
+            <h2>Environment Variables:</h2>
+            <p><strong>VITE_API_BASE_URL:</strong> ${import.meta.env?.VITE_API_BASE_URL || 'undefined'}</p>
+            <p><strong>Base URL:</strong> ${baseUrl}</p>
+            <p><strong>Clean Base URL:</strong> ${cleanBaseUrl}</p>
+            <p><strong>Endpoint:</strong> ${endpoint}</p>
+            <p><strong>Final URL:</strong> ${finalUrl}</p>
+            
+            <h2>Test API Call:</h2>
+            <button onclick="testAPI()">Test Chatbot API</button>
+            <div id="api-result"></div>
+        `;
+        
+        async function testAPI() {
+            const resultDiv = document.getElementById('api-result');
+            resultDiv.innerHTML = 'Testing...';
+            
+            try {
+                const response = await fetch(finalUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        message: 'hello',
+                        chatMode: 'support'
+                    })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    resultDiv.innerHTML = `<p style="color: green;">✅ Success: ${data.reply}</p>`;
+                } else {
+                    resultDiv.innerHTML = `<p style="color: red;">❌ Error: ${response.status} - ${response.statusText}</p>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<p style="color: red;">❌ Error: ${error.message}</p>`;
+            }
+        }
+        
+        window.testAPI = testAPI;
+    </script>
+</body>
+</html>

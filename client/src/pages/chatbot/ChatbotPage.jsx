@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { sendChatMessage } from "../../config/api";
 import "./ChatbotPage.css";
 
 const ChatbotPage = () => {
@@ -15,16 +16,7 @@ const ChatbotPage = () => {
     setLoading(true);
 
     try {
-      const response = await fetch("https://eatzone.onrender.com/api/chatbot/chat", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: "Bearer " + localStorage.getItem("token"), // if using auth
-        },
-        body: JSON.stringify({ message: input, userId: "mockUserId" }),
-      });
-
-      const data = await response.json();
+      const data = await sendChatMessage(input, 'support', localStorage.getItem("token"));
       const botMessage = { role: "bot", text: data.reply };
       setMessages((prev) => [...prev, botMessage]);
     } catch (err) {
