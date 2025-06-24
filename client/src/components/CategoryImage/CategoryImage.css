@@ -1,0 +1,63 @@
+.category-image-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    border-radius: 8px;
+}
+
+.category-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.category-image.loading {
+    opacity: 0;
+}
+
+.image-loading {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1;
+}
+
+.loading-spinner {
+    width: 24px;
+    height: 24px;
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid #ff6b6b;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.image-fallback-indicator {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    background: rgba(0, 0, 0, 0.6);
+    color: white;
+    padding: 2px 4px;
+    border-radius: 4px;
+    font-size: 10px;
+    z-index: 2;
+}
+
+/* Hover effects */
+.category-image-container:hover .category-image {
+    transform: scale(1.05);
+}
+
+/* Active state for explore menu */
+.category-image.active {
+    border: 3px solid #ff6b6b;
+    transform: scale(1.1);
+}

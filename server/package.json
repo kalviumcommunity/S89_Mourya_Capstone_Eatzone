@@ -10,7 +10,8 @@
     "add-sample-restaurants": "node scripts/addSampleRestaurants.js",
     "add-restaurant-food": "node scripts/addRestaurantFoodItems.js",
     "add-category-food": "node scripts/addCategoryFoodItems.js",
-    "create-default-categories": "node scripts/createDefaultCategories.js"
+    "create-default-categories": "node scripts/createDefaultCategories.js",
+    "update-category-images": "node scripts/uploadDefaultCategoryImages.js"
   },
   "author": "",
   "license": "ISC",

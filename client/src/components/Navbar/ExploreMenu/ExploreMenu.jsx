@@ -1,32 +1,35 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import './ExploreMenu.css'
 import axios from 'axios'
+import CategoryImage from '../../CategoryImage/CategoryImage'
 
 const ExploreMenu = ({category,setCategory}) => {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
 
   // Get API URL from environment or use default
-  const url = process.env.REACT_APP_API_URL || 'http://localhost:4000';
-
-  useEffect(() => {
-    fetchCategories();
-  }, []);
+  const url = import.meta.env.VITE_API_URL || 'http://localhost:4000';
 
   const fetchCategories = async () => {
     try {
+      console.log("🔄 Fetching categories from:", `${url}/api/category/list`);
       const response = await axios.get(`${url}/api/category/list`);
       if (response.data.success) {
+        console.log("✅ Categories loaded:", response.data.data);
         setCategories(response.data.data);
       } else {
-        console.error("Failed to fetch categories:", response.data.message);
+        console.error("❌ Failed to fetch categories:", response.data.message);
       }
     } catch (error) {
-      console.error("Error fetching categories:", error);
+      console.error("❌ Error fetching categories:", error);
     } finally {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchCategories();
+  }, []);
 
   if (loading) {
     return (
@@ -45,12 +48,14 @@ const ExploreMenu = ({category,setCategory}) => {
             {categories.map((item)=>{
                 return(
                     <div onClick={()=>setCategory(prev=>prev===item.name?"All":item.name)} key={item._id} className='explore-menu-list-item'>
-                        <img
+                        <CategoryImage
+                          image={item.image}
+                          categoryName={item.name}
+                          baseUrl={url}
                           className={category===item.name?"active":""}
-                          src={item.image.startsWith('http') ? item.image : `${url}/images/${item.image}`}
                           alt={item.name}
-                          onError={(e) => {
-                            e.target.src = '/placeholder-food.jpg'; // Fallback image
+                          onLoad={() => {
+                            console.log(`Successfully loaded image for ${item.name}`);
                           }}
                         />
                         <p>{item.name}</p>
