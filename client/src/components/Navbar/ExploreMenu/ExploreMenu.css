@@ -13,25 +13,43 @@
 }
 .explore-menu-list{
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 30px;
+    justify-content: flex-start;
+    align-items: flex-start;
+    gap: 20px;
     text-align: center;
     margin: 20px 0px;
-    overflow-x: scroll;
+    overflow-x: auto;
+    padding: 10px 0;
+    scroll-behavior: smooth;
 }
 .explore-menu-list::-webkit-scrollbar{
     display: none;
 }
+
+.explore-menu-list-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 100px;
+    max-width: 120px;
+    flex-shrink: 0;
+}
+
 .explore-menu-list-item .category-image-container{
     width: 80px;
     height: 80px;
     min-width: 80px;
+    min-height: 80px;
     cursor: pointer;
     border-radius: 50%;
     transition: all 0.3s ease;
     overflow: hidden;
     box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    position: relative;
+    background: #f5f5f5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .explore-menu-list-item .category-image-container:hover{
@@ -47,10 +65,20 @@
     border-radius: 50%;
 }
 .explore-menu-list-item p{
-    margin-top: 10px;
-    color:#747474;
-    font-size: max(1.4vw,16px);
+    margin-top: 8px;
+    color: #747474;
+    font-size: 14px;
+    font-weight: 500;
     cursor: pointer;
+    line-height: 1.2;
+    min-height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    word-wrap: break-word;
+    hyphens: auto;
+    max-width: 100px;
 }
 .explore-menu hr{
     margin: 10px 0px;
@@ -64,9 +92,73 @@
     transform: scale(1.1);
     box-shadow: 0 4px 16px rgba(255, 99, 71, 0.3);
 }
-@media (max-width:1050px){
-    .explore-menu-text{
+/* Add loading animation */
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.loading-spinner {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid #ff6b35;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+/* Responsive design */
+@media (max-width: 1050px) {
+    .explore-menu-text {
         max-width: 100%;
         font-size: 14px;
+    }
+
+    .explore-menu-list {
+        gap: 15px;
+    }
+
+    .explore-menu-list-item {
+        min-width: 90px;
+        max-width: 100px;
+    }
+
+    .explore-menu-list-item .category-image-container {
+        width: 70px;
+        height: 70px;
+        min-width: 70px;
+        min-height: 70px;
+    }
+
+    .explore-menu-list-item p {
+        font-size: 12px;
+        min-height: 28px;
+        max-width: 90px;
+    }
+}
+
+@media (max-width: 768px) {
+    .explore-menu-list {
+        gap: 12px;
+        padding: 5px 0;
+    }
+
+    .explore-menu-list-item {
+        min-width: 80px;
+        max-width: 90px;
+    }
+
+    .explore-menu-list-item .category-image-container {
+        width: 60px;
+        height: 60px;
+        min-width: 60px;
+        min-height: 60px;
+    }
+
+    .explore-menu-list-item p {
+        font-size: 11px;
+        min-height: 24px;
+        max-width: 80px;
+        margin-top: 6px;
     }
 }
