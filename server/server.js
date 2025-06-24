@@ -121,7 +121,9 @@ app.get("/health", (_req, res) => {
             admin: "/api/admin/login",
             restaurant: "/api/restaurant/list",
             orders: "/api/order/list",
-            chatbot: "/api/chatbot/chat"
+            chatbot: "/api/chatbot/chat",
+            categories: "/api/category/list",
+            categoriesAdmin: "/api/category/list-all"
         }
     };
 
@@ -136,6 +138,27 @@ app.get("/test", (_req, res) => {
         timestamp: new Date().toISOString(),
         status: "success"
     });
+});
+
+// Category health check endpoint
+app.get("/api/category/health", async (_req, res) => {
+    try {
+        const categoryModel = (await import("./models/categoryModel.js")).default;
+        const count = await categoryModel.countDocuments();
+        res.json({
+            success: true,
+            message: "Category system is working",
+            categoryCount: count,
+            timestamp: new Date().toISOString()
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: "Category system error",
+            error: error.message,
+            timestamp: new Date().toISOString()
+        });
+    }
 });
 
 // 404 handler for undefined routes (must be last)

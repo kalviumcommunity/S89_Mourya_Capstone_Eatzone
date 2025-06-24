@@ -3,6 +3,100 @@ import './Categories.css';
 import { toast } from 'react-toastify';
 import axios from 'axios';
 
+// Cloudinary upload function for category images
+const uploadToCloudinary = async (file, folder = 'eatzone/categories') => {
+    try {
+        if (!file) {
+            throw new Error('No file provided');
+        }
+
+        if (!file.type.startsWith('image/')) {
+            throw new Error('Only image files are allowed');
+        }
+
+        const maxSize = 5 * 1024 * 1024; // 5MB
+        if (file.size > maxSize) {
+            throw new Error('File size must be less than 5MB');
+        }
+
+        console.log('Uploading category image to Cloudinary:', {
+            name: file.name,
+            size: file.size,
+            type: file.type,
+            folder: folder
+        });
+
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('upload_preset', 'eatzone_admin');
+        formData.append('folder', folder);
+        formData.append('tags', 'category,menu');
+
+        const response = await fetch(
+            `https://api.cloudinary.com/v1_1/dodxdudew/image/upload`,
+            {
+                method: 'POST',
+                body: formData
+            }
+        );
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            console.error('Cloudinary upload error:', errorData);
+            throw new Error(errorData.error?.message || `Upload failed with status ${response.status}`);
+        }
+
+        const result = await response.json();
+        console.log('Cloudinary upload successful:', result);
+
+        return {
+            success: true,
+            url: result.secure_url,
+            publicId: result.public_id
+        };
+    } catch (error) {
+        console.error('Cloudinary upload error:', error);
+        return {
+            success: false,
+            error: error.message
+        };
+    }
+};
+
+// Helper function to get proper image URL for admin display
+const getCategoryImageUrl = (imageUrl, baseUrl) => {
+    if (!imageUrl) return getDefaultCategoryImage('default');
+
+    // If it's already a full URL (Cloudinary), use it directly
+    if (imageUrl.startsWith('http')) {
+        return imageUrl;
+    }
+
+    // If it's a local file, construct the full URL
+    return `${baseUrl}/images/${imageUrl}`;
+};
+
+// Helper function to get default category images
+const getDefaultCategoryImage = (categoryName) => {
+    const defaultImages = {
+        'Rolls': 'https://res.cloudinary.com/dodxdudew/image/upload/v1735055000/eatzone/categories/rolls.jpg',
+        'Salad': 'https://res.cloudinary.com/dodxdudew/image/upload/v1735055000/eatzone/categories/salad.jpg',
+        'Deserts': 'https://res.cloudinary.com/dodxdudew/image/upload/v1735055000/eatzone/categories/desserts.jpg',
+        'Sandwich': 'https://res.cloudinary.com/dodxdudew/image/upload/v1735055000/eatzone/categories/sandwich.jpg',
+        'Cake': 'https://res.cloudinary.com/dodxdudew/image/upload/v1735055000/eatzone/categories/cake.jpg',
+        'Veg': 'https://res.cloudinary.com/dodxdudew/image/upload/v1735055000/eatzone/categories/veg.jpg',
+        'Pizza': 'https://res.cloudinary.com/dodxdudew/image/upload/v1735055000/eatzone/categories/pizza.jpg',
+        'Pasta': 'https://res.cloudinary.com/dodxdudew/image/upload/v1735055000/eatzone/categories/pasta.jpg',
+        'Noodles': 'https://res.cloudinary.com/dodxdudew/image/upload/v1735055000/eatzone/categories/noodles.jpg',
+        'Main Course': 'https://res.cloudinary.com/dodxdudew/image/upload/v1735055000/eatzone/categories/main-course.jpg',
+        'Appetizer': 'https://res.cloudinary.com/dodxdudew/image/upload/v1735055000/eatzone/categories/appetizer.jpg',
+        'Sushi': 'https://res.cloudinary.com/dodxdudew/image/upload/v1735055000/eatzone/categories/sushi.jpg',
+        'default': 'https://res.cloudinary.com/dodxdudew/image/upload/v1735055000/eatzone/categories/default-food.jpg'
+    };
+
+    return defaultImages[categoryName] || defaultImages['default'];
+};
+
 const Categories = ({ url }) => {
     const [categories, setCategories] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -16,20 +110,47 @@ const Categories = ({ url }) => {
         isActive: true
     });
     const [imagePreview, setImagePreview] = useState('');
+    const [cloudinaryUrl, setCloudinaryUrl] = useState('');
+    const [imageUploading, setImageUploading] = useState(false);
 
     // Fetch all categories
     const fetchCategories = async () => {
         try {
             setLoading(true);
-            const response = await axios.get(`${url}/api/category/list-all`);
+            console.log("🔄 Fetching categories from:", `${url}/api/category/list-all`);
+
+            const response = await axios.get(`${url}/api/category/list-all`, {
+                timeout: 10000,
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            console.log("📦 Categories response:", response);
+
             if (response.data.success) {
                 setCategories(response.data.data);
+                console.log("✅ Categories loaded successfully:", response.data.data.length, "categories");
+                if (response.data.data.length === 0) {
+                    toast.info("No categories found. You can add your first category!");
+                }
             } else {
-                toast.error("Failed to fetch categories");
+                console.error("❌ API returned error:", response.data.message);
+                toast.error(`Failed to fetch categories: ${response.data.message}`);
             }
         } catch (error) {
-            console.error("Error fetching categories:", error);
-            toast.error("Error fetching categories");
+            console.error("❌ Error fetching categories:", error);
+
+            if (error.code === 'ECONNABORTED') {
+                toast.error("Request timeout - Server might be slow or unreachable");
+            } else if (error.response) {
+                toast.error(`Server error: ${error.response.status} - ${error.response.data?.message || 'Unknown error'}`);
+            } else if (error.request) {
+                toast.error("Network error - Cannot reach server. Check your connection and server status.");
+            } else {
+                toast.error(`Error: ${error.message}`);
+            }
         } finally {
             setLoading(false);
         }
@@ -48,18 +169,41 @@ const Categories = ({ url }) => {
         }));
     };
 
-    // Handle image selection
-    const handleImageChange = (e) => {
+    // Handle image selection and upload to Cloudinary
+    const handleImageChange = async (e) => {
         const file = e.target.files[0];
         if (file) {
             setFormData(prev => ({ ...prev, image: file }));
-            
-            // Create preview
+
+            // Create local preview
             const reader = new FileReader();
             reader.onloadend = () => {
                 setImagePreview(reader.result);
             };
             reader.readAsDataURL(file);
+
+            // Auto-upload to Cloudinary
+            setImageUploading(true);
+            toast.info("Uploading image to Cloudinary...");
+
+            try {
+                const uploadResult = await uploadToCloudinary(file, 'eatzone/categories');
+
+                if (uploadResult.success) {
+                    console.log("Category image uploaded successfully:", uploadResult.url);
+                    setCloudinaryUrl(uploadResult.url);
+                    setImagePreview(uploadResult.url); // Use Cloudinary URL for preview
+                    toast.success("Image uploaded successfully!");
+                } else {
+                    console.error("Cloudinary upload failed:", uploadResult.error);
+                    toast.error(uploadResult.error || "Failed to upload image");
+                }
+            } catch (error) {
+                console.error("Image upload error:", error);
+                toast.error("Failed to upload image");
+            } finally {
+                setImageUploading(false);
+            }
         }
     };
 
@@ -73,7 +217,9 @@ const Categories = ({ url }) => {
             isActive: true
         });
         setImagePreview('');
+        setCloudinaryUrl('');
         setEditingCategory(null);
+        setImageUploading(false);
     };
 
     // Open modal for adding new category
@@ -92,7 +238,18 @@ const Categories = ({ url }) => {
             order: category.order || 0,
             isActive: category.isActive
         });
-        setImagePreview(category.image.startsWith('http') ? category.image : `${url}/images/${category.image}`);
+
+        // Set existing image for preview
+        const existingImageUrl = category.image.startsWith('http') ? category.image : `${url}/images/${category.image}`;
+        setImagePreview(existingImageUrl);
+
+        // If it's already a Cloudinary URL, set it
+        if (category.image.startsWith('http')) {
+            setCloudinaryUrl(category.image);
+        } else {
+            setCloudinaryUrl('');
+        }
+
         setShowModal(true);
     };
 
@@ -105,14 +262,19 @@ const Categories = ({ url }) => {
     // Submit form (add or edit)
     const handleSubmit = async (e) => {
         e.preventDefault();
-        
+
         if (!formData.name.trim()) {
             toast.error("Category name is required");
             return;
         }
 
-        if (!editingCategory && !formData.image) {
-            toast.error("Category image is required");
+        if (!editingCategory && !cloudinaryUrl) {
+            toast.error("Category image is required. Please upload an image.");
+            return;
+        }
+
+        if (imageUploading) {
+            toast.error("Please wait for image upload to complete");
             return;
         }
 
@@ -124,8 +286,12 @@ const Categories = ({ url }) => {
             submitData.append('order', formData.order);
             submitData.append('isActive', formData.isActive);
 
-            if (formData.image) {
-                submitData.append('image', formData.image);
+            // Use Cloudinary URL if available, otherwise use existing image
+            if (cloudinaryUrl) {
+                submitData.append('image', cloudinaryUrl);
+            } else if (editingCategory && editingCategory.image) {
+                // Keep existing image if no new image uploaded
+                submitData.append('image', editingCategory.image);
             }
 
             let response;
@@ -190,11 +356,15 @@ const Categories = ({ url }) => {
                 {categories.map((category) => (
                     <div key={category._id} className={`category-card ${!category.isActive ? 'inactive' : ''}`}>
                         <div className="category-image">
-                            <img 
-                                src={category.image.startsWith('http') ? category.image : `${url}/images/${category.image}`}
+                            <img
+                                src={getCategoryImageUrl(category.image, url)}
                                 alt={category.name}
                                 onError={(e) => {
-                                    e.target.src = '/placeholder-food.jpg';
+                                    console.log(`Failed to load admin image for ${category.name}:`, category.image);
+                                    e.target.src = getDefaultCategoryImage(category.name);
+                                }}
+                                onLoad={() => {
+                                    console.log(`Successfully loaded admin image for ${category.name}`);
                                 }}
                             />
                         </div>
@@ -271,12 +441,36 @@ const Categories = ({ url }) => {
                                     type="file"
                                     accept="image/*"
                                     onChange={handleImageChange}
+                                    disabled={imageUploading}
                                 />
-                                {imagePreview && (
-                                    <div className="image-preview">
-                                        <img src={imagePreview} alt="Preview" />
+
+                                {imageUploading && (
+                                    <div className="upload-status">
+                                        <p>🔄 Uploading image to Cloudinary...</p>
                                     </div>
                                 )}
+
+                                {imagePreview && !imageUploading && (
+                                    <div className="image-preview">
+                                        <img
+                                            src={imagePreview}
+                                            alt="Preview"
+                                            onError={(e) => {
+                                                e.target.src = '/placeholder-food.jpg';
+                                            }}
+                                        />
+                                        {cloudinaryUrl && (
+                                            <div className="upload-success">
+                                                <span className="success-text">✅ Image uploaded to Cloudinary!</span>
+                                                <small>URL: {cloudinaryUrl}</small>
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+
+                                <small className="form-help">
+                                    Recommended: 400x400px, JPG or PNG, max 5MB. Images will be automatically uploaded to Cloudinary.
+                                </small>
                             </div>
 
                             <div className="form-row">
