@@ -1,39 +1,8 @@
 import { useState } from 'react';
 import './CategoryImage.css';
+import { getCategoryImageUrl, getCategoryFallbackImage } from '../../utils/categoryUtils';
 
-// Default category images from Cloudinary
-const getDefaultCategoryImage = (categoryName) => {
-    const defaultImages = {
-        'Rolls': 'https://res.cloudinary.com/dodxdudew/image/upload/v1735055000/eatzone/categories/rolls.jpg',
-        'Salad': 'https://res.cloudinary.com/dodxdudew/image/upload/v1735055000/eatzone/categories/salad.jpg',
-        'Deserts': 'https://res.cloudinary.com/dodxdudew/image/upload/v1735055000/eatzone/categories/desserts.jpg',
-        'Sandwich': 'https://res.cloudinary.com/dodxdudew/image/upload/v1735055000/eatzone/categories/sandwich.jpg',
-        'Cake': 'https://res.cloudinary.com/dodxdudew/image/upload/v1735055000/eatzone/categories/cake.jpg',
-        'Veg': 'https://res.cloudinary.com/dodxdudew/image/upload/v1735055000/eatzone/categories/veg.jpg',
-        'Pizza': 'https://res.cloudinary.com/dodxdudew/image/upload/v1735055000/eatzone/categories/pizza.jpg',
-        'Pasta': 'https://res.cloudinary.com/dodxdudew/image/upload/v1735055000/eatzone/categories/pasta.jpg',
-        'Noodles': 'https://res.cloudinary.com/dodxdudew/image/upload/v1735055000/eatzone/categories/noodles.jpg',
-        'Main Course': 'https://res.cloudinary.com/dodxdudew/image/upload/v1735055000/eatzone/categories/main-course.jpg',
-        'Appetizer': 'https://res.cloudinary.com/dodxdudew/image/upload/v1735055000/eatzone/categories/appetizer.jpg',
-        'Sushi': 'https://res.cloudinary.com/dodxdudew/image/upload/v1735055000/eatzone/categories/sushi.jpg',
-        'default': 'https://res.cloudinary.com/dodxdudew/image/upload/v1735055000/eatzone/categories/default-food.jpg'
-    };
-    
-    return defaultImages[categoryName] || defaultImages['default'];
-};
-
-// Helper function to get proper image URL
-const getImageUrl = (imageUrl, baseUrl) => {
-    if (!imageUrl) return null;
-    
-    // If it's already a full URL (Cloudinary), use it directly
-    if (imageUrl.startsWith('http')) {
-        return imageUrl;
-    }
-    
-    // If it's a local file, construct the full URL
-    return `${baseUrl}/images/${imageUrl}`;
-};
+// Use utility functions for better consistency
 
 const CategoryImage = ({ 
     image, 
@@ -47,8 +16,8 @@ const CategoryImage = ({
     const [imageError, setImageError] = useState(false);
     const [loading, setLoading] = useState(true);
 
-    const primaryImageUrl = getImageUrl(image, baseUrl);
-    const fallbackImageUrl = getDefaultCategoryImage(categoryName);
+    const primaryImageUrl = getCategoryImageUrl(image, baseUrl);
+    const fallbackImageUrl = getCategoryFallbackImage(categoryName);
 
     const handleImageLoad = () => {
         setLoading(false);
@@ -57,21 +26,46 @@ const CategoryImage = ({
     };
 
     const handleImageError = (e) => {
-        console.log(`Failed to load image for ${categoryName}:`, image);
+        console.log(`❌ Failed to load image for ${categoryName}:`, image);
+        console.log(`Primary URL was:`, primaryImageUrl);
+        console.log(`Fallback URL is:`, fallbackImageUrl);
         setLoading(false);
-        
+
         if (!imageError && primaryImageUrl !== fallbackImageUrl) {
             // First error - try fallback image
+            console.log(`🔄 Trying fallback image for ${categoryName}`);
             setImageError(true);
             e.target.src = fallbackImageUrl;
         } else {
-            // Fallback also failed - show placeholder
-            e.target.style.display = 'none';
+            // Fallback also failed - show placeholder with category initial
+            console.log(`❌ Fallback also failed for ${categoryName}, showing placeholder`);
+            setImageError(true);
             if (onError) onError(e);
         }
     };
 
     const currentImageUrl = imageError ? fallbackImageUrl : (primaryImageUrl || fallbackImageUrl);
+
+    // Create placeholder with category initial
+    const getPlaceholderContent = () => {
+        const initial = categoryName ? categoryName.charAt(0).toUpperCase() : '?';
+        return (
+            <div style={{
+                width: '100%',
+                height: '100%',
+                background: 'linear-gradient(135deg, #ff6b35, #ff8c42)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: 'white',
+                fontSize: '24px',
+                fontWeight: 'bold',
+                borderRadius: '50%'
+            }}>
+                {initial}
+            </div>
+        );
+    };
 
     return (
         <div className={`category-image-container ${className}`}>
@@ -80,20 +74,24 @@ const CategoryImage = ({
                     <div className="loading-spinner"></div>
                 </div>
             )}
-            
-            <img
-                src={currentImageUrl}
-                alt={alt || categoryName}
-                className={`category-image ${loading ? 'loading' : ''}`}
-                onLoad={handleImageLoad}
-                onError={handleImageError}
-                style={{ display: loading ? 'none' : 'block' }}
-            />
-            
-            {imageError && !loading && (
-                <div className="image-fallback-indicator">
-                    <span>📷</span>
-                </div>
+
+            {currentImageUrl && !imageError ? (
+                <img
+                    src={currentImageUrl}
+                    alt={alt || categoryName}
+                    className={`category-image ${loading ? 'loading' : ''}`}
+                    onLoad={handleImageLoad}
+                    onError={handleImageError}
+                    style={{
+                        display: loading ? 'none' : 'block',
+                        width: '100%',
+                        height: '100%',
+                        objectFit: 'cover',
+                        borderRadius: '50%'
+                    }}
+                />
+            ) : (
+                !loading && getPlaceholderContent()
             )}
         </div>
     );

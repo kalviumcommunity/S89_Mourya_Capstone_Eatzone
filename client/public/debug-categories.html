@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Categories</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .category { border: 1px solid #ddd; margin: 10px 0; padding: 10px; border-radius: 5px; }
+        .category img { width: 80px; height: 80px; object-fit: cover; border-radius: 5px; }
+        .error { color: red; }
+        .success { color: green; }
+        button { padding: 10px 20px; margin: 10px 0; background: #ff6b35; color: white; border: none; border-radius: 5px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>Category Debug Tool</h1>
+    <button onclick="testCategories()">Test Categories API</button>
+    <button onclick="clearResults()">Clear Results</button>
+    
+    <div id="results"></div>
+
+    <script>
+        const API_URLS = [
+            'https://eatzone.onrender.com/api/category/list',
+            'http://localhost:4000/api/category/list'
+        ];
+
+        async function testCategories() {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '<p>Testing category APIs...</p>';
+
+            for (const apiUrl of API_URLS) {
+                try {
+                    console.log(`🔄 Testing API: ${apiUrl}`);
+                    
+                    const response = await fetch(apiUrl, {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Cache-Control': 'no-cache'
+                        }
+                    });
+
+                    const result = document.createElement('div');
+                    result.innerHTML = `<h3>API: ${apiUrl}</h3>`;
+
+                    if (!response.ok) {
+                        result.innerHTML += `<p class="error">❌ HTTP Error: ${response.status}</p>`;
+                        resultsDiv.appendChild(result);
+                        continue;
+                    }
+
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        result.innerHTML += `<p class="success">✅ Success! Found ${data.data.length} categories</p>`;
+                        
+                        data.data.forEach((category, index) => {
+                            const categoryDiv = document.createElement('div');
+                            categoryDiv.className = 'category';
+                            
+                            const imageUrl = category.image.startsWith('http') 
+                                ? category.image 
+                                : `https://eatzone.onrender.com/images/${category.image}`;
+                            
+                            categoryDiv.innerHTML = `
+                                <h4>${index + 1}. ${category.name}</h4>
+                                <p><strong>Description:</strong> ${category.description || 'No description'}</p>
+                                <p><strong>Image URL:</strong> ${category.image}</p>
+                                <p><strong>Resolved URL:</strong> ${imageUrl}</p>
+                                <img src="${imageUrl}" alt="${category.name}" 
+                                     onload="console.log('✅ Image loaded:', '${category.name}')"
+                                     onerror="console.log('❌ Image failed:', '${category.name}'); this.style.border='2px solid red';">
+                                <p><strong>Active:</strong> ${category.isActive ? 'Yes' : 'No'}</p>
+                                <p><strong>Order:</strong> ${category.order || 0}</p>
+                            `;
+                            result.appendChild(categoryDiv);
+                        });
+                    } else {
+                        result.innerHTML += `<p class="error">❌ API Error: ${data.message}</p>`;
+                    }
+
+                    resultsDiv.appendChild(result);
+
+                } catch (error) {
+                    console.error(`❌ Error testing ${apiUrl}:`, error);
+                    const result = document.createElement('div');
+                    result.innerHTML = `
+                        <h3>API: ${apiUrl}</h3>
+                        <p class="error">❌ Network Error: ${error.message}</p>
+                    `;
+                    resultsDiv.appendChild(result);
+                }
+            }
+        }
+
+        function clearResults() {
+            document.getElementById('results').innerHTML = '';
+        }
+
+        // Auto-test on page load
+        window.onload = () => {
+            setTimeout(testCategories, 1000);
+        };
+    </script>
+</body>
+</html>

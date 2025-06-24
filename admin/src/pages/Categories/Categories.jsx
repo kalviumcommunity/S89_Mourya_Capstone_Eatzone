@@ -306,6 +306,17 @@ const Categories = ({ url }) => {
                 toast.success(editingCategory ? "Category updated successfully!" : "Category added successfully!");
                 fetchCategories();
                 closeModal();
+
+                // Trigger event to refresh categories in client app (if running in same domain)
+                try {
+                    if (window.parent && window.parent !== window) {
+                        window.parent.postMessage({ type: 'CATEGORY_UPDATED' }, '*');
+                    }
+                    // Also dispatch custom event for same-origin scenarios
+                    window.dispatchEvent(new CustomEvent('categoryUpdated'));
+                } catch (error) {
+                    console.log("Could not notify client of category update:", error);
+                }
             } else {
                 toast.error(response.data.message || "Operation failed");
             }
@@ -330,6 +341,16 @@ const Categories = ({ url }) => {
             if (response.data.success) {
                 toast.success("Category deleted successfully!");
                 fetchCategories();
+
+                // Trigger event to refresh categories in client app
+                try {
+                    if (window.parent && window.parent !== window) {
+                        window.parent.postMessage({ type: 'CATEGORY_UPDATED' }, '*');
+                    }
+                    window.dispatchEvent(new CustomEvent('categoryUpdated'));
+                } catch (error) {
+                    console.log("Could not notify client of category update:", error);
+                }
             } else {
                 toast.error("Failed to delete category");
             }
