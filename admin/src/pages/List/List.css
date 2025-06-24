@@ -89,7 +89,7 @@
 
 .list-table-format {
   display: grid;
-  grid-template-columns: 80px 2fr 1fr 120px 1fr 100px;
+  grid-template-columns: 80px 2fr 1fr 1fr 120px 1fr 100px;
   align-items: center;
   gap: 1rem;
   padding: 1rem 1.5rem;
@@ -145,6 +145,19 @@
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+}
+
+.food-restaurant {
+  font-size: 0.75rem;
+  color: var(--dark-gray);
+  font-weight: 500;
+  padding: 0.25rem 0.5rem;
+  background: var(--light-gray);
+  border-radius: var(--radius-sm);
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .food-category {
@@ -302,6 +315,7 @@
   }
 
   .food-category,
+  .food-restaurant,
   .food-description {
     display: none;
   }
@@ -375,6 +389,19 @@
   align-items: center;
   gap: 0.5rem;
   text-decoration: none;
+}
+
+.btn-primary {
+  background-color: #2563eb;
+  color: white;
+  border: 2px solid #2563eb;
+}
+
+.btn-primary:hover {
+  background-color: #1d4ed8;
+  border-color: #1d4ed8;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
 }
 
 .btn-danger {

@@ -10,14 +10,14 @@ export default defineConfig({
     host: true, // Allow external connections
     proxy: {
       '/api': {
-        target: 'http://localhost:4000',
+        target: 'https://eatzone.onrender.com',
         changeOrigin: true,
-        secure: false,
+        secure: true,
       },
       '/images': {
-        target: 'http://localhost:4000',
+        target: 'https://eatzone.onrender.com',
         changeOrigin: true,
-        secure: false,
+        secure: true,
       }
     }
   }

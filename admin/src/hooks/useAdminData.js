@@ -73,7 +73,8 @@ const useAdminData = () => {
       // Add Firebase UID to form data
       formData.append('firebaseUID', currentUser.uid);
 
-      const response = await fetch('http://localhost:4000/api/admin/food/add', {
+      const apiUrl = import.meta.env.VITE_API_BASE_URL || 'https://eatzone.onrender.com';
+      const response = await fetch(`${apiUrl}/api/admin/food/add`, {
         method: 'POST',
         body: formData
       });
@@ -126,7 +127,8 @@ const useAdminData = () => {
     if (!currentUser) return { success: false, message: 'Not authenticated' };
 
     try {
-      const response = await fetch('http://localhost:4000/api/admin/food/remove', {
+      const apiUrl = import.meta.env.VITE_API_BASE_URL || 'https://eatzone.onrender.com';
+      const response = await fetch(`${apiUrl}/api/admin/food/remove`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -156,7 +158,8 @@ const useAdminData = () => {
     if (!currentUser) return { success: false, message: 'Not authenticated' };
 
     try {
-      const response = await fetch('http://localhost:4000/api/admin/order/update-status', {
+      const apiUrl = import.meta.env.VITE_API_BASE_URL || 'https://eatzone.onrender.com';
+      const response = await fetch(`${apiUrl}/api/admin/order/update-status`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

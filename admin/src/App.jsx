@@ -6,6 +6,7 @@ import { Routes, Route, Navigate } from 'react-router-dom'
 import Dashboard from './pages/Dashboard/Dashboard'
 import Add from './pages/Add/Add'
 import List from './pages/List/List'
+import Categories from './pages/Categories/Categories'
 import AddRestaurant from './pages/AddRestaurant/AddRestaurant'
 import RestaurantList from './pages/RestaurantList/RestaurantList'
 import Orders from './pages/Orders/Orders'
@@ -42,6 +43,7 @@ const AppContent = () => {
             <Route path="/dashboard" element={<Dashboard url={url}/>}/>
             <Route path="/add" element={<Add url={url}/>}/>
             <Route path="/list" element={<List url={url}/>}/>
+            <Route path="/categories" element={<Categories url={url}/>}/>
             <Route path="/add-restaurant" element={<AddRestaurant url={url}/>}/>
             <Route path="/restaurant-list" element={<RestaurantList url={url}/>}/>
             <Route path="/orders" element={<Orders url={url}/>}/>
