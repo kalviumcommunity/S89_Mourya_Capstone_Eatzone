@@ -104,7 +104,7 @@ const addFood = async(req,res) =>{
 //get food list
 const listFood = async (req, res) => {
     try {
-        const foods = await foodModel.find({});
+        const foods = await foodModel.find({}).populate('restaurantId', 'name');
         res.json({success:true,data:foods})
     } catch (error) {
         console.log(error);
@@ -206,6 +206,17 @@ const updateFood = async (req, res) => {
                 updateData.discountAmount = 0;
                 updateData.isOnSale = false;
                 updateData.price = numericPrice;
+            }
+        }
+
+        // Handle restaurant association
+        if (req.body.restaurantId !== undefined) {
+            if (req.body.restaurantId && req.body.restaurantId.trim() !== '' && req.body.restaurantId !== 'none') {
+                updateData.restaurantId = req.body.restaurantId;
+                console.log("🏪 Food item will be associated with restaurant:", req.body.restaurantId);
+            } else {
+                updateData.restaurantId = null;
+                console.log("🏪 Food item restaurant association removed");
             }
         }
 

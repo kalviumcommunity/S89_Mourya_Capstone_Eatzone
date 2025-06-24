@@ -80,11 +80,12 @@ const Add = ({url}) => {
   const [imageUploading, setImageUploading] = useState(false);
   const [cloudinaryUrl, setCloudinaryUrl] = useState("");
   const [restaurants, setRestaurants] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [data,setData] = useState({
     name:"",
     description:"",
     price:"",
-    category:"Rolls",
+    category:"",
     restaurantId:"",
     discountPercentage:"",
     discountLabel:"",
@@ -93,9 +94,10 @@ const Add = ({url}) => {
     tags:""
   })
 
-  // Fetch restaurants on component mount
+  // Fetch restaurants and categories on component mount
   useEffect(() => {
     fetchRestaurants();
+    fetchCategories();
   }, []);
 
   const fetchRestaurants = async () => {
@@ -107,6 +109,22 @@ const Add = ({url}) => {
     } catch (error) {
       console.error("Error fetching restaurants:", error);
       toast.error("Failed to load restaurants");
+    }
+  };
+
+  const fetchCategories = async () => {
+    try {
+      const response = await axios.get(`${url}/api/category/list`);
+      if (response.data.success) {
+        setCategories(response.data.data);
+        // Set default category to first available category
+        if (response.data.data.length > 0 && !data.category) {
+          setData(prev => ({ ...prev, category: response.data.data[0].name }));
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+      toast.error("Failed to load categories");
     }
   };
 
@@ -207,7 +225,7 @@ const Add = ({url}) => {
           name: "",
           description: "",
           price: "",
-          category: "Rolls",
+          category: categories.length > 0 ? categories[0].name : "",
           restaurantId: "",
           discountPercentage: "",
           discountLabel: "",
@@ -368,24 +386,18 @@ const Add = ({url}) => {
             <div className="add-category">
               <label className="form-label required">Category</label>
               <select onChange={onChangeHandler} name="category" value={data.category} required>
-                <option value="Rolls">Rolls</option>
-                <option value="Salad">Salad</option>
-                <option value="Deserts">Deserts</option>
-                <option value="Sandwich">Sandwich</option>
-                <option value="Cake">Cake</option>
-                <option value="Veg">Veg</option>
-                <option value="Main Course">Main Course</option>
-                <option value="Appetizer">Appetizer</option>
-                <option value="Dessert">Dessert</option>
-                <option value="Pizza">Pizza</option>
-                <option value="Sushi">Sushi</option>
-                <option value="Sashimi">Sashimi</option>
-                <option value="Soup">Soup</option>
-                <option value="Tacos">Tacos</option>
-                <option value="Burritos">Burritos</option>
-                <option value="Pasta">Pasta</option>
-                <option value="Noodles">Noodles</option>
+                <option value="">Select Category</option>
+                {categories.map((category) => (
+                  <option key={category._id} value={category.name}>
+                    {category.name}
+                  </option>
+                ))}
               </select>
+              {categories.length === 0 && (
+                <small className="form-help">
+                  No categories available. Please add categories first in the Categories section.
+                </small>
+              )}
             </div>
           </div>
 

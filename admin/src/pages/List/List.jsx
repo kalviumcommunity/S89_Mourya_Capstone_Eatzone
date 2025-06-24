@@ -38,11 +38,14 @@ const List = ({ url }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [editingItem, setEditingItem] = useState(null);
+  const [restaurants, setRestaurants] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [editForm, setEditForm] = useState({
     name: '',
     description: '',
     price: '',
     category: '',
+    restaurantId: '',
     image: null,
     discountPercentage: '',
     discountLabel: '',
@@ -51,23 +54,58 @@ const List = ({ url }) => {
     tags: ''
   });
 
+  // Test API connection
+  const testApiConnection = async () => {
+    try {
+      console.log("Testing API connection to:", url);
+      const response = await axios.get(`${url}/test`);
+      console.log("API test response:", response.data);
+      toast.success("API connection successful!", { autoClose: 2000 });
+    } catch (error) {
+      console.error("API connection test failed:", error);
+      toast.error("API connection failed. Check console for details.", { autoClose: 5000 });
+    }
+  };
+
   const fetchList = async () => {
     try {
       setLoading(true);
+      console.log("Fetching food list from:", `${url}/api/food/list`);
       const response = await axios.get(`${url}/api/food/list`);
+      console.log("Food list response:", response.data);
 
       if (response.data.success) {
         setList(response.data.data);
         setFilteredList(response.data.data);
-        toast.success("Food items loaded successfully", { autoClose: 1000 });
+        console.log("Food items loaded:", response.data.data.length, "items");
+        toast.success(`Food items loaded successfully (${response.data.data.length} items)`, { autoClose: 2000 });
       } else {
+        console.error("Failed to load food items:", response.data.message);
         toast.error(response.data.message || "Failed to load food items");
       }
     } catch (error) {
       console.error("Error fetching food list:", error);
+      console.error("Error details:", error.response?.data);
       toast.error(error.response?.data?.message || "An error occurred while fetching food items");
     } finally {
       setLoading(false);
+    }
+  }
+
+  const fetchRestaurants = async () => {
+    try {
+      console.log("Fetching restaurants from:", `${url}/api/restaurant/list`);
+      const response = await axios.get(`${url}/api/restaurant/list`);
+      console.log("Restaurants response:", response.data);
+      if (response.data.success) {
+        setRestaurants(response.data.data);
+        console.log("Restaurants loaded:", response.data.data.length, "restaurants");
+      } else {
+        console.error("Failed to load restaurants:", response.data.message);
+      }
+    } catch (error) {
+      console.error("Error fetching restaurants:", error);
+      console.error("Error details:", error.response?.data);
     }
   }
 
@@ -118,6 +156,7 @@ const List = ({ url }) => {
       description: item.description || '',
       price: (item.originalPrice || item.price).toString(), // Use original price if available
       category: item.category,
+      restaurantId: item.restaurantId?._id || item.restaurantId || '',
       image: null,
       discountPercentage: item.discountPercentage?.toString() || '',
       discountLabel: item.discountLabel || '',
@@ -134,6 +173,7 @@ const List = ({ url }) => {
       description: '',
       price: '',
       category: '',
+      restaurantId: '',
       image: null,
       discountPercentage: '',
       discountLabel: '',
@@ -180,6 +220,13 @@ const List = ({ url }) => {
       formData.append('description', editForm.description.trim());
       formData.append('price', editForm.price);
       formData.append('category', editForm.category);
+
+      // Add restaurant association
+      if (editForm.restaurantId && editForm.restaurantId !== 'none') {
+        formData.append('restaurantId', editForm.restaurantId);
+      } else {
+        formData.append('restaurantId', ''); // Remove restaurant association
+      }
 
       // Add discount fields
       if (editForm.discountPercentage) {
@@ -260,11 +307,23 @@ const List = ({ url }) => {
   }, [list, searchTerm, categoryFilter]);
 
   useEffect(() => {
+    testApiConnection();
     fetchList();
+    fetchRestaurants();
+    fetchCategories();
   }, [])
 
-  // Get unique categories
-  const categories = [...new Set(list.map(item => item.category))];
+  // Fetch categories from API
+  const fetchCategories = async () => {
+    try {
+      const response = await axios.get(`${url}/api/category/list`);
+      if (response.data.success) {
+        setCategories(response.data.data);
+      }
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+    }
+  };
 
   if (loading) {
     return (
@@ -286,6 +345,14 @@ const List = ({ url }) => {
             <p className="card-subtitle">Manage your restaurant menu items</p>
           </div>
           <div className="card-actions">
+            <button
+              className="btn btn-primary"
+              onClick={testApiConnection}
+              title="Test API connection"
+              style={{ marginRight: '1rem' }}
+            >
+              🔗 Test API
+            </button>
             <button
               className="btn btn-danger"
               onClick={clearAllFood}
@@ -327,8 +394,8 @@ const List = ({ url }) => {
             className="filter-select"
           >
             <option value="all">All Categories</option>
-            {categories.map((category, index) => (
-              <option key={index} value={category}>{category}</option>
+            {categories.map((category) => (
+              <option key={category._id} value={category.name}>{category.name}</option>
             ))}
           </select>
         </div>
@@ -338,6 +405,7 @@ const List = ({ url }) => {
           <div className="list-table-format title">
             <span>Image</span>
             <span>Food Details</span>
+            <span>Restaurant</span>
             <span>Category</span>
             <span>Price</span>
             <span>Status</span>
@@ -360,6 +428,9 @@ const List = ({ url }) => {
                   <h4 className="food-name">{item.name}</h4>
                   <p className="food-description">{item.description || 'No description available'}</p>
                 </div>
+                <span className="food-restaurant">
+                  {item.restaurantId?.name || 'General Item'}
+                </span>
                 <span className="food-category">{item.category}</span>
                 <div className="food-price-container">
                   {item.isOnSale && item.originalPrice ? (
@@ -452,6 +523,24 @@ const List = ({ url }) => {
                 />
               </div>
 
+              <div className="form-group">
+                <label htmlFor="edit-restaurant">Restaurant</label>
+                <select
+                  id="edit-restaurant"
+                  name="restaurantId"
+                  value={editForm.restaurantId}
+                  onChange={handleEditFormChange}
+                >
+                  <option value="">No Restaurant (General Item)</option>
+                  {restaurants.map((restaurant) => (
+                    <option key={restaurant._id} value={restaurant._id}>
+                      {restaurant.name}
+                    </option>
+                  ))}
+                </select>
+                <small>Select a restaurant to associate this food item with</small>
+              </div>
+
               <div className="form-row">
                 <div className="form-group">
                   <label htmlFor="edit-category">Category *</label>
@@ -463,23 +552,11 @@ const List = ({ url }) => {
                     required
                   >
                     <option value="">Select Category</option>
-                    <option value="Salad">Salad</option>
-                    <option value="Rolls">Rolls</option>
-                    <option value="Deserts">Deserts</option>
-                    <option value="Sandwich">Sandwich</option>
-                    <option value="Cake">Cake</option>
-                    <option value="Veg">Veg</option>
-                    <option value="Pasta">Pasta</option>
-                    <option value="Noodles">Noodles</option>
-                    <option value="Main Course">Main Course</option>
-                    <option value="Appetizer">Appetizer</option>
-                    <option value="Dessert">Dessert</option>
-                    <option value="Pizza">Pizza</option>
-                    <option value="Sushi">Sushi</option>
-                    <option value="Sashimi">Sashimi</option>
-                    <option value="Soup">Soup</option>
-                    <option value="Tacos">Tacos</option>
-                    <option value="Burritos">Burritos</option>
+                    {categories.map((category) => (
+                      <option key={category._id} value={category.name}>
+                        {category.name}
+                      </option>
+                    ))}
                   </select>
                 </div>
 
