@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { getImageUrl, handleImageError } from '../../utils/imageUtils';
-import performanceMonitor from '../../utils/performance';
+// import performanceMonitor from '../../utils/performance'; // Temporarily disabled for debugging
 import imageCache from '../../utils/imageCache';
 import LoadingIndicator from '../LoadingIndicator/LoadingIndicator';
 import './OptimizedImage.css';
@@ -27,6 +27,10 @@ const OptimizedImage = ({
 
   // Intersection Observer for lazy loading
   useEffect(() => {
+    // Temporarily disable lazy loading for debugging - always show images
+    setIsInView(true);
+    return;
+
     if (!lazy || isInView) return;
 
     const observer = new IntersectionObserver(
@@ -66,8 +70,20 @@ const OptimizedImage = ({
     gravity: 'auto'
   });
 
+  // For debugging: also get simple URL without optimization
+  const simpleSrc = getImageUrl(src);
+
+  // Debug logging
+  console.log(`🖼️ OptimizedImage - Original src: ${src}`);
+  console.log(`🖼️ OptimizedImage - Simple src: ${simpleSrc}`);
+  console.log(`🖼️ OptimizedImage - Optimized src: ${optimizedSrc}`);
+  console.log(`🖼️ OptimizedImage - isInView: ${isInView}, hasError: ${hasError}, isLoaded: ${isLoaded}`);
+
   // Check if image is cached
   useEffect(() => {
+    // Temporarily disable cache for debugging
+    return;
+
     if (optimizedSrc && imageCache.has(optimizedSrc)) {
       setIsLoaded(true);
       setHasError(false);
@@ -78,15 +94,16 @@ const OptimizedImage = ({
     setIsLoaded(true);
     setHasError(false);
 
-    // Cache the successfully loaded image
-    if (optimizedSrc && e.target) {
-      imageCache.set(optimizedSrc, e.target);
-    }
+    // Cache the successfully loaded image - temporarily disabled for debugging
+    // if (optimizedSrc && e.target) {
+    //   imageCache.set(optimizedSrc, e.target);
+    // }
 
     if (onLoad) onLoad();
   };
 
   const handleError = (e) => {
+    console.error(`❌ OptimizedImage error for src: ${optimizedSrc}`, e);
     setHasError(true);
     if (onError) {
       onError(e);
@@ -132,7 +149,7 @@ const OptimizedImage = ({
       {/* Actual image */}
       {isInView && !hasError && (
         <img
-          src={optimizedSrc}
+          src={simpleSrc}
           alt={alt}
           className={`optimized-image ${isLoaded ? 'loaded' : 'loading'}`}
           onLoad={handleLoad}
@@ -140,9 +157,10 @@ const OptimizedImage = ({
           loading={lazy ? 'lazy' : 'eager'}
           decoding="async"
           ref={(img) => {
-            if (img) {
-              performanceMonitor.monitorImageLoad(img, alt || 'image');
-            }
+            // Performance monitoring temporarily disabled for debugging
+            // if (img) {
+            //   performanceMonitor.monitorImageLoad(img, alt || 'image');
+            // }
           }}
           style={{
             display: isLoaded ? 'block' : 'none',

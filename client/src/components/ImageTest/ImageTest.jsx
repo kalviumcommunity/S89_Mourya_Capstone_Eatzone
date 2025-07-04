@@ -11,16 +11,24 @@ const ImageTest = () => {
       url: getDefaultFoodImage()
     },
     {
-      name: 'Server Image',
+      name: 'Server Image - Lasanga Rolls',
+      url: getImageUrl('1749184551598food_5.png')
+    },
+    {
+      name: 'Server Image - Greek Salad',
+      url: getImageUrl('1749191111940food_1.png')
+    },
+    {
+      name: 'Cloudinary Food Image',
+      url: getImageUrl('https://res.cloudinary.com/dodxdudew/image/upload/v1750777697/eatzone/food/x04zrqcxmhrkvptr6dun.jpg')
+    },
+    {
+      name: 'Direct Server URL',
       url: 'https://eatzone.onrender.com/images/1749184551598food_5.png'
     },
     {
-      name: 'Cloudinary Category',
-      url: 'https://res.cloudinary.com/dodxdudew/image/upload/v1735055000/eatzone/categories/pizza.jpg'
-    },
-    {
-      name: 'Unsplash Image',
-      url: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400&h=400&fit=crop'
+      name: 'Direct Cloudinary URL',
+      url: 'https://res.cloudinary.com/dodxdudew/image/upload/v1750777697/eatzone/food/x04zrqcxmhrkvptr6dun.jpg'
     }
   ];
 

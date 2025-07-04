@@ -4,6 +4,7 @@ import { assets } from '../../assets/assets';
 import { StoreContext } from '../../context/StoreContext';
 import { formatINR } from '../../utils/currencyUtils';
 import OptimizedImage from '../OptimizedImage/OptimizedImage';
+import { getImageUrl } from '../../utils/imageUtils';
 
 const FoodItem = ({id,name,price,description,image,originalPrice,discountPercentage,isOnSale,discountLabel,isPopular,isFeatured,tags}) => {
     //const [itemCount, setItemCount] = useState(0);
@@ -12,14 +13,26 @@ const FoodItem = ({id,name,price,description,image,originalPrice,discountPercent
     return (
         <div className='food-item'>
             <div className="food-item-img-container">
+                {/* Temporarily using basic img tag for debugging */}
+                <img
+                    src={getImageUrl(image)}
+                    alt={name}
+                    onLoad={() => console.log(`✅ Basic img loaded: ${name}`)}
+                    onError={(e) => console.error(`❌ Basic img failed: ${name}`, e)}
+                    className="food-item-image"
+                />
+
+                {/* Original OptimizedImage for comparison - hidden */}
                 <OptimizedImage
                     src={image}
                     alt={name}
                     width={280}
                     height={200}
                     quality="auto"
-                    lazy={true}
-                    className="food-item-image"
+                    lazy={false}
+                    onLoad={() => console.log(`✅ OptimizedImage loaded: ${name}`)}
+                    onError={(e) => console.error(`❌ OptimizedImage failed: ${name}`, e)}
+                    style={{ display: 'none' }}
                 />
 
                 {/* Discount Badge */}

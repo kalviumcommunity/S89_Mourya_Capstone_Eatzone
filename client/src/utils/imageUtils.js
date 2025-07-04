@@ -11,34 +11,66 @@
  * @returns {string} Optimized image URL
  */
 export const getImageUrl = (image, serverUrl = import.meta.env.VITE_API_BASE_URL || "https://eatzone.onrender.com", options = {}) => {
+  // Debug API base URL
+  console.log('🔧 API Base URL:', import.meta.env.VITE_API_BASE_URL, 'Server URL:', serverUrl);
+
   // Handle null or undefined images
   if (!image) {
-    return getDefaultFoodImage(); // Use proper default fallback
+    console.warn('No image provided, using default fallback');
+    return getDefaultFoodImage();
   }
 
   // Convert to string if it's not already
-  const imageStr = String(image);
+  const imageStr = String(image).trim();
 
-  // Check if it's a Cloudinary URL
-  if (imageStr.includes('cloudinary.com')) {
-    return optimizeCloudinaryUrl(imageStr, options);
-  }
-
-  // Check if image is already a processed URL (from Vite imports or other CDNs)
-  if (imageStr.startsWith('http') || imageStr.startsWith('/') || imageStr.startsWith('data:')) {
-    // Already a valid URL (from static imports or full URLs)
+  // Check if it's already a complete URL (Cloudinary, external URLs, etc.)
+  if (imageStr.startsWith('http://') || imageStr.startsWith('https://')) {
+    console.log(`Using external URL: ${imageStr}`);
+    // If it's a Cloudinary URL, optimize it
+    if (imageStr.includes('cloudinary.com')) {
+      return optimizeCloudinaryUrl(imageStr, options);
+    }
+    // Return other external URLs as-is
     return imageStr;
   }
 
-  // Check if it's a server uploaded image filename
-  if (imageStr.includes('.png') || imageStr.includes('.jpg') || imageStr.includes('.jpeg')) {
-    // Server uploaded image filename - construct server URL
-    const cleanImagePath = imageStr.startsWith('/') ? imageStr.substring(1) : imageStr;
-    return `${serverUrl}/images/${cleanImagePath}`;
+  // Check if it's a data URL
+  if (imageStr.startsWith('data:')) {
+    return imageStr;
   }
 
-  // Fallback - treat as server image
-  return `${serverUrl}/images/${imageStr}`;
+  // Check if it's an absolute path starting with /
+  if (imageStr.startsWith('/')) {
+    return imageStr;
+  }
+
+  // Handle server uploaded image filename - construct server URL
+  if (imageStr.includes('.png') || imageStr.includes('.jpg') || imageStr.includes('.jpeg') || imageStr.includes('.webp') || imageStr.includes('.gif')) {
+    const cleanImagePath = imageStr.startsWith('/') ? imageStr.substring(1) : imageStr;
+    const fullUrl = `${serverUrl}/images/${cleanImagePath}`;
+    console.log(`🔗 Constructed server image URL: ${fullUrl}`);
+    console.log(`🔧 Server URL: ${serverUrl}`);
+    console.log(`🖼️ Clean image path: ${cleanImagePath}`);
+
+    // For debugging: test if the URL is accessible
+    fetch(fullUrl, { method: 'HEAD' })
+      .then(response => {
+        if (response.ok) {
+          console.log(`✅ Image accessible: ${fullUrl}`);
+        } else {
+          console.error(`❌ Image not accessible: ${fullUrl} - Status: ${response.status}`);
+        }
+      })
+      .catch(error => {
+        console.error(`❌ Image fetch error: ${fullUrl}`, error);
+      });
+
+    return fullUrl;
+  }
+
+  // If none of the above, return default
+  console.warn(`Unknown image format: ${imageStr}, using default fallback`);
+  return getDefaultFoodImage();
 };
 
 /**
@@ -46,7 +78,7 @@ export const getImageUrl = (image, serverUrl = import.meta.env.VITE_API_BASE_URL
  * @returns {string} Default food image URL
  */
 export const getDefaultFoodImage = () => {
-  return 'https://res.cloudinary.com/dodxdudew/image/upload/v1735055000/eatzone/categories/default-food.jpg';
+  return 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400&h=400&fit=crop&crop=center&auto=format&q=80';
 };
 
 /**
@@ -100,7 +132,7 @@ export const handleImageError = (event) => {
   const img = event.target;
   const currentSrc = img.src;
 
-  console.warn(`Failed to load image: ${currentSrc}`);
+  console.warn(`❌ Failed to load image: ${currentSrc}`);
 
   // Prevent infinite error loops
   if (img.dataset.errorCount) {
@@ -109,15 +141,19 @@ export const handleImageError = (event) => {
     img.dataset.errorCount = '1';
   }
 
-  // Stop after 2 attempts to prevent infinite loops
-  if (parseInt(img.dataset.errorCount) > 2) {
-    console.error('Too many image load failures, using final fallback');
+  const errorCount = parseInt(img.dataset.errorCount);
+  console.log(`Image error attempt ${errorCount} for: ${currentSrc}`);
+
+  // Stop after 3 attempts to prevent infinite loops
+  if (errorCount > 3) {
+    console.error('❌ Too many image load failures, using final fallback');
     img.src = getDefaultFoodImage();
     return;
   }
 
-  // First fallback: If it's a Cloudinary image that failed, try another Cloudinary image
+  // First fallback: If it's a Cloudinary image that failed, try default Cloudinary image
   if (currentSrc.includes('cloudinary.com') && !img.dataset.cloudinaryFallback) {
+    console.log('🔄 Cloudinary image failed, trying default fallback');
     img.dataset.cloudinaryFallback = 'true';
     img.src = getDefaultFoodImage();
     return;
@@ -125,6 +161,7 @@ export const handleImageError = (event) => {
 
   // Second fallback: If it's a server image that failed, try Cloudinary fallback
   if (currentSrc.includes('/images/') && !img.dataset.fallbackAttempted) {
+    console.log('🔄 Server image failed, trying Cloudinary fallback');
     img.dataset.fallbackAttempted = 'true';
     img.src = getDefaultFoodImage();
     return;
@@ -132,6 +169,7 @@ export const handleImageError = (event) => {
 
   // Final fallback: Use a reliable default food image
   if (!img.dataset.finalFallback) {
+    console.log('🔄 Using final fallback image');
     img.dataset.finalFallback = 'true';
     img.src = getDefaultFoodImage();
   }
