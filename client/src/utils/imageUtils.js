@@ -13,7 +13,7 @@
 export const getImageUrl = (image, serverUrl = import.meta.env.VITE_API_BASE_URL || "https://eatzone.onrender.com", options = {}) => {
   // Handle null or undefined images
   if (!image) {
-    return '/src/assets/food_1.png'; // Default fallback
+    return getDefaultFoodImage(); // Use proper default fallback
   }
 
   // Convert to string if it's not already
@@ -39,6 +39,14 @@ export const getImageUrl = (image, serverUrl = import.meta.env.VITE_API_BASE_URL
 
   // Fallback - treat as server image
   return `${serverUrl}/images/${imageStr}`;
+};
+
+/**
+ * Get a reliable default food image
+ * @returns {string} Default food image URL
+ */
+export const getDefaultFoodImage = () => {
+  return 'https://res.cloudinary.com/dodxdudew/image/upload/v1735055000/eatzone/categories/default-food.jpg';
 };
 
 /**
@@ -88,7 +96,7 @@ export const optimizeCloudinaryUrl = (cloudinaryUrl, options = {}) => {
 /**
  * Handle image loading errors with intelligent fallbacks
  */
-export const handleImageError = (event, originalImage) => {
+export const handleImageError = (event) => {
   const img = event.target;
   const currentSrc = img.src;
 
@@ -101,53 +109,39 @@ export const handleImageError = (event, originalImage) => {
     img.dataset.errorCount = '1';
   }
 
-  // Stop after 3 attempts
-  if (parseInt(img.dataset.errorCount) > 3) {
-    console.error('Too many image load failures, stopping fallback attempts');
+  // Stop after 2 attempts to prevent infinite loops
+  if (parseInt(img.dataset.errorCount) > 2) {
+    console.error('Too many image load failures, using final fallback');
+    img.src = getDefaultFoodImage();
     return;
   }
 
-  // First fallback: If it's a Cloudinary image that failed, try server image or static asset
+  // First fallback: If it's a Cloudinary image that failed, try another Cloudinary image
   if (currentSrc.includes('cloudinary.com') && !img.dataset.cloudinaryFallback) {
     img.dataset.cloudinaryFallback = 'true';
-
-    // Try to use a generic food image
-    img.src = '/src/assets/food_1.png';
+    img.src = getDefaultFoodImage();
     return;
   }
 
-  // Second fallback: If it's a server image that failed, try to find a matching static asset
+  // Second fallback: If it's a server image that failed, try Cloudinary fallback
   if (currentSrc.includes('/images/') && !img.dataset.fallbackAttempted) {
     img.dataset.fallbackAttempted = 'true';
-
-    // Extract filename and try to match with static assets
-    const filename = currentSrc.split('/').pop();
-    if (filename.includes('food_')) {
-      // Try to extract food number and use static asset
-      const match = filename.match(/food_(\d+)/);
-      if (match) {
-        img.src = `/src/assets/food_${match[1]}.png`;
-        return;
-      }
-    }
+    img.src = getDefaultFoodImage();
+    return;
   }
 
-  // Second fallback: Try a generic food image based on original image name
-  if (!img.dataset.genericFallback) {
-    img.dataset.genericFallback = 'true';
-    
-    if (typeof originalImage === 'string' && originalImage.includes('food_')) {
-      const match = originalImage.match(/food_(\d+)/);
-      if (match) {
-        img.src = `/src/assets/food_${match[1]}.png`;
-        return;
-      }
-    }
-  }
-
-  // Final fallback: Use a default food image
+  // Final fallback: Use a reliable default food image
   if (!img.dataset.finalFallback) {
     img.dataset.finalFallback = 'true';
-    img.src = '/src/assets/food_1.png';
+    img.src = getDefaultFoodImage();
   }
+};
+
+/**
+ * Preload critical images for better performance
+ */
+export const preloadCriticalImages = async () => {
+  // Import the preload function from imageCache
+  const { preloadCriticalImages: preloadFromCache } = await import('./imageCache.js');
+  preloadFromCache();
 };

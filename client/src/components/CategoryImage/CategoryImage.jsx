@@ -28,21 +28,9 @@ const CategoryImage = ({
 
     const handleImageError = (e) => {
         console.log(`❌ Failed to load image for ${categoryName}:`, image);
-        console.log(`Primary URL was:`, primaryImageUrl);
-        console.log(`Fallback URL is:`, fallbackImageUrl);
         setLoading(false);
-
-        if (!imageError && primaryImageUrl !== fallbackImageUrl) {
-            // First error - try fallback image
-            console.log(`🔄 Trying fallback image for ${categoryName}`);
-            setImageError(true);
-            e.target.src = fallbackImageUrl;
-        } else {
-            // Fallback also failed - show placeholder with category initial
-            console.log(`❌ Fallback also failed for ${categoryName}, showing placeholder`);
-            setImageError(true);
-            if (onError) onError(e);
-        }
+        setImageError(true);
+        if (onError) onError(e);
     };
 
     const currentImageUrl = imageError ? fallbackImageUrl : (primaryImageUrl || fallbackImageUrl);
@@ -70,20 +58,24 @@ const CategoryImage = ({
 
     return (
         <div className={`category-image-container ${className}`}>
-            <OptimizedImage
-                src={primaryImageUrl}
-                alt={alt || categoryName}
-                width={80}
-                height={80}
-                quality="auto"
-                lazy={true}
-                className="category-image"
-                onLoad={handleImageLoad}
-                onError={handleImageError}
-                style={{
-                    borderRadius: '50%'
-                }}
-            />
+            {imageError ? (
+                getPlaceholderContent()
+            ) : (
+                <OptimizedImage
+                    src={currentImageUrl}
+                    alt={alt || categoryName}
+                    width={80}
+                    height={80}
+                    quality="auto"
+                    lazy={false} // Don't lazy load category images for faster initial load
+                    className="category-image"
+                    onLoad={handleImageLoad}
+                    onError={handleImageError}
+                    style={{
+                        borderRadius: '50%'
+                    }}
+                />
+            )}
         </div>
     );
 };
