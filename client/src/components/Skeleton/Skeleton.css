@@ -1,0 +1,245 @@
+/* Base skeleton styles */
+.skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  display: inline-block;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Animation variants */
+.skeleton.pulse {
+  animation: skeleton-pulse 1.5s ease-in-out infinite;
+}
+
+.skeleton.wave {
+  animation: skeleton-wave 1.5s linear infinite;
+}
+
+.skeleton.shimmer {
+  animation: skeleton-shimmer 2s linear infinite;
+}
+
+/* Skeleton animations */
+@keyframes skeleton-pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+@keyframes skeleton-wave {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes skeleton-shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* Skeleton group */
+.skeleton-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Text skeleton container */
+.skeleton-text-container {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* Card skeletons */
+.skeleton-card {
+  background: white;
+  border-radius: 12px;
+  padding: 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.skeleton-card-content {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.skeleton-card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 8px;
+}
+
+.skeleton-title {
+  margin-bottom: 8px;
+}
+
+/* Food item skeleton */
+.skeleton-food-item {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.skeleton-food-content {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.skeleton-food-title {
+  margin-bottom: 6px;
+}
+
+.skeleton-food-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 12px;
+}
+
+/* Restaurant skeleton */
+.skeleton-restaurant {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  transition: transform 0.2s ease;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.skeleton-restaurant:hover {
+  transform: translateY(-2px);
+}
+
+.skeleton-restaurant-content {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.skeleton-restaurant-title {
+  margin-bottom: 4px;
+}
+
+.skeleton-restaurant-details {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 8px;
+}
+
+/* Category skeleton */
+.skeleton-category {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.skeleton-category:hover {
+  transform: scale(1.05);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .skeleton-card-content,
+  .skeleton-food-content,
+  .skeleton-restaurant-content {
+    padding: 12px;
+  }
+  
+  .skeleton-category {
+    padding: 8px;
+  }
+}
+
+/* Loading grid layouts */
+.skeleton-grid {
+  display: grid;
+  gap: 20px;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.skeleton-grid.food-grid {
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+}
+
+.skeleton-grid.restaurant-grid {
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+}
+
+.skeleton-grid.category-grid {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  padding: 0 20px;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.skeleton-grid.category-grid::-webkit-scrollbar {
+  display: none;
+}
+
+/* Fade in animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .skeleton {
+    background: linear-gradient(90deg, #2a2a2a 25%, #3a3a3a 50%, #2a2a2a 75%);
+  }
+  
+  .skeleton-card,
+  .skeleton-food-item,
+  .skeleton-restaurant {
+    background: #1a1a1a;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  }
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .skeleton,
+  .skeleton-card,
+  .skeleton-food-item,
+  .skeleton-restaurant,
+  .skeleton-category {
+    animation: none;
+  }
+}

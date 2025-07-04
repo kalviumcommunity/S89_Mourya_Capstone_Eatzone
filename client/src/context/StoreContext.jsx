@@ -1,6 +1,7 @@
 import { createContext, useState, useEffect, useCallback } from "react";
 import { food_list } from "../assets/assets";
 import axios from "axios";
+import apiService from "../services/apiService";
 
 export const StoreContext = createContext(null);
 
@@ -37,31 +38,55 @@ const StoreContextProvider = (props) => {
 
 
 
-  // Function to fetch food data from the server
+  // Function to fetch all home page data in parallel using API service
+  const fetchHomePageData = useCallback(async () => {
+    try {
+      setIsFoodLoading(true);
+      console.log("🚀 Fetching home page data with caching...");
+
+      const homeData = await apiService.getHomePageData();
+
+      // Handle food data
+      if (homeData.food.success) {
+        setFoodData(homeData.food.data);
+        console.log("✅ Food data loaded:", homeData.food.data.length, "items");
+      } else {
+        console.error("❌ Failed to fetch food data:", homeData.food.error);
+        setFoodData(food_list);
+      }
+
+      // Return all data for other components to use
+      return homeData;
+    } catch (error) {
+      console.error("❌ Error fetching home page data:", error);
+      // Fallback to static food list
+      setFoodData(food_list);
+      throw error;
+    } finally {
+      setIsFoodLoading(false);
+    }
+  }, []);
+
+  // Legacy function for backward compatibility
   const fetchFoodData = useCallback(async () => {
     try {
       setIsFoodLoading(true);
-      console.log("Fetching food data from server...");
+      const response = await apiService.getFoodList();
 
-      const response = await axios.get(`${url}/api/food/list`);
-      console.log("Food data response:", response.data);
-
-      if (response.data.success) {
-        setFoodData(response.data.data);
-        console.log("Food data fetched successfully:", response.data.data.length, "items");
+      if (response.success) {
+        setFoodData(response.data);
+        console.log("✅ Food data loaded from cache/API:", response.data.length, "items");
       } else {
-        console.error("Failed to fetch food data:", response.data.message);
-        // Fallback to static food list
+        console.error("❌ Failed to fetch food data:", response.message);
         setFoodData(food_list);
       }
     } catch (error) {
-      console.error("Error fetching food data:", error);
-      // Fallback to static food list
+      console.error("❌ Error fetching food data:", error);
       setFoodData(food_list);
     } finally {
       setIsFoodLoading(false);
     }
-  }, [url]);
+  }, []);
 
   // Function to save cart data to the server
   const saveCartToServer = useCallback(async (cartData) => {
@@ -349,11 +374,15 @@ const StoreContextProvider = (props) => {
       localStorage.removeItem("cartItems");
     }
 
+    // Preload critical data for better performance
+    apiService.preloadCriticalData();
+
+    // Fetch food data (will use cache if available)
     fetchFoodData();
 
     // Load initial cart
     loadCart();
-  }, []);
+  }, [fetchFoodData, loadCart]);
 
   // Function to clear cart data for user isolation - SECURE VERSION
   const clearUserData = useCallback(() => {
@@ -434,6 +463,7 @@ const StoreContextProvider = (props) => {
     foodData,
     isFoodLoading,
     fetchFoodData,
+    fetchHomePageData, // Add parallel data fetching function
     cartItems,
     setCartItems,
     addToCart,

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import './CategoryImage.css';
 import { getCategoryImageUrl, getCategoryFallbackImage } from '../../utils/categoryUtils';
+import OptimizedImage from '../OptimizedImage/OptimizedImage';
 
 // Use utility functions for better consistency
 
@@ -69,30 +70,20 @@ const CategoryImage = ({
 
     return (
         <div className={`category-image-container ${className}`}>
-            {loading && (
-                <div className="image-loading">
-                    <div className="loading-spinner"></div>
-                </div>
-            )}
-
-            {currentImageUrl && !imageError ? (
-                <img
-                    src={currentImageUrl}
-                    alt={alt || categoryName}
-                    className={`category-image ${loading ? 'loading' : ''}`}
-                    onLoad={handleImageLoad}
-                    onError={handleImageError}
-                    style={{
-                        display: loading ? 'none' : 'block',
-                        width: '100%',
-                        height: '100%',
-                        objectFit: 'cover',
-                        borderRadius: '50%'
-                    }}
-                />
-            ) : (
-                !loading && getPlaceholderContent()
-            )}
+            <OptimizedImage
+                src={primaryImageUrl}
+                alt={alt || categoryName}
+                width={80}
+                height={80}
+                quality="auto"
+                lazy={true}
+                className="category-image"
+                onLoad={handleImageLoad}
+                onError={handleImageError}
+                style={{
+                    borderRadius: '50%'
+                }}
+            />
         </div>
     );
 };

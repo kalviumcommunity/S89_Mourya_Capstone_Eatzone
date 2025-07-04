@@ -1,22 +1,38 @@
-import React,{useState, useContext} from 'react'
+import React, { useState, useContext, Suspense, lazy, useEffect } from 'react'
 import Navbar from './components/Navbar/Navbar'
-import { Route, Routes, Navigate } from 'react-router-dom'
-import Home from './pages/Home/Home'
-import Cart from './pages/Cart/Cart'
-import PlaceOrder from './pages/PlaceOrder/PlaceOrder'
-import Profile from './pages/Profile/Profile'
-import Orders from './pages/Orders/Orders'
-import Restaurant from './pages/Restaurant/Restaurant'
-import Verify from './pages/Verify/Verify'
+import { Route, Routes, Navigate, useLocation } from 'react-router-dom'
 import Footer from './components/Footer/Footer'
 import LoginPopup from './components/LoginPopup/LoginPopup'
-import AuthSuccess from './components/AuthSuccess/AuthSuccess'
 import { StoreContext } from './context/StoreContext'
-import ChatbotPage from './pages/chatbot/ChatbotPage'
+import LazyWrapper from './components/LazyWrapper/LazyWrapper'
+import { initializePreloader, useComponentPreloader } from './utils/preloader'
+
+// Lazy load pages for better performance
+const Home = lazy(() => import('./pages/Home/Home'))
+const Cart = lazy(() => import('./pages/Cart/Cart'))
+const PlaceOrder = lazy(() => import('./pages/PlaceOrder/PlaceOrder'))
+const Profile = lazy(() => import('./pages/Profile/Profile'))
+const Orders = lazy(() => import('./pages/Orders/Orders'))
+const Restaurant = lazy(() => import('./pages/Restaurant/Restaurant'))
+const Verify = lazy(() => import('./pages/Verify/Verify'))
+const AuthSuccess = lazy(() => import('./components/AuthSuccess/AuthSuccess'))
+const ChatbotPage = lazy(() => import('./pages/chatbot/ChatbotPage'))
 
 const App = () => {
   const [showLogin,setShowLogin] = useState(false)
   const { token } = useContext(StoreContext)
+  const location = useLocation()
+  const { preloadByRoute } = useComponentPreloader()
+
+  // Initialize preloader and handle route-based preloading
+  useEffect(() => {
+    initializePreloader()
+  }, [])
+
+  // Preload components based on current route
+  useEffect(() => {
+    preloadByRoute(location.pathname)
+  }, [location.pathname, preloadByRoute])
 
   // Protected route component
   const ProtectedRoute = ({ children }) => {
@@ -32,21 +48,54 @@ const App = () => {
     <div className='app'>
       <Navbar setShowLogin={setShowLogin}/>
       <Routes>
-        <Route path='/' element={<Home/>} />
-        <Route path='/cart' element={<Cart/>} />
-        <Route path='/order' element={<PlaceOrder/>} />
-        <Route path='/restaurant/:id' element={<Restaurant/>} />
-        <Route path='/verify' element={<Verify/>}/>
-        <Route path='/auth/*' element={<AuthSuccess/>} />
+        <Route path='/' element={
+          <LazyWrapper skeletonType="page" skeletonCount={3}>
+            <Home/>
+          </LazyWrapper>
+        } />
+        <Route path='/cart' element={
+          <LazyWrapper skeletonType="minimal">
+            <Cart/>
+          </LazyWrapper>
+        } />
+        <Route path='/order' element={
+          <LazyWrapper skeletonType="minimal">
+            <PlaceOrder/>
+          </LazyWrapper>
+        } />
+        <Route path='/restaurant/:id' element={
+          <LazyWrapper skeletonType="page" skeletonCount={6}>
+            <Restaurant/>
+          </LazyWrapper>
+        } />
+        <Route path='/verify' element={
+          <LazyWrapper skeletonType="minimal">
+            <Verify/>
+          </LazyWrapper>
+        }/>
+        <Route path='/auth/*' element={
+          <LazyWrapper skeletonType="minimal">
+            <AuthSuccess/>
+          </LazyWrapper>
+        } />
         <Route path='/myorders' element={
           <ProtectedRoute>
-            <Orders/>
+            <LazyWrapper skeletonType="page" skeletonCount={4}>
+              <Orders/>
+            </LazyWrapper>
           </ProtectedRoute>
         } />
         <Route path='/profile' element={
           <ProtectedRoute>
-            <Profile/>
+            <LazyWrapper skeletonType="minimal">
+              <Profile/>
+            </LazyWrapper>
           </ProtectedRoute>
+        } />
+        <Route path='/chatbot' element={
+          <LazyWrapper skeletonType="minimal">
+            <ChatbotPage/>
+          </LazyWrapper>
         } />
         {/* Catch-all route for debugging */}
         <Route path='*' element={
@@ -57,10 +106,6 @@ const App = () => {
             <button onClick={() => window.location.href = '/'}>Go Home</button>
           </div>
         } />
-        <Route
-        path='/chatbot'
-        element={<ChatbotPage/>}
-        />
        </Routes>
     </div>
     <Footer/>

@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getImageUrl, handleImageError } from '../../utils/imageUtils';
+import OptimizedImage from '../OptimizedImage/OptimizedImage';
 import './RestaurantCard.css';
 
 const RestaurantCard = ({ restaurant }) => {
@@ -13,10 +13,14 @@ const RestaurantCard = ({ restaurant }) => {
   return (
     <div className="restaurant-card" onClick={handleClick}>
       <div className="restaurant-image">
-        <img
-          src={getImageUrl(restaurant.image)}
+        <OptimizedImage
+          src={restaurant.image}
           alt={restaurant.name}
-          onError={handleImageError}
+          width={320}
+          height={200}
+          quality="auto"
+          lazy={true}
+          className="restaurant-img"
         />
         <div className="delivery-time">
           <span>{restaurant.deliveryTime}</span>

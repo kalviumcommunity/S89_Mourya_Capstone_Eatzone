@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback } from 'react'
 import './ExploreMenu.css'
-import axios from 'axios'
 import CategoryImage from '../../CategoryImage/CategoryImage'
+import apiService from '../../../services/apiService'
+import { SkeletonCategory } from '../../Skeleton/Skeleton'
 
 const ExploreMenu = ({category,setCategory}) => {
   const [categories, setCategories] = useState([]);
@@ -30,40 +31,28 @@ const ExploreMenu = ({category,setCategory}) => {
     prod: import.meta.env.PROD
   });
 
-  const fetchCategories = useCallback(async (forceRefresh = false) => {
+  const fetchCategories = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
-      console.log("🔄 Fetching categories from:", `${url}/api/category/list`);
+      console.log("🔄 Fetching categories with caching...");
 
-      // Add cache-busting parameter if force refresh
-      const apiUrl = forceRefresh
-        ? `${url}/api/category/list?t=${Date.now()}`
-        : `${url}/api/category/list`;
+      // Use cached API service
+      const response = await apiService.getCategories();
 
-      const response = await axios.get(apiUrl, {
-        headers: {
-          'Cache-Control': 'no-cache',
-          'Pragma': 'no-cache'
-        },
-        timeout: 10000 // 10 second timeout
-      });
+      console.log("🔍 Categories API response:", response);
 
-      console.log("🔍 Full API response:", response);
-      console.log("🔍 Response data:", response.data);
-
-      if (response.data.success) {
-        console.log("✅ Categories loaded:", response.data.data);
-        console.log("✅ Number of categories:", response.data.data.length);
-        setCategories(response.data.data);
+      if (response.success) {
+        console.log("✅ Categories loaded:", response.data.length, "items");
+        setCategories(response.data);
 
         // If no categories found, show helpful message
-        if (response.data.data.length === 0) {
+        if (response.data.length === 0) {
           console.log("ℹ️ No active categories found");
         }
       } else {
-        console.error("❌ Failed to fetch categories:", response.data.message);
-        setError(response.data.message || "Failed to load categories");
+        console.error("❌ Failed to fetch categories:", response.message);
+        setError(response.message || "Failed to load categories");
       }
     } catch (error) {
       console.error("❌ Error fetching categories:", error);
@@ -84,7 +73,7 @@ const ExploreMenu = ({category,setCategory}) => {
     } finally {
       setLoading(false);
     }
-  }, [url]);
+  }, []);
 
   // Initial load and automatic refresh every 30 seconds
   useEffect(() => {
@@ -163,7 +152,13 @@ const ExploreMenu = ({category,setCategory}) => {
         <h1>Explore our menu</h1>
         <p className='explore-menu-text'>Choose from a diverse menu featuring a delection array of dishes crafted with the finest ingredients and carvings and elevate your dining experience,one delicious meal at a time.</p>
 
-        {categories.length === 0 ? (
+        {loading ? (
+          <div className="skeleton-grid category-grid">
+            {Array.from({ length: 8 }).map((_, index) => (
+              <SkeletonCategory key={index} />
+            ))}
+          </div>
+        ) : categories.length === 0 ? (
           <div style={{textAlign: 'center', padding: '40px 20px', color: '#666'}}>
             <div style={{fontSize: '48px', marginBottom: '16px'}}>🍽️</div>
             <h3 style={{margin: '0 0 8px 0', color: '#333'}}>No categories available</h3>
