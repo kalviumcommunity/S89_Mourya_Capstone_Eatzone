@@ -26,9 +26,20 @@ export const getImageUrl = (image, serverUrl = import.meta.env.VITE_API_BASE_URL
   // Check if it's already a complete URL (Cloudinary, external URLs, etc.)
   if (imageStr.startsWith('http://') || imageStr.startsWith('https://')) {
     console.log(`Using external URL: ${imageStr}`);
-    // If it's a Cloudinary URL, optimize it
+    // If it's a Cloudinary URL, optimize it only if options are provided
     if (imageStr.includes('cloudinary.com')) {
-      return optimizeCloudinaryUrl(imageStr, options);
+      // Only optimize if we have meaningful options (not empty object)
+      const hasOptimizationOptions = options && (
+        options.width || options.height || options.quality ||
+        options.format || options.crop || options.gravity
+      );
+
+      if (hasOptimizationOptions) {
+        return optimizeCloudinaryUrl(imageStr, options);
+      } else {
+        // Return Cloudinary URL as-is when no optimization is needed
+        return imageStr;
+      }
     }
     // Return other external URLs as-is
     return imageStr;

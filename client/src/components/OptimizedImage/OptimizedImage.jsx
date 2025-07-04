@@ -91,6 +91,7 @@ const OptimizedImage = ({
   }, [optimizedSrc]);
 
   const handleLoad = (e) => {
+    console.log(`✅ OptimizedImage loaded successfully: ${simpleSrc}`);
     setIsLoaded(true);
     setHasError(false);
 
@@ -103,7 +104,8 @@ const OptimizedImage = ({
   };
 
   const handleError = (e) => {
-    console.error(`❌ OptimizedImage error for src: ${optimizedSrc}`, e);
+    console.error(`❌ OptimizedImage error for src: ${simpleSrc}`, e);
+    console.error(`❌ Original src: ${src}`);
     setHasError(true);
     if (onError) {
       onError(e);
@@ -163,10 +165,11 @@ const OptimizedImage = ({
             // }
           }}
           style={{
-            display: isLoaded ? 'block' : 'none',
+            display: 'block', // Always show image for debugging
             width: '100%',
             height: '100%',
-            objectFit: 'cover'
+            objectFit: 'cover',
+            opacity: isLoaded ? 1 : 0.5 // Use opacity instead of display for debugging
           }}
         />
       )}
@@ -176,6 +179,22 @@ const OptimizedImage = ({
         <div className="image-error">
           <span className="error-icon">🍽️</span>
           <span className="error-text">Image unavailable</span>
+        </div>
+      )}
+
+      {/* Debug info - remove in production */}
+      {process.env.NODE_ENV === 'development' && (
+        <div style={{
+          position: 'absolute',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          background: 'rgba(0,0,0,0.7)',
+          color: 'white',
+          fontSize: '10px',
+          padding: '2px 4px'
+        }}>
+          {isLoaded ? '✅' : hasError ? '❌' : '⏳'} {alt}
         </div>
       )}
     </div>
