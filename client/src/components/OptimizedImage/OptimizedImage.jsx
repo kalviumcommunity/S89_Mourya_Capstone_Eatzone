@@ -1,6 +1,8 @@
 import { useState, useRef, useEffect } from 'react';
 import { getImageUrl, handleImageError } from '../../utils/imageUtils';
 import performanceMonitor from '../../utils/performance';
+import imageCache from '../../utils/imageCache';
+import LoadingIndicator from '../LoadingIndicator/LoadingIndicator';
 import './OptimizedImage.css';
 
 const OptimizedImage = ({
@@ -37,8 +39,8 @@ const OptimizedImage = ({
         });
       },
       {
-        rootMargin: '50px', // Start loading 50px before image comes into view
-        threshold: 0.1
+        rootMargin: '200px', // Start loading 200px before image comes into view for faster loading
+        threshold: 0.01
       }
     );
 
@@ -64,9 +66,23 @@ const OptimizedImage = ({
     gravity: 'auto'
   });
 
-  const handleLoad = () => {
+  // Check if image is cached
+  useEffect(() => {
+    if (optimizedSrc && imageCache.has(optimizedSrc)) {
+      setIsLoaded(true);
+      setHasError(false);
+    }
+  }, [optimizedSrc]);
+
+  const handleLoad = (e) => {
     setIsLoaded(true);
     setHasError(false);
+
+    // Cache the successfully loaded image
+    if (optimizedSrc && e.target) {
+      imageCache.set(optimizedSrc, e.target);
+    }
+
     if (onLoad) onLoad();
   };
 
@@ -75,7 +91,7 @@ const OptimizedImage = ({
     if (onError) {
       onError(e);
     } else {
-      handleImageError(e, src);
+      handleImageError(e);
     }
   };
 
@@ -104,9 +120,11 @@ const OptimizedImage = ({
               <span className="placeholder-icon">{getPlaceholder()}</span>
             </div>
           ) : (
-            <div className="loading-spinner">
-              <div className="spinner"></div>
-            </div>
+            <LoadingIndicator
+              type="skeleton"
+              size="medium"
+              className="image-loading"
+            />
           )}
         </div>
       )}

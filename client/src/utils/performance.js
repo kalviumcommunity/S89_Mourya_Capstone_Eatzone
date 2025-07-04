@@ -76,11 +76,14 @@ class PerformanceMonitor {
     const onLoad = () => {
       const duration = performance.now() - startTime;
       console.log(`🖼️ Image loaded: ${name} - ${duration.toFixed(2)}ms`);
-      
+
+      // Track image loading statistics
+      this.trackImageLoadTime(duration);
+
       if (duration > 3000) {
         console.warn(`🐌 Slow image load: ${name} took ${duration.toFixed(2)}ms`);
       }
-      
+
       img.removeEventListener('load', onLoad);
       img.removeEventListener('error', onError);
     };
@@ -95,6 +98,41 @@ class PerformanceMonitor {
     
     img.addEventListener('load', onLoad);
     img.addEventListener('error', onError);
+  }
+
+  /**
+   * Track image loading statistics
+   * @param {number} loadTime - Load time in milliseconds
+   */
+  trackImageLoadTime(loadTime) {
+    if (!this.imageStats) {
+      this.imageStats = {
+        totalImages: 0,
+        totalLoadTime: 0,
+        fastLoads: 0, // < 1 second
+        slowLoads: 0  // > 3 seconds
+      };
+    }
+
+    this.imageStats.totalImages++;
+    this.imageStats.totalLoadTime += loadTime;
+
+    if (loadTime < 1000) {
+      this.imageStats.fastLoads++;
+    } else if (loadTime > 3000) {
+      this.imageStats.slowLoads++;
+    }
+
+    // Log stats every 10 images
+    if (this.imageStats.totalImages % 10 === 0) {
+      const avgLoadTime = this.imageStats.totalLoadTime / this.imageStats.totalImages;
+      console.log(`📊 Image Loading Stats:`, {
+        totalImages: this.imageStats.totalImages,
+        averageLoadTime: `${avgLoadTime.toFixed(2)}ms`,
+        fastLoads: this.imageStats.fastLoads,
+        slowLoads: this.imageStats.slowLoads
+      });
+    }
   }
 
   /**
