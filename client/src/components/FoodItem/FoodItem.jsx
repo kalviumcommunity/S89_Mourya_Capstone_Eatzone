@@ -2,24 +2,24 @@ import { useContext } from 'react';
 import './FoodItem.css';
 import { assets } from '../../assets/assets';
 import { StoreContext } from '../../context/StoreContext';
-import { getImageUrl, handleImageError } from '../../utils/imageUtils'
 import { formatINR } from '../../utils/currencyUtils';
+import OptimizedImage from '../OptimizedImage/OptimizedImage';
 
 const FoodItem = ({id,name,price,description,image,originalPrice,discountPercentage,isOnSale,discountLabel,isPopular,isFeatured,tags}) => {
     //const [itemCount, setItemCount] = useState(0);
-    const {cartItems,addToCart,removeFromCart,url} = useContext(StoreContext);
-
-    // Get proper image URL using utility function
-    const imageUrl = getImageUrl(image, url);
+    const {cartItems,addToCart,removeFromCart} = useContext(StoreContext);
 
     return (
         <div className='food-item'>
             <div className="food-item-img-container">
-                <img
-                    className='food-item-image'
-                    src={imageUrl}
+                <OptimizedImage
+                    src={image}
                     alt={name}
-                    onError={(e) => handleImageError(e, image)}
+                    width={280}
+                    height={200}
+                    quality="auto"
+                    lazy={true}
+                    className="food-item-image"
                 />
 
                 {/* Discount Badge */}

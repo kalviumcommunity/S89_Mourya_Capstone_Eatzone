@@ -2,6 +2,7 @@ import {useContext} from 'react'
 import './FoodDisplay.css'
 import { StoreContext } from '../../context/StoreContext';
 import FoodItem from '../FoodItem/FoodItem';
+import { SkeletonFoodItem } from '../Skeleton/Skeleton';
 
 const FoodDisplay = ({category}) => {
 
@@ -14,8 +15,10 @@ const FoodDisplay = ({category}) => {
     <div className='food-display' id='food-display'>
         <h2>Top dishes near you</h2>
         {isFoodLoading ? (
-          <div className="loading">
-            <p>Loading delicious food...</p>
+          <div className="skeleton-grid food-grid">
+            {Array.from({ length: 8 }).map((_, index) => (
+              <SkeletonFoodItem key={index} />
+            ))}
           </div>
         ) : (
           <div className='food-display-list'>

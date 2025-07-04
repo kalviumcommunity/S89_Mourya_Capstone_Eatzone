@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useContext } from 'react';
 import RestaurantCard from '../RestaurantCard/RestaurantCard';
 import { StoreContext } from '../../context/StoreContext';
+import apiService from '../../services/apiService';
+import { SkeletonRestaurant } from '../Skeleton/Skeleton';
 import './RestaurantList.css';
 
 const RestaurantList = () => {
-  const { url } = useContext(StoreContext);
   const [restaurants, setRestaurants] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -16,16 +17,19 @@ const RestaurantList = () => {
   const fetchRestaurants = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`${url}/api/restaurant/list`);
-      const data = await response.json();
+      setError(null);
 
-      if (data.success) {
-        setRestaurants(data.data);
+      // Use cached API service
+      const response = await apiService.getRestaurants();
+
+      if (response.success) {
+        setRestaurants(response.data);
+        console.log('✅ Restaurants loaded:', response.data.length, 'items');
       } else {
-        setError(data.message || 'Failed to fetch restaurants');
+        setError(response.message || 'Failed to fetch restaurants');
       }
     } catch (error) {
-      console.error('Error fetching restaurants:', error);
+      console.error('❌ Error fetching restaurants:', error);
       setError('Failed to load restaurants');
     } finally {
       setLoading(false);
@@ -40,19 +44,10 @@ const RestaurantList = () => {
           <h2>Popular Restaurants </h2>
           <p className="restaurant-subtitle">Loading amazing dining experiences...</p>
         </div>
-        <div className="restaurant-loading">
-          <div className="loading-grid">
-            {[...Array(6)].map((_, index) => (
-              <div key={index} className="restaurant-card-skeleton">
-                <div className="skeleton-image"></div>
-                <div className="skeleton-content">
-                  <div className="skeleton-title"></div>
-                  <div className="skeleton-description"></div>
-                  <div className="skeleton-details"></div>
-                </div>
-              </div>
-            ))}
-          </div>
+        <div className="skeleton-grid restaurant-grid">
+          {Array.from({ length: 6 }).map((_, index) => (
+            <SkeletonRestaurant key={index} />
+          ))}
         </div>
       </div>
     );

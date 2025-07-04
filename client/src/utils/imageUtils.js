@@ -3,7 +3,14 @@
  * Handles both static assets and server-uploaded images
  */
 
-export const getImageUrl = (image, serverUrl = import.meta.env.VITE_API_BASE_URL || "https://eatzone.onrender.com") => {
+/**
+ * Get optimized image URL with Cloudinary transformations for better performance
+ * @param {string} image - Image path or URL
+ * @param {string} serverUrl - Server base URL
+ * @param {Object} options - Optimization options
+ * @returns {string} Optimized image URL
+ */
+export const getImageUrl = (image, serverUrl = import.meta.env.VITE_API_BASE_URL || "https://eatzone.onrender.com", options = {}) => {
   // Handle null or undefined images
   if (!image) {
     return '/src/assets/food_1.png'; // Default fallback
@@ -14,7 +21,7 @@ export const getImageUrl = (image, serverUrl = import.meta.env.VITE_API_BASE_URL
 
   // Check if it's a Cloudinary URL
   if (imageStr.includes('cloudinary.com')) {
-    return imageStr; // Return Cloudinary URL as-is
+    return optimizeCloudinaryUrl(imageStr, options);
   }
 
   // Check if image is already a processed URL (from Vite imports or other CDNs)
@@ -32,6 +39,50 @@ export const getImageUrl = (image, serverUrl = import.meta.env.VITE_API_BASE_URL
 
   // Fallback - treat as server image
   return `${serverUrl}/images/${imageStr}`;
+};
+
+/**
+ * Optimize Cloudinary URL with transformations for better performance
+ * @param {string} cloudinaryUrl - Original Cloudinary URL
+ * @param {Object} options - Optimization options
+ * @returns {string} Optimized Cloudinary URL
+ */
+export const optimizeCloudinaryUrl = (cloudinaryUrl, options = {}) => {
+  const {
+    width = 400,
+    height = 300,
+    quality = 'auto',
+    format = 'auto',
+    crop = 'fill',
+    gravity = 'auto'
+  } = options;
+
+  // If it's already optimized, return as-is
+  if (cloudinaryUrl.includes('/w_') || cloudinaryUrl.includes('/q_')) {
+    return cloudinaryUrl;
+  }
+
+  // Extract the base URL and image path
+  const urlParts = cloudinaryUrl.split('/upload/');
+  if (urlParts.length !== 2) {
+    return cloudinaryUrl; // Return original if can't parse
+  }
+
+  const [baseUrl, imagePath] = urlParts;
+
+  // Build transformation string
+  const transformations = [
+    `w_${width}`,
+    `h_${height}`,
+    `c_${crop}`,
+    `g_${gravity}`,
+    `q_${quality}`,
+    `f_${format}`,
+    `fl_progressive`,
+    `fl_immutable_cache`
+  ].join(',');
+
+  return `${baseUrl}/upload/${transformations}/${imagePath}`;
 };
 
 /**
