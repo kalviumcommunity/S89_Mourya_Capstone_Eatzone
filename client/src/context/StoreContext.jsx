@@ -50,6 +50,15 @@ const StoreContextProvider = (props) => {
       if (homeData.food.success) {
         setFoodData(homeData.food.data);
         console.log("✅ Food data loaded:", homeData.food.data.length, "items");
+
+        // Debug first few food items and their image URLs
+        homeData.food.data.slice(0, 3).forEach((item, index) => {
+          console.log(`🍕 Parallel fetch - Food item ${index + 1}:`, {
+            name: item.name,
+            image: item.image,
+            imageType: item.image?.startsWith('http') ? 'URL' : 'filename'
+          });
+        });
       } else {
         console.error("❌ Failed to fetch food data:", homeData.food.error);
         setFoodData(food_list);
@@ -76,6 +85,15 @@ const StoreContextProvider = (props) => {
       if (response.success) {
         setFoodData(response.data);
         console.log("✅ Food data loaded from cache/API:", response.data.length, "items");
+
+        // Debug first few food items and their image URLs
+        response.data.slice(0, 3).forEach((item, index) => {
+          console.log(`🍕 Food item ${index + 1}:`, {
+            name: item.name,
+            image: item.image,
+            imageType: item.image?.startsWith('http') ? 'URL' : 'filename'
+          });
+        });
       } else {
         console.error("❌ Failed to fetch food data:", response.message);
         setFoodData(food_list);

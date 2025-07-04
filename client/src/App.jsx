@@ -20,6 +20,7 @@ const Verify = lazy(() => import('./pages/Verify/Verify'))
 const AuthSuccess = lazy(() => import('./components/AuthSuccess/AuthSuccess'))
 const ChatbotPage = lazy(() => import('./pages/chatbot/ChatbotPage'))
 const DebugPanel = lazy(() => import('./components/DebugPanel/DebugPanel'))
+const ImageDebug = lazy(() => import('./pages/ImageDebug/ImageDebug'))
 
 const App = () => {
   const [showLogin,setShowLogin] = useState(false)
@@ -100,6 +101,11 @@ const App = () => {
         <Route path='/chatbot' element={
           <LazyWrapper skeletonType="minimal">
             <ChatbotPage/>
+          </LazyWrapper>
+        } />
+        <Route path='/debug-images' element={
+          <LazyWrapper skeletonType="minimal">
+            <ImageDebug/>
           </LazyWrapper>
         } />
         {/* Catch-all route for debugging */}
