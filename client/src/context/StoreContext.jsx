@@ -2,6 +2,7 @@ import { createContext, useState, useEffect, useCallback } from "react";
 import { food_list } from "../assets/assets";
 import axios from "axios";
 import apiService from "../services/apiService";
+import { preloadApiImages } from "../utils/imageCache";
 
 export const StoreContext = createContext(null);
 
@@ -59,6 +60,9 @@ const StoreContextProvider = (props) => {
             imageType: item.image?.startsWith('http') ? 'URL' : 'filename'
           });
         });
+
+        // Preload API images for faster subsequent loads
+        preloadApiImages(homeData.food.data, homeData.restaurants?.data || []);
       } else {
         console.error("❌ Failed to fetch food data:", homeData.food.error);
         setFoodData(food_list);

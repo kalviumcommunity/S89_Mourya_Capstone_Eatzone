@@ -2,44 +2,9 @@ import React, { useState } from 'react';
 import { useAdmin } from '../../context/AdminContext';
 import { toast } from 'react-toastify';
 import './AddRestaurant.css';
+import { uploadToCloudinary, uploadConfigs } from '../../utils/cloudinaryUtils';
 
-// Temporary simple upload function
-const uploadToCloudinary = async (file, folder = 'eatzone', options = {}) => {
-  try {
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('upload_preset', 'eatzone_admin');
-
-    if (folder) {
-      formData.append('folder', folder);
-    }
-
-    const response = await fetch(
-      `https://api.cloudinary.com/v1_1/dodxdudew/image/upload`,
-      {
-        method: 'POST',
-        body: formData
-      }
-    );
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error?.message || 'Upload failed');
-    }
-
-    const result = await response.json();
-    return {
-      success: true,
-      url: result.secure_url,
-      publicId: result.public_id
-    };
-  } catch (error) {
-    return {
-      success: false,
-      error: error.message
-    };
-  }
-};
+// Using centralized Cloudinary utility for consistent image handling
 
 const AddRestaurant = ({ url, token }) => {
   const { admin } = useAdmin();
@@ -91,8 +56,9 @@ const AddRestaurant = ({ url, token }) => {
     toast.info("Uploading restaurant image to Cloudinary...");
 
     try {
-      const uploadResult = await uploadToCloudinary(file, 'eatzone/restaurants', {
-        tags: ['restaurant', 'cover']
+      const uploadResult = await uploadToCloudinary(file, uploadConfigs.restaurant.folder, {
+        tags: uploadConfigs.restaurant.tags,
+        transformation: uploadConfigs.restaurant.transformation
       });
 
       if (uploadResult.success) {

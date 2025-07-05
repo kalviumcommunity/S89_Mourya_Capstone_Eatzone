@@ -3,76 +3,9 @@ import "./Add.css";
 import { assets } from "../../assets/assets";
 import axios from "axios"
 import { toast } from "react-toastify";
+import { uploadToCloudinary, uploadConfigs } from '../../utils/cloudinaryUtils';
 
-// Enhanced Cloudinary upload function with better error handling
-const uploadToCloudinary = async (file, folder = 'eatzone', options = {}) => {
-  try {
-    // Validate file
-    if (!file) {
-      throw new Error('No file provided');
-    }
-
-    // Check file type
-    if (!file.type.startsWith('image/')) {
-      throw new Error('Only image files are allowed');
-    }
-
-    // Check file size (5MB limit)
-    const maxSize = 5 * 1024 * 1024; // 5MB
-    if (file.size > maxSize) {
-      throw new Error('File size must be less than 5MB');
-    }
-
-    console.log('Uploading file to Cloudinary:', {
-      name: file.name,
-      size: file.size,
-      type: file.type,
-      folder: folder
-    });
-
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('upload_preset', 'eatzone_admin');
-
-    if (folder) {
-      formData.append('folder', folder);
-    }
-
-    // Add tags if provided
-    if (options.tags && Array.isArray(options.tags)) {
-      formData.append('tags', options.tags.join(','));
-    }
-
-    const response = await fetch(
-      `https://api.cloudinary.com/v1_1/dodxdudew/image/upload`,
-      {
-        method: 'POST',
-        body: formData
-      }
-    );
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      console.error('Cloudinary upload error:', errorData);
-      throw new Error((errorData.error && errorData.error.message) || `Upload failed with status ${response.status}`);
-    }
-
-    const result = await response.json();
-    console.log('Cloudinary upload successful:', result);
-
-    return {
-      success: true,
-      url: result.secure_url,
-      publicId: result.public_id
-    };
-  } catch (error) {
-    console.error('Cloudinary upload error:', error);
-    return {
-      success: false,
-      error: error.message
-    };
-  }
-};
+// Using centralized Cloudinary utility for consistent image handling
 
 const Add = ({url}) => {
 
@@ -142,8 +75,9 @@ const Add = ({url}) => {
     toast.info("Uploading image to Cloudinary...");
 
     try {
-      const uploadResult = await uploadToCloudinary(file, 'eatzone/food', {
-        tags: ['food', 'menu']
+      const uploadResult = await uploadToCloudinary(file, uploadConfigs.food.folder, {
+        tags: uploadConfigs.food.tags,
+        transformation: uploadConfigs.food.transformation
       });
 
       if (uploadResult.success) {
