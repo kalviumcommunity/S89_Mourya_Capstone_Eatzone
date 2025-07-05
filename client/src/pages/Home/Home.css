@@ -1,0 +1,24 @@
+/* Home page responsive styles */
+.home-container {
+  width: 100%;
+  overflow-x: hidden;
+}
+
+/* Ensure all sections are properly spaced on mobile */
+@media (max-width: 768px) {
+  .home-container > * {
+    margin-bottom: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .home-container > * {
+    margin-bottom: 16px;
+  }
+}
+
+@media (max-width: 360px) {
+  .home-container > * {
+    margin-bottom: 12px;
+  }
+}

@@ -59,6 +59,7 @@
 @media (max-width: 480px) {
     .food-display {
         margin-top: 15px;
+        padding: 0 2px;
     }
 
     .food-display h2 {
@@ -68,12 +69,36 @@
 
     .food-display-list {
         grid-template-columns: repeat(2, 1fr);
-        gap: 8px;
+        gap: 6px;
         margin-top: 12px;
     }
 
     .food-display .loading {
         padding: 20px;
         font-size: 14px;
+    }
+}
+
+/* Extra Small Mobile Responsive */
+@media (max-width: 360px) {
+    .food-display {
+        margin-top: 12px;
+        padding: 0 1px;
+    }
+
+    .food-display h2 {
+        font-size: 18px;
+        margin-bottom: 10px;
+    }
+
+    .food-display-list {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 4px;
+        margin-top: 10px;
+    }
+
+    .food-display .loading {
+        padding: 16px;
+        font-size: 12px;
     }
 }

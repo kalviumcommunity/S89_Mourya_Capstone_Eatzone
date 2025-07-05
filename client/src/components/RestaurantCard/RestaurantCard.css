@@ -209,13 +209,13 @@
 /* Small mobile responsive */
 @media (max-width: 480px) {
   .restaurant-card {
-    min-width: 200px;
-    max-width: 200px;
+    min-width: 180px;
+    max-width: 180px;
     border-radius: 8px;
   }
 
   .restaurant-image {
-    height: 120px;
+    height: 110px;
   }
 
   .restaurant-info {
@@ -223,44 +223,103 @@
   }
 
   .restaurant-name {
-    font-size: 13px;
+    font-size: 12px;
     margin-bottom: 3px;
   }
 
   .restaurant-description {
-    font-size: 10px;
+    font-size: 9px;
     margin-bottom: 4px;
   }
 
   .restaurant-details {
     margin-bottom: 4px;
-    gap: 8px;
+    gap: 6px;
   }
 
   .rating-value {
-    font-size: 11px;
-  }
-
-  .delivery-info {
     font-size: 10px;
   }
 
+  .delivery-info {
+    font-size: 9px;
+  }
+
   .cuisine-types {
-    gap: 4px;
+    gap: 3px;
     margin-bottom: 4px;
   }
 
   .cuisine-tag {
-    font-size: 9px;
-    padding: 2px 4px;
+    font-size: 8px;
+    padding: 2px 3px;
   }
 
   .minimum-order {
-    font-size: 10px;
+    font-size: 9px;
   }
 
   .delivery-time {
+    font-size: 8px;
+    padding: 2px 3px;
+  }
+}
+
+/* Extra small mobile responsive */
+@media (max-width: 360px) {
+  .restaurant-card {
+    min-width: 160px;
+    max-width: 160px;
+    border-radius: 6px;
+  }
+
+  .restaurant-image {
+    height: 100px;
+  }
+
+  .restaurant-info {
+    padding: 5px;
+  }
+
+  .restaurant-name {
+    font-size: 11px;
+    margin-bottom: 2px;
+  }
+
+  .restaurant-description {
+    font-size: 8px;
+    margin-bottom: 3px;
+  }
+
+  .restaurant-details {
+    margin-bottom: 3px;
+    gap: 5px;
+  }
+
+  .rating-value {
     font-size: 9px;
-    padding: 2px 4px;
+  }
+
+  .delivery-info {
+    font-size: 8px;
+  }
+
+  .cuisine-types {
+    gap: 2px;
+    margin-bottom: 3px;
+  }
+
+  .cuisine-tag {
+    font-size: 7px;
+    padding: 1px 2px;
+  }
+
+  .minimum-order {
+    font-size: 8px;
+  }
+
+  .delivery-time {
+    font-size: 7px;
+    padding: 1px 2px;
   }
 }

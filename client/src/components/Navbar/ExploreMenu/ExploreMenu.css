@@ -138,27 +138,120 @@
 }
 
 @media (max-width: 768px) {
+    .explore-menu {
+        margin: 0 -4px;
+    }
+
+    .explore-menu h1 {
+        font-size: 22px;
+        margin-bottom: 8px;
+    }
+
+    .explore-menu-text {
+        font-size: 13px;
+        margin-bottom: 12px;
+    }
+
     .explore-menu-list {
-        gap: 12px;
-        padding: 5px 0;
+        gap: 10px;
+        padding: 5px 4px;
+        margin: 16px 0;
     }
 
     .explore-menu-list-item {
-        min-width: 80px;
-        max-width: 90px;
+        min-width: 70px;
+        max-width: 80px;
     }
 
     .explore-menu-list-item .category-image-container {
-        width: 60px;
-        height: 60px;
-        min-width: 60px;
-        min-height: 60px;
+        width: 55px;
+        height: 55px;
+        min-width: 55px;
+        min-height: 55px;
     }
 
     .explore-menu-list-item p {
+        font-size: 10px;
+        min-height: 20px;
+        max-width: 70px;
+        margin-top: 4px;
+    }
+}
+
+@media (max-width: 480px) {
+    .explore-menu {
+        margin: 0 -2px;
+    }
+
+    .explore-menu h1 {
+        font-size: 20px;
+        margin-bottom: 6px;
+    }
+
+    .explore-menu-text {
+        font-size: 12px;
+        margin-bottom: 10px;
+    }
+
+    .explore-menu-list {
+        gap: 8px;
+        padding: 4px 2px;
+        margin: 12px 0;
+    }
+
+    .explore-menu-list-item {
+        min-width: 60px;
+        max-width: 70px;
+    }
+
+    .explore-menu-list-item .category-image-container {
+        width: 50px;
+        height: 50px;
+        min-width: 50px;
+        min-height: 50px;
+    }
+
+    .explore-menu-list-item p {
+        font-size: 9px;
+        min-height: 18px;
+        max-width: 60px;
+        margin-top: 3px;
+    }
+}
+
+@media (max-width: 360px) {
+    .explore-menu h1 {
+        font-size: 18px;
+        margin-bottom: 4px;
+    }
+
+    .explore-menu-text {
         font-size: 11px;
-        min-height: 24px;
-        max-width: 80px;
-        margin-top: 6px;
+        margin-bottom: 8px;
+    }
+
+    .explore-menu-list {
+        gap: 6px;
+        padding: 3px 1px;
+        margin: 10px 0;
+    }
+
+    .explore-menu-list-item {
+        min-width: 55px;
+        max-width: 65px;
+    }
+
+    .explore-menu-list-item .category-image-container {
+        width: 45px;
+        height: 45px;
+        min-width: 45px;
+        min-height: 45px;
+    }
+
+    .explore-menu-list-item p {
+        font-size: 8px;
+        min-height: 16px;
+        max-width: 55px;
+        margin-top: 2px;
     }
 }

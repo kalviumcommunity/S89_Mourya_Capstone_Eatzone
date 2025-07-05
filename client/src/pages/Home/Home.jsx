@@ -12,7 +12,7 @@ function Home() {
   const[category,setCategory]=useState("All");
 
   return (
-    <div>
+    <div className="home-container">
       <Header />
       <RestaurantList />
       <ExploreMenu category={category} setCategory={setCategory}/>
