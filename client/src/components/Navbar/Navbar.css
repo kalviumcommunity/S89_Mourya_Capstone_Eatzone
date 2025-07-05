@@ -243,12 +243,22 @@
         display: none;
     }
     .navbar-search input {
-        width: 150px;
+        width: 140px;
         font-size: 12px;
-        padding: 6px 10px;
+        padding: 6px 8px;
     }
     .navbar-search img {
+        width: 16px;
+    }
+    .navbar-right {
+        gap: 8px;
+    }
+    .navbar-right img {
         width: 18px;
+    }
+    .navbar-right button {
+        padding: 6px 12px;
+        font-size: 12px;
     }
     .search-result-item {
         padding: 8px;
@@ -271,5 +281,85 @@
     .search-add-to-cart img {
         width: 14px;
         height: 14px;
+    }
+}
+
+@media (max-width: 480px) {
+    .navbar {
+        padding: 8px 4px;
+        flex-wrap: nowrap;
+    }
+    .navbar .logo {
+        width: 100px;
+    }
+    .navbar-search input {
+        width: 120px;
+        font-size: 11px;
+        padding: 5px 6px;
+    }
+    .navbar-search img {
+        width: 14px;
+    }
+    .navbar-right {
+        gap: 6px;
+    }
+    .navbar-right img {
+        width: 16px;
+    }
+    .navbar-right button {
+        padding: 5px 8px;
+        font-size: 11px;
+        white-space: nowrap;
+    }
+    .profile-dropdown {
+        right: 0;
+        left: auto;
+        min-width: 140px;
+    }
+}
+
+@media (max-width: 360px) {
+    .navbar {
+        padding: 6px 2px;
+        min-height: 50px;
+    }
+    .navbar .logo {
+        width: 85px;
+    }
+    .navbar-search {
+        flex: 1;
+        max-width: 90px;
+    }
+    .navbar-search input {
+        width: 100%;
+        font-size: 10px;
+        padding: 4px 5px;
+    }
+    .navbar-search img {
+        width: 12px;
+    }
+    .navbar-right {
+        gap: 3px;
+        flex-shrink: 0;
+    }
+    .navbar-right img {
+        width: 14px;
+    }
+    .navbar-right button {
+        padding: 4px 6px;
+        font-size: 10px;
+        white-space: nowrap;
+    }
+    .profile-dropdown {
+        min-width: 120px;
+        font-size: 12px;
+        right: 0;
+        left: auto;
+    }
+    .search-results {
+        width: calc(100vw - 20px);
+        max-width: 300px;
+        right: 0;
+        left: auto;
     }
 }

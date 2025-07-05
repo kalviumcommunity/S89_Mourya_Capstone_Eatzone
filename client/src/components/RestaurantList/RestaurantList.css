@@ -255,8 +255,8 @@
 /* Mobile Responsive */
 @media (max-width: 768px) {
   .restaurant-list-container {
-    padding: 12px;
-    margin: 20px auto;
+    padding: 10px;
+    margin: 16px auto;
   }
 
   .restaurant-list-header h2 {
@@ -268,8 +268,8 @@
   }
 
   .restaurant-grid {
-    gap: 12px;
-    padding: 0 4px 12px 4px;
+    gap: 10px;
+    padding: 0 2px 10px 2px;
   }
 
   .restaurant-grid::-webkit-scrollbar {
@@ -277,7 +277,7 @@
   }
 
   .loading-grid {
-    gap: 12px;
+    gap: 10px;
   }
 
   .header-bottom {
@@ -293,6 +293,64 @@
   .view-all-btn {
     padding: 6px 12px;
     font-size: 11px;
+  }
+}
+
+@media (max-width: 480px) {
+  .restaurant-list-container {
+    padding: 8px;
+    margin: 12px auto;
+  }
+
+  .restaurant-list-header h2 {
+    font-size: 20px;
+  }
+
+  .restaurant-subtitle {
+    font-size: 13px;
+  }
+
+  .restaurant-grid {
+    gap: 8px;
+    padding: 0 1px 8px 1px;
+  }
+
+  .restaurant-count {
+    font-size: 12px;
+  }
+
+  .view-all-btn {
+    padding: 5px 10px;
+    font-size: 10px;
+  }
+}
+
+@media (max-width: 360px) {
+  .restaurant-list-container {
+    padding: 6px;
+    margin: 10px auto;
+  }
+
+  .restaurant-list-header h2 {
+    font-size: 18px;
+  }
+
+  .restaurant-subtitle {
+    font-size: 12px;
+  }
+
+  .restaurant-grid {
+    gap: 6px;
+    padding: 0 0 6px 0;
+  }
+
+  .restaurant-count {
+    font-size: 11px;
+  }
+
+  .view-all-btn {
+    padding: 4px 8px;
+    font-size: 9px;
   }
 }
 
