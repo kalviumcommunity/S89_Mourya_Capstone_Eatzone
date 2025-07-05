@@ -152,28 +152,81 @@ const imageCache = new ImageCache();
 export default imageCache;
 
 /**
- * Preload critical images for the application
+ * Preload critical images for the application with optimized URLs for faster loading
  */
 export const preloadCriticalImages = () => {
   const criticalImages = [
-    'https://res.cloudinary.com/dodxdudew/image/upload/v1735055000/eatzone/categories/default-food.jpg',
-    'https://res.cloudinary.com/dodxdudew/image/upload/v1735055000/eatzone/categories/pizza.jpg',
-    'https://res.cloudinary.com/dodxdudew/image/upload/v1735055000/eatzone/categories/burgers.jpg',
-    'https://res.cloudinary.com/dodxdudew/image/upload/v1735055000/eatzone/categories/desserts.jpg',
-    'https://res.cloudinary.com/dodxdudew/image/upload/v1735055000/eatzone/categories/noodles.jpg',
-    'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400&h=400&fit=crop',
-    'https://images.unsplash.com/photo-1563379091339-03246963d96c?w=400&h=400&fit=crop'
+    // Optimized default and category images
+    'https://res.cloudinary.com/dodxdudew/image/upload/f_auto,q_auto,w_400,h_300,c_fill/v1735055000/eatzone/categories/default-food.jpg',
+    'https://res.cloudinary.com/dodxdudew/image/upload/f_auto,q_auto,w_200,h_200,c_fill/v1735055000/eatzone/categories/pizza.jpg',
+    'https://res.cloudinary.com/dodxdudew/image/upload/f_auto,q_auto,w_200,h_200,c_fill/v1735055000/eatzone/categories/burgers.jpg',
+    'https://res.cloudinary.com/dodxdudew/image/upload/f_auto,q_auto,w_200,h_200,c_fill/v1735055000/eatzone/categories/desserts.jpg',
+    'https://res.cloudinary.com/dodxdudew/image/upload/f_auto,q_auto,w_200,h_200,c_fill/v1735055000/eatzone/categories/noodles.jpg',
+    'https://res.cloudinary.com/dodxdudew/image/upload/f_auto,q_auto,w_200,h_200,c_fill/v1735055000/eatzone/categories/chinese.jpg',
+    'https://res.cloudinary.com/dodxdudew/image/upload/f_auto,q_auto,w_200,h_200,c_fill/v1735055000/eatzone/categories/indian.jpg',
+    'https://res.cloudinary.com/dodxdudew/image/upload/f_auto,q_auto,w_200,h_200,c_fill/v1735055000/eatzone/categories/italian.jpg',
+    // Optimized external images
+    'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400&h=300&fit=crop&auto=format&q=80',
+    'https://images.unsplash.com/photo-1563379091339-03246963d96c?w=400&h=300&fit=crop&auto=format&q=80'
   ];
 
-  console.log('🚀 Preloading critical images...');
-  
+  console.log('🚀 Preloading critical images for faster app startup...');
+
   imageCache.preloadMultiple(criticalImages)
     .then(results => {
       const successful = results.filter(result => result.status === 'fulfilled').length;
       const failed = results.filter(result => result.status === 'rejected').length;
       console.log(`✅ Preloaded ${successful}/${criticalImages.length} critical images (${failed} failed)`);
+
+      // Store preload completion time for performance monitoring
+      if (typeof window !== 'undefined') {
+        window.eatZoneImagePreloadTime = Date.now();
+      }
     })
     .catch(error => {
       console.error('❌ Error preloading critical images:', error);
     });
+};
+
+/**
+ * Preload images from API data for faster subsequent loads
+ */
+export const preloadApiImages = async (foodItems = [], restaurants = []) => {
+  const apiImages = [];
+
+  // Add food item images (limit to first 10 for performance)
+  foodItems.slice(0, 10).forEach(item => {
+    if (item.image) {
+      // Add optimized version for food items
+      if (item.image.includes('cloudinary.com')) {
+        apiImages.push(item.image.replace('/upload/', '/upload/f_auto,q_auto,w_400,h_300,c_fill/'));
+      } else {
+        apiImages.push(item.image);
+      }
+    }
+  });
+
+  // Add restaurant images (limit to first 5 for performance)
+  restaurants.slice(0, 5).forEach(restaurant => {
+    if (restaurant.image) {
+      // Add optimized version for restaurants
+      if (restaurant.image.includes('cloudinary.com')) {
+        apiImages.push(restaurant.image.replace('/upload/', '/upload/f_auto,q_auto,w_600,h_400,c_fill/'));
+      } else {
+        apiImages.push(restaurant.image);
+      }
+    }
+  });
+
+  if (apiImages.length > 0) {
+    console.log(`🚀 Preloading ${apiImages.length} API images...`);
+
+    try {
+      const results = await imageCache.preloadMultiple(apiImages);
+      const successful = results.filter(result => result.status === 'fulfilled').length;
+      console.log(`✅ Preloaded ${successful}/${apiImages.length} API images`);
+    } catch (error) {
+      console.warn('⚠️ Some API images failed to preload:', error);
+    }
+  }
 };

@@ -60,7 +60,7 @@ const OptimizedImage = ({
     };
   }, [lazy, isInView]);
 
-  // Get optimized image URL
+  // Get optimized image URL with automatic Cloudinary optimizations
   const optimizedSrc = getImageUrl(src, undefined, {
     width,
     height,
@@ -69,15 +69,6 @@ const OptimizedImage = ({
     crop: 'fill',
     gravity: 'auto'
   });
-
-  // For debugging: also get simple URL without optimization
-  const simpleSrc = getImageUrl(src);
-
-  // Debug logging
-  console.log(`🖼️ OptimizedImage - Original src: ${src}`);
-  console.log(`🖼️ OptimizedImage - Simple src: ${simpleSrc}`);
-  console.log(`🖼️ OptimizedImage - Optimized src: ${optimizedSrc}`);
-  console.log(`🖼️ OptimizedImage - isInView: ${isInView}, hasError: ${hasError}, isLoaded: ${isLoaded}`);
 
   // Check if image is cached
   useEffect(() => {
@@ -151,25 +142,20 @@ const OptimizedImage = ({
       {/* Actual image */}
       {isInView && !hasError && (
         <img
-          src={simpleSrc}
+          src={optimizedSrc}
           alt={alt}
           className={`optimized-image ${isLoaded ? 'loaded' : 'loading'}`}
           onLoad={handleLoad}
           onError={handleError}
           loading={lazy ? 'lazy' : 'eager'}
           decoding="async"
-          ref={(img) => {
-            // Performance monitoring temporarily disabled for debugging
-            // if (img) {
-            //   performanceMonitor.monitorImageLoad(img, alt || 'image');
-            // }
-          }}
           style={{
-            display: 'block', // Always show image for debugging
+            display: isLoaded ? 'block' : 'none',
             width: '100%',
             height: '100%',
             objectFit: 'cover',
-            opacity: isLoaded ? 1 : 0.5 // Use opacity instead of display for debugging
+            transition: 'opacity 0.3s ease-in-out',
+            opacity: isLoaded ? 1 : 0
           }}
         />
       )}

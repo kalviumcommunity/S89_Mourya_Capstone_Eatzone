@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import './List.css'
 import axios from "axios"
 import { toast } from "react-toastify"
+import { uploadToCloudinary, uploadConfigs, validateImageFile } from '../../utils/cloudinaryUtils'
 
 // Utility function to get proper image URL
 const getImageUrl = (image, serverUrl) => {
@@ -53,6 +54,8 @@ const List = ({ url }) => {
     isFeatured: false,
     tags: ''
   });
+  const [imageUploading, setImageUploading] = useState(false);
+  const [cloudinaryUrl, setCloudinaryUrl] = useState('');
 
   // Test API connection
   const testApiConnection = async () => {
@@ -164,6 +167,8 @@ const List = ({ url }) => {
       isFeatured: item.isFeatured || false,
       tags: item.tags ? item.tags.join(', ') : ''
     });
+    setCloudinaryUrl(''); // Reset Cloudinary URL for new edit
+    setImageUploading(false);
   };
 
   const cancelEdit = () => {
@@ -181,6 +186,8 @@ const List = ({ url }) => {
       isFeatured: false,
       tags: ''
     });
+    setCloudinaryUrl('');
+    setImageUploading(false);
   };
 
   const handleEditFormChange = (e) => {
@@ -191,6 +198,40 @@ const List = ({ url }) => {
       setEditForm(prev => ({ ...prev, [name]: checked }));
     } else {
       setEditForm(prev => ({ ...prev, [name]: value }));
+    }
+  };
+
+  // Handle image upload to Cloudinary
+  const handleImageUpload = async (file) => {
+    if (!file) return;
+
+    // Validate file
+    const validation = validateImageFile(file);
+    if (!validation.valid) {
+      toast.error(validation.error);
+      return;
+    }
+
+    setImageUploading(true);
+    toast.info("Uploading food image to Cloudinary...");
+
+    try {
+      const uploadResult = await uploadToCloudinary(file, uploadConfigs.food.folder, {
+        tags: uploadConfigs.food.tags,
+        transformation: uploadConfigs.food.transformation
+      });
+
+      if (uploadResult.success) {
+        setCloudinaryUrl(uploadResult.url);
+        toast.success("Food image uploaded successfully!");
+      } else {
+        toast.error(uploadResult.error || "Failed to upload food image");
+      }
+    } catch (error) {
+      console.error("Food image upload error:", error);
+      toast.error("Failed to upload food image");
+    } finally {
+      setImageUploading(false);
     }
   };
 
@@ -243,9 +284,10 @@ const List = ({ url }) => {
         formData.append('tags', editForm.tags);
       }
 
-      if (editForm.image) {
-        console.log("Adding image to form data:", editForm.image.name);
-        formData.append('image', editForm.image);
+      // Use Cloudinary URL if available, otherwise keep current image
+      if (cloudinaryUrl) {
+        console.log("Using Cloudinary URL:", cloudinaryUrl);
+        formData.append('image', cloudinaryUrl);
       }
 
       // Log form data for debugging
@@ -648,14 +690,52 @@ const List = ({ url }) => {
 
               <div className="form-group">
                 <label htmlFor="edit-image">Update Image (Optional)</label>
-                <input
-                  type="file"
-                  id="edit-image"
-                  name="image"
-                  onChange={handleEditFormChange}
-                  accept="image/*"
-                />
-                <small>Leave empty to keep current image</small>
+                <div className="image-upload-section">
+                  {cloudinaryUrl && (
+                    <div className="current-image">
+                      <img
+                        src={cloudinaryUrl}
+                        alt="Food preview"
+                        style={{ width: '150px', height: '150px', objectFit: 'cover', borderRadius: '8px' }}
+                      />
+                      <p>New image uploaded to Cloudinary</p>
+                    </div>
+                  )}
+                  <input
+                    type="file"
+                    id="edit-image"
+                    name="image"
+                    onChange={handleEditFormChange}
+                    accept="image/*"
+                  />
+                  {editForm.image && !cloudinaryUrl && (
+                    <div className="upload-actions">
+                      <button
+                        type="button"
+                        onClick={() => handleImageUpload(editForm.image)}
+                        disabled={imageUploading}
+                        className="upload-btn"
+                        style={{
+                          marginTop: '10px',
+                          padding: '8px 16px',
+                          backgroundColor: '#007bff',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '4px',
+                          cursor: imageUploading ? 'not-allowed' : 'pointer'
+                        }}
+                      >
+                        {imageUploading ? "Uploading..." : "Upload to Cloudinary"}
+                      </button>
+                    </div>
+                  )}
+                  <small>
+                    {cloudinaryUrl
+                      ? "Image uploaded to Cloudinary successfully"
+                      : "Select an image and click 'Upload to Cloudinary' for faster loading, or leave empty to keep current image"
+                    }
+                  </small>
+                </div>
               </div>
 
               <div className="form-actions">

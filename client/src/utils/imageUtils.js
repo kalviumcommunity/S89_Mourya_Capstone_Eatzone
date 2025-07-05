@@ -11,12 +11,8 @@
  * @returns {string} Optimized image URL
  */
 export const getImageUrl = (image, serverUrl = import.meta.env.VITE_API_BASE_URL || "https://eatzone.onrender.com", options = {}) => {
-  // Debug API base URL
-  console.log('🔧 API Base URL:', import.meta.env.VITE_API_BASE_URL, 'Server URL:', serverUrl);
-
   // Handle null or undefined images
   if (!image) {
-    console.warn('No image provided, using default fallback');
     return getDefaultFoodImage();
   }
 
@@ -25,21 +21,15 @@ export const getImageUrl = (image, serverUrl = import.meta.env.VITE_API_BASE_URL
 
   // Check if it's already a complete URL (Cloudinary, external URLs, etc.)
   if (imageStr.startsWith('http://') || imageStr.startsWith('https://')) {
-    console.log(`Using external URL: ${imageStr}`);
-    // If it's a Cloudinary URL, optimize it only if options are provided
+    // If it's a Cloudinary URL, always apply basic optimizations for faster loading
     if (imageStr.includes('cloudinary.com')) {
-      // Only optimize if we have meaningful options (not empty object)
-      const hasOptimizationOptions = options && (
-        options.width || options.height || options.quality ||
-        options.format || options.crop || options.gravity
-      );
-
-      if (hasOptimizationOptions) {
-        return optimizeCloudinaryUrl(imageStr, options);
-      } else {
-        // Return Cloudinary URL as-is when no optimization is needed
-        return imageStr;
-      }
+      // Apply default optimizations if no specific options provided
+      const defaultOptions = {
+        format: 'auto',
+        quality: 'auto',
+        ...options
+      };
+      return optimizeCloudinaryUrl(imageStr, defaultOptions);
     }
     // Return other external URLs as-is
     return imageStr;
