@@ -14,12 +14,11 @@ const CRITICAL_IMAGES = [
   'https://res.cloudinary.com/dodxdudew/image/upload/f_auto,q_auto:good,w_200,h_200,c_fill,fl_progressive,fl_awebp,dpr_auto/v1735055000/eatzone/categories/salads.jpg'
 ];
 
-// Assets to cache immediately
+// Assets to cache immediately - only cache what actually exists
 const STATIC_ASSETS = [
-  '/',
-  '/static/js/bundle.js',
-  '/static/css/main.css',
-  '/manifest.json'
+  '/'
+  // Note: Don't cache specific JS/CSS files as they have dynamic hashes
+  // They will be cached when requested
 ];
 
 // Install event - cache static assets and critical images immediately
@@ -27,12 +26,16 @@ self.addEventListener('install', (event) => {
   console.log('🔧 EatZone Service Worker: Installing with aggressive image caching...');
 
   event.waitUntil(
-    Promise.all([
-      // Cache static assets
+    Promise.allSettled([
+      // Cache static assets (only basic ones that exist)
       caches.open(STATIC_CACHE)
         .then((cache) => {
           console.log('📦 Service Worker: Caching static assets');
           return cache.addAll(STATIC_ASSETS);
+        })
+        .catch((error) => {
+          console.warn('⚠️ Service Worker: Some static assets failed to cache:', error);
+          return Promise.resolve(); // Don't fail the entire installation
         }),
       // Aggressively cache critical images for instant loading
       caches.open(IMAGE_CACHE)
@@ -40,12 +43,18 @@ self.addEventListener('install', (event) => {
           console.log('🚀 Service Worker: Aggressively caching critical images for instant loading...');
           return cache.addAll(CRITICAL_IMAGES);
         })
+        .catch((error) => {
+          console.warn('⚠️ Service Worker: Some images failed to cache:', error);
+          return Promise.resolve(); // Don't fail the entire installation
+        })
     ])
-    .then(() => {
-      console.log('✅ Service Worker: All critical assets cached successfully');
+    .then((results) => {
+      const successful = results.filter(result => result.status === 'fulfilled').length;
+      const failed = results.filter(result => result.status === 'rejected').length;
+      console.log(`✅ Service Worker: Installation complete - ${successful} successful, ${failed} failed`);
     })
     .catch((error) => {
-      console.error('❌ Service Worker: Failed to cache critical assets', error);
+      console.error('❌ Service Worker: Installation failed', error);
     })
   );
 
@@ -78,9 +87,21 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
-  
+
   // Skip non-GET requests
   if (request.method !== 'GET') {
+    return;
+  }
+
+  // Skip requests from different ports (e.g., admin app on 5175)
+  if (url.origin !== self.location.origin) {
+    return;
+  }
+
+  // Skip development assets that might not exist
+  if (url.pathname.includes('vite.svg') ||
+      url.pathname.includes('@vite') ||
+      url.pathname.includes('node_modules')) {
     return;
   }
   
@@ -216,15 +237,23 @@ async function handleStaticRequest(request) {
     
     return networkResponse;
   } catch (error) {
-    console.error('Service Worker: Static request failed', error);
-    
+    console.warn('Service Worker: Static request failed', request.url, error.message);
+
     // For navigation requests, return cached index.html
     if (request.mode === 'navigate') {
-      const cache = await caches.open(STATIC_CACHE);
-      return cache.match('/');
+      try {
+        const cache = await caches.open(STATIC_CACHE);
+        const fallback = await cache.match('/');
+        if (fallback) {
+          return fallback;
+        }
+      } catch (cacheError) {
+        console.warn('Service Worker: Cache fallback failed', cacheError);
+      }
     }
-    
-    throw error;
+
+    // Return a basic network fetch as last resort
+    return fetch(request);
   }
 }
 

@@ -2,15 +2,41 @@
   command = "npm run build"
   publish = "dist"
 
-[build.environment]
-  VITE_API_BASE_URL = "https://eatzone.onrender.com"
-  VITE_APP_ENV = "production"
-
+# Redirect all routes to index.html for client-side routing
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
 
+# Environment variables for production build
+[build.environment]
+  VITE_API_BASE_URL = "https://eatzone.onrender.com"
+  VITE_APP_ENV = "production"
+  NODE_ENV = "production"
+
 [context.production.environment]
   VITE_API_BASE_URL = "https://eatzone.onrender.com"
   VITE_APP_ENV = "production"
+  NODE_ENV = "production"
+
+# Security headers
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-XSS-Protection = "1; mode=block"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://unpkg.com https://fonts.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https: blob:; connect-src 'self' https://eatzone.onrender.com https://res.cloudinary.com; worker-src 'self' blob:;"
+
+# Cache static assets
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# Cache service worker with shorter TTL
+[[headers]]
+  for = "/sw.js"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
