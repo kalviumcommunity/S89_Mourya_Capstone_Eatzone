@@ -26,7 +26,12 @@ const OptimizedImage = ({
 
   // Intersection Observer for lazy loading
   useEffect(() => {
-    if (!lazy || isInView) return;
+    if (!lazy) {
+      setIsInView(true);
+      return;
+    }
+
+    if (isInView) return;
 
     const observer = new IntersectionObserver(
       (entries) => {
@@ -65,6 +70,13 @@ const OptimizedImage = ({
     gravity: 'auto'
   });
 
+  // Debug logging for troubleshooting
+  useEffect(() => {
+    if (src) {
+      console.log(`🔍 OptimizedImage: src="${src}", optimized="${optimizedSrc}"`);
+    }
+  }, [src, optimizedSrc]);
+
   // Check if image is cached
   useEffect(() => {
     if (optimizedSrc && imageCache.has(optimizedSrc)) {
@@ -75,7 +87,7 @@ const OptimizedImage = ({
   }, [optimizedSrc]);
 
   const handleLoad = (e) => {
-    console.log(`✅ OptimizedImage loaded successfully: ${simpleSrc}`);
+    console.log(`✅ OptimizedImage loaded successfully: ${src}`);
     setIsLoaded(true);
     setHasError(false);
 
@@ -89,8 +101,8 @@ const OptimizedImage = ({
   };
 
   const handleError = (e) => {
-    console.error(`❌ OptimizedImage error for src: ${simpleSrc}`, e);
-    console.error(`❌ Original src: ${src}`);
+    console.error(`❌ OptimizedImage error for src: ${src}`, e);
+    console.error(`❌ Optimized src: ${optimizedSrc}`);
     setHasError(true);
     if (onError) {
       onError(e);
