@@ -15,8 +15,9 @@ ReactDOM.createRoot(document.getElementById('root')).render(
 
 )
 
-// Register service worker for caching and offline support
+// Register service worker for aggressive image caching and offline support
+// Enable in both development and production for faster image loading
+registerSW();
 if (process.env.NODE_ENV === 'production') {
-  registerSW();
   requestNotificationPermission();
 }

@@ -152,15 +152,15 @@ const imageCache = new ImageCache();
 export default imageCache;
 
 /**
- * Preload critical images for the application with optimized URLs for faster loading
+ * Preload critical images for the application with aggressive optimizations for instant loading
  */
 export const preloadCriticalImages = () => {
   const criticalImages = [
-    // Optimized default and category images
-    'https://res.cloudinary.com/dodxdudew/image/upload/f_auto,q_auto,w_400,h_300,c_fill/v1735055000/eatzone/categories/default-food.jpg',
-    'https://res.cloudinary.com/dodxdudew/image/upload/f_auto,q_auto,w_200,h_200,c_fill/v1735055000/eatzone/categories/pizza.jpg',
-    'https://res.cloudinary.com/dodxdudew/image/upload/f_auto,q_auto,w_200,h_200,c_fill/v1735055000/eatzone/categories/burgers.jpg',
-    'https://res.cloudinary.com/dodxdudew/image/upload/f_auto,q_auto,w_200,h_200,c_fill/v1735055000/eatzone/categories/desserts.jpg',
+    // Aggressively optimized default and category images with WebP support
+    'https://res.cloudinary.com/dodxdudew/image/upload/f_auto,q_auto:good,w_400,h_300,c_fill,fl_progressive,fl_awebp,dpr_auto/v1735055000/eatzone/categories/default-food.jpg',
+    'https://res.cloudinary.com/dodxdudew/image/upload/f_auto,q_auto:good,w_200,h_200,c_fill,fl_progressive,fl_awebp,dpr_auto/v1735055000/eatzone/categories/pizza.jpg',
+    'https://res.cloudinary.com/dodxdudew/image/upload/f_auto,q_auto:good,w_200,h_200,c_fill,fl_progressive,fl_awebp,dpr_auto/v1735055000/eatzone/categories/burgers.jpg',
+    'https://res.cloudinary.com/dodxdudew/image/upload/f_auto,q_auto:good,w_200,h_200,c_fill,fl_progressive,fl_awebp,dpr_auto/v1735055000/eatzone/categories/desserts.jpg',
     'https://res.cloudinary.com/dodxdudew/image/upload/f_auto,q_auto,w_200,h_200,c_fill/v1735055000/eatzone/categories/noodles.jpg',
     'https://res.cloudinary.com/dodxdudew/image/upload/f_auto,q_auto,w_200,h_200,c_fill/v1735055000/eatzone/categories/chinese.jpg',
     'https://res.cloudinary.com/dodxdudew/image/upload/f_auto,q_auto,w_200,h_200,c_fill/v1735055000/eatzone/categories/indian.jpg',
@@ -170,8 +170,9 @@ export const preloadCriticalImages = () => {
     'https://images.unsplash.com/photo-1563379091339-03246963d96c?w=400&h=300&fit=crop&auto=format&q=80'
   ];
 
-  console.log('🚀 Preloading critical images for faster app startup...');
+  console.log('🚀 Aggressively preloading critical images for instant app startup...');
 
+  // Start preloading immediately without waiting
   imageCache.preloadMultiple(criticalImages)
     .then(results => {
       const successful = results.filter(result => result.status === 'fulfilled').length;
@@ -181,11 +182,21 @@ export const preloadCriticalImages = () => {
       // Store preload completion time for performance monitoring
       if (typeof window !== 'undefined') {
         window.eatZoneImagePreloadTime = Date.now();
+        window.eatZoneImageCacheReady = true;
       }
     })
     .catch(error => {
       console.error('❌ Error preloading critical images:', error);
     });
+
+  // Also preload on next tick for immediate availability
+  setTimeout(() => {
+    criticalImages.forEach(url => {
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.src = url;
+    });
+  }, 0);
 };
 
 /**

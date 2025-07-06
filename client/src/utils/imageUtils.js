@@ -21,12 +21,16 @@ export const getImageUrl = (image, serverUrl = import.meta.env.VITE_API_BASE_URL
 
   // Check if it's already a complete URL (Cloudinary, external URLs, etc.)
   if (imageStr.startsWith('http://') || imageStr.startsWith('https://')) {
-    // If it's a Cloudinary URL, always apply basic optimizations for faster loading
+    // If it's a Cloudinary URL, always apply aggressive optimizations for fastest loading
     if (imageStr.includes('cloudinary.com')) {
-      // Apply default optimizations if no specific options provided
+      // Apply aggressive optimizations for fastest loading
       const defaultOptions = {
         format: 'auto',
-        quality: 'auto',
+        quality: 'auto:good', // Better quality than 'auto' but still optimized
+        width: options.width || 400,
+        height: options.height || 300,
+        crop: 'fill',
+        gravity: 'auto',
         ...options
       };
       return optimizeCloudinaryUrl(imageStr, defaultOptions);
@@ -49,23 +53,6 @@ export const getImageUrl = (image, serverUrl = import.meta.env.VITE_API_BASE_URL
   if (imageStr.includes('.png') || imageStr.includes('.jpg') || imageStr.includes('.jpeg') || imageStr.includes('.webp') || imageStr.includes('.gif')) {
     const cleanImagePath = imageStr.startsWith('/') ? imageStr.substring(1) : imageStr;
     const fullUrl = `${serverUrl}/images/${cleanImagePath}`;
-    console.log(`🔗 Constructed server image URL: ${fullUrl}`);
-    console.log(`🔧 Server URL: ${serverUrl}`);
-    console.log(`🖼️ Clean image path: ${cleanImagePath}`);
-
-    // For debugging: test if the URL is accessible
-    fetch(fullUrl, { method: 'HEAD' })
-      .then(response => {
-        if (response.ok) {
-          console.log(`✅ Image accessible: ${fullUrl}`);
-        } else {
-          console.error(`❌ Image not accessible: ${fullUrl} - Status: ${response.status}`);
-        }
-      })
-      .catch(error => {
-        console.error(`❌ Image fetch error: ${fullUrl}`, error);
-      });
-
     return fullUrl;
   }
 
@@ -92,7 +79,7 @@ export const optimizeCloudinaryUrl = (cloudinaryUrl, options = {}) => {
   const {
     width = 400,
     height = 300,
-    quality = 'auto',
+    quality = 'auto:good',
     format = 'auto',
     crop = 'fill',
     gravity = 'auto'
@@ -111,7 +98,7 @@ export const optimizeCloudinaryUrl = (cloudinaryUrl, options = {}) => {
 
   const [baseUrl, imagePath] = urlParts;
 
-  // Build transformation string
+  // Build aggressive transformation string for fastest loading
   const transformations = [
     `w_${width}`,
     `h_${height}`,
@@ -119,8 +106,10 @@ export const optimizeCloudinaryUrl = (cloudinaryUrl, options = {}) => {
     `g_${gravity}`,
     `q_${quality}`,
     `f_${format}`,
-    `fl_progressive`,
-    `fl_immutable_cache`
+    `fl_progressive`, // Progressive JPEG for faster perceived loading
+    `fl_immutable_cache`, // Enable browser caching
+    `fl_awebp`, // Auto WebP format when supported
+    `dpr_auto` // Auto device pixel ratio
   ].join(',');
 
   return `${baseUrl}/upload/${transformations}/${imagePath}`;

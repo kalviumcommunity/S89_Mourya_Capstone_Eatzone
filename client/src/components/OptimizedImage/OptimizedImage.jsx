@@ -1,6 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
 import { getImageUrl, handleImageError } from '../../utils/imageUtils';
-// import performanceMonitor from '../../utils/performance'; // Temporarily disabled for debugging
 import imageCache from '../../utils/imageCache';
 import LoadingIndicator from '../LoadingIndicator/LoadingIndicator';
 import './OptimizedImage.css';
@@ -27,10 +26,6 @@ const OptimizedImage = ({
 
   // Intersection Observer for lazy loading
   useEffect(() => {
-    // Temporarily disable lazy loading for debugging - always show images
-    setIsInView(true);
-    return;
-
     if (!lazy || isInView) return;
 
     const observer = new IntersectionObserver(
@@ -72,12 +67,10 @@ const OptimizedImage = ({
 
   // Check if image is cached
   useEffect(() => {
-    // Temporarily disable cache for debugging
-    return;
-
     if (optimizedSrc && imageCache.has(optimizedSrc)) {
       setIsLoaded(true);
       setHasError(false);
+      console.log(`🚀 Image loaded from cache: ${optimizedSrc}`);
     }
   }, [optimizedSrc]);
 
@@ -86,10 +79,11 @@ const OptimizedImage = ({
     setIsLoaded(true);
     setHasError(false);
 
-    // Cache the successfully loaded image - temporarily disabled for debugging
-    // if (optimizedSrc && e.target) {
-    //   imageCache.set(optimizedSrc, e.target);
-    // }
+    // Cache the successfully loaded image for faster subsequent loads
+    if (optimizedSrc && e.target) {
+      imageCache.set(optimizedSrc, e.target);
+      console.log(`💾 Image cached: ${optimizedSrc}`);
+    }
 
     if (onLoad) onLoad();
   };
