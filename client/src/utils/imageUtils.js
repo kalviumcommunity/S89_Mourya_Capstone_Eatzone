@@ -13,11 +13,18 @@
 export const getImageUrl = (image, serverUrl = import.meta.env.VITE_API_BASE_URL || "https://eatzone.onrender.com", options = {}) => {
   // Handle null or undefined images
   if (!image) {
+    console.log('🔍 getImageUrl: No image provided, using default');
     return getDefaultFoodImage();
   }
 
   // Convert to string if it's not already
   const imageStr = String(image).trim();
+
+  // Additional safety check
+  if (!imageStr) {
+    console.log('🔍 getImageUrl: Empty image string, using default');
+    return getDefaultFoodImage();
+  }
 
   // Check if it's already a complete URL (Cloudinary, external URLs, etc.)
   if (imageStr.startsWith('http://') || imageStr.startsWith('https://')) {
@@ -76,6 +83,12 @@ export const getDefaultFoodImage = () => {
  * @returns {string} Optimized Cloudinary URL
  */
 export const optimizeCloudinaryUrl = (cloudinaryUrl, options = {}) => {
+  // Safety check
+  if (!cloudinaryUrl || typeof cloudinaryUrl !== 'string') {
+    console.error('❌ optimizeCloudinaryUrl: Invalid URL provided', cloudinaryUrl);
+    return cloudinaryUrl || '';
+  }
+
   const {
     width = 400,
     height = 300,
@@ -93,6 +106,7 @@ export const optimizeCloudinaryUrl = (cloudinaryUrl, options = {}) => {
   // Extract the base URL and image path
   const urlParts = cloudinaryUrl.split('/upload/');
   if (urlParts.length !== 2) {
+    console.log('🔍 optimizeCloudinaryUrl: Cannot parse URL, returning original', cloudinaryUrl);
     return cloudinaryUrl; // Return original if can't parse
   }
 
