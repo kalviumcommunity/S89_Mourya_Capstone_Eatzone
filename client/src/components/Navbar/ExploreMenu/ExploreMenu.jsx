@@ -3,18 +3,15 @@ import './ExploreMenu.css'
 import CategoryImage from '../../CategoryImage/CategoryImage'
 import apiService from '../../../services/apiService'
 import { SkeletonCategory } from '../../Skeleton/Skeleton'
-import { useAutoReload } from '../../../utils/autoReload'
+import { useSmartReload, smartReloadManager } from '../../../utils/smartReload'
 
 const ExploreMenu = ({category,setCategory}) => {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Auto-reload functionality for real-time updates
-  const { startMonitoring, stopMonitoring } = useAutoReload('categories', () => {
-    console.log('🔄 Admin made changes to categories, auto-reloading...');
-    fetchCategories(true);
-  });
+  // Smart reload functionality for efficient updates
+  const { register, unregister } = useSmartReload('categories', fetchCategories);
 
   // Get API URL - prioritize environment variables, fallback to production URL
   const getApiUrl = () => {
@@ -82,39 +79,27 @@ const ExploreMenu = ({category,setCategory}) => {
     }
   }, []);
 
-  // Initial load and automatic refresh with admin change detection
+  // Initial load with smart reload system
   useEffect(() => {
-    fetchCategories();
+    let mounted = true;
 
-    // Start monitoring for admin changes
-    startMonitoring();
+    const initializeCategories = async () => {
+      if (mounted) {
+        await fetchCategories();
+        // Register with smart reload system
+        register();
+        // Initialize smart reload manager
+        smartReloadManager.initialize();
+      }
+    };
 
-    // Set up automatic refresh every 30 seconds as backup
-    const refreshInterval = setInterval(() => {
-      console.log("🔄 Auto-refreshing categories...");
-      fetchCategories(true);
-    }, 30000); // 30 seconds
+    initializeCategories();
 
     return () => {
-      clearInterval(refreshInterval);
-      stopMonitoring();
+      mounted = false;
+      unregister();
     };
-  }, [fetchCategories, startMonitoring, stopMonitoring]);
-
-  // Add a refresh function that can be called externally
-  useEffect(() => {
-    const handleCategoryRefresh = () => {
-      console.log("🔄 Refreshing categories due to external event");
-      fetchCategories(true);
-    };
-
-    // Listen for custom events to refresh categories
-    window.addEventListener('categoryUpdated', handleCategoryRefresh);
-
-    return () => {
-      window.removeEventListener('categoryUpdated', handleCategoryRefresh);
-    };
-  }, [fetchCategories]);
+  }, [fetchCategories, register, unregister]);
 
   if (loading) {
     return (

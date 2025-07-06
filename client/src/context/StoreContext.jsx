@@ -3,7 +3,7 @@ import { food_list } from "../assets/assets";
 import axios from "axios";
 import apiService from "../services/apiService";
 import { preloadApiImages, preloadRestaurantImages, preloadFoodImages, preloadCategoryImages } from "../utils/imageCache";
-import { useAutoReload } from "../utils/autoReload";
+import { useSmartReload } from "../utils/smartReload";
 
 export const StoreContext = createContext(null);
 
@@ -11,11 +11,8 @@ const StoreContextProvider = (props) => {
   // Use environment variable for API URL with fallback
   const url = import.meta.env.VITE_API_BASE_URL || "https://eatzone.onrender.com";
 
-  // Auto-reload functionality for real-time updates
-  const { startMonitoring: startFoodMonitoring, stopMonitoring: stopFoodMonitoring } = useAutoReload('foodItems', () => {
-    console.log('🔄 Admin made changes to food items, auto-reloading...');
-    fetchHomePageData();
-  });
+  // Smart reload functionality for efficient updates
+  const { register: registerFoodReload, unregister: unregisterFoodReload } = useSmartReload('foodItems', fetchHomePageData);
 
   // Initialize token from localStorage
   const storedToken = localStorage.getItem("token");
@@ -411,29 +408,38 @@ const StoreContextProvider = (props) => {
 
   // Add useEffect to fetch food data on component mount and clean up old data
   useEffect(() => {
-    // Clean up old generic cart data on app start
-    const oldCartData = localStorage.getItem("cartItems");
-    if (oldCartData) {
-      console.log("Removing old generic cart data for security");
-      localStorage.removeItem("cartItems");
-    }
+    let mounted = true;
 
-    // Preload critical data for better performance
-    apiService.preloadCriticalData();
+    const initializeApp = async () => {
+      if (!mounted) return;
 
-    // Fetch food data (will use cache if available)
-    fetchFoodData();
+      // Clean up old generic cart data on app start
+      const oldCartData = localStorage.getItem("cartItems");
+      if (oldCartData) {
+        console.log("Removing old generic cart data for security");
+        localStorage.removeItem("cartItems");
+      }
 
-    // Load initial cart
-    loadCart();
+      // Preload critical data for better performance
+      apiService.preloadCriticalData();
 
-    // Start monitoring for admin changes to food items
-    startFoodMonitoring();
+      // Fetch food data (will use cache if available)
+      await fetchFoodData();
+
+      // Load initial cart
+      await loadCart();
+
+      // Register with smart reload system
+      registerFoodReload();
+    };
+
+    initializeApp();
 
     return () => {
-      stopFoodMonitoring();
+      mounted = false;
+      unregisterFoodReload();
     };
-  }, [fetchFoodData, loadCart, startFoodMonitoring, stopFoodMonitoring]);
+  }, [fetchFoodData, loadCart, registerFoodReload, unregisterFoodReload]);
 
   // Function to clear cart data for user isolation - SECURE VERSION
   const clearUserData = useCallback(() => {
