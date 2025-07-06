@@ -2,13 +2,20 @@ import { createContext, useState, useEffect, useCallback } from "react";
 import { food_list } from "../assets/assets";
 import axios from "axios";
 import apiService from "../services/apiService";
-import { preloadApiImages } from "../utils/imageCache";
+import { preloadApiImages, preloadRestaurantImages, preloadFoodImages, preloadCategoryImages } from "../utils/imageCache";
+import { useAutoReload } from "../utils/autoReload";
 
 export const StoreContext = createContext(null);
 
 const StoreContextProvider = (props) => {
   // Use environment variable for API URL with fallback
   const url = import.meta.env.VITE_API_BASE_URL || "https://eatzone.onrender.com";
+
+  // Auto-reload functionality for real-time updates
+  const { startMonitoring: startFoodMonitoring, stopMonitoring: stopFoodMonitoring } = useAutoReload('foodItems', () => {
+    console.log('🔄 Admin made changes to food items, auto-reloading...');
+    fetchHomePageData();
+  });
 
   // Initialize token from localStorage
   const storedToken = localStorage.getItem("token");
@@ -60,6 +67,21 @@ const StoreContextProvider = (props) => {
             imageType: item.image?.startsWith('http') ? 'URL' : 'filename'
           });
         });
+
+        // Preload all images immediately for fastest loading
+        if (homeData.restaurants?.data) {
+          preloadRestaurantImages(homeData.restaurants.data);
+        }
+
+        // Preload food images immediately
+        if (homeData.food?.data) {
+          preloadFoodImages(homeData.food.data);
+        }
+
+        // Preload category images immediately
+        if (homeData.categories?.data) {
+          preloadCategoryImages(homeData.categories.data);
+        }
 
         // Preload API images for faster subsequent loads
         preloadApiImages(homeData.food.data, homeData.restaurants?.data || []);
@@ -404,7 +426,14 @@ const StoreContextProvider = (props) => {
 
     // Load initial cart
     loadCart();
-  }, [fetchFoodData, loadCart]);
+
+    // Start monitoring for admin changes to food items
+    startFoodMonitoring();
+
+    return () => {
+      stopFoodMonitoring();
+    };
+  }, [fetchFoodData, loadCart, startFoodMonitoring, stopFoodMonitoring]);
 
   // Function to clear cart data for user isolation - SECURE VERSION
   const clearUserData = useCallback(() => {

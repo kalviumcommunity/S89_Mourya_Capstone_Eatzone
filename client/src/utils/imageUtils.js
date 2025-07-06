@@ -130,6 +130,87 @@ export const optimizeCloudinaryUrl = (cloudinaryUrl, options = {}) => {
 };
 
 /**
+ * Optimize restaurant images specifically for fastest loading
+ * @param {string} imageUrl - Restaurant image URL
+ * @returns {string} Optimized restaurant image URL
+ */
+export const optimizeRestaurantImage = (imageUrl) => {
+  if (!imageUrl) return getDefaultFoodImage();
+
+  // For restaurant images, use aggressive optimizations for instant loading
+  if (imageUrl.includes('cloudinary.com')) {
+    return optimizeCloudinaryUrl(imageUrl, {
+      width: 320,
+      height: 200,
+      quality: 'auto:good',
+      format: 'auto',
+      crop: 'fill',
+      gravity: 'auto'
+    });
+  }
+
+  return getImageUrl(imageUrl, undefined, {
+    width: 320,
+    height: 200,
+    quality: 'auto:good'
+  });
+};
+
+/**
+ * Optimize food item images specifically for fastest loading
+ * @param {string} imageUrl - Food item image URL
+ * @returns {string} Optimized food item image URL
+ */
+export const optimizeFoodImage = (imageUrl) => {
+  if (!imageUrl) return getDefaultFoodImage();
+
+  // For food images, use aggressive optimizations for instant loading
+  if (imageUrl.includes('cloudinary.com')) {
+    return optimizeCloudinaryUrl(imageUrl, {
+      width: 280,
+      height: 200,
+      quality: 'auto:good',
+      format: 'auto',
+      crop: 'fill',
+      gravity: 'auto'
+    });
+  }
+
+  return getImageUrl(imageUrl, undefined, {
+    width: 280,
+    height: 200,
+    quality: 'auto:good'
+  });
+};
+
+/**
+ * Optimize category images specifically for fastest loading
+ * @param {string} imageUrl - Category image URL
+ * @returns {string} Optimized category image URL
+ */
+export const optimizeCategoryImage = (imageUrl) => {
+  if (!imageUrl) return getDefaultFoodImage();
+
+  // For category images, use aggressive optimizations for instant loading
+  if (imageUrl.includes('cloudinary.com')) {
+    return optimizeCloudinaryUrl(imageUrl, {
+      width: 80,
+      height: 80,
+      quality: 'auto:good',
+      format: 'auto',
+      crop: 'fill',
+      gravity: 'auto'
+    });
+  }
+
+  return getImageUrl(imageUrl, undefined, {
+    width: 80,
+    height: 80,
+    quality: 'auto:good'
+  });
+};
+
+/**
  * Handle image loading errors with intelligent fallbacks
  */
 export const handleImageError = (event) => {

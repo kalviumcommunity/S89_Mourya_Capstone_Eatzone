@@ -1,6 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import OptimizedImage from '../OptimizedImage/OptimizedImage';
+import { optimizeRestaurantImage } from '../../utils/imageUtils';
 import './RestaurantCard.css';
 
 const RestaurantCard = ({ restaurant }) => {
@@ -14,13 +15,15 @@ const RestaurantCard = ({ restaurant }) => {
     <div className="restaurant-card" onClick={handleClick}>
       <div className="restaurant-image">
         <OptimizedImage
-          src={restaurant.image}
+          src={optimizeRestaurantImage(restaurant.image)}
           alt={restaurant.name}
           width={320}
           height={200}
-          quality="auto"
-          lazy={true}
-          className="restaurant-img"
+          quality="auto:good"
+          lazy={false}
+          className="restaurant-img priority-load"
+          onLoad={() => console.log(`✅ Restaurant image loaded: ${restaurant.name}`)}
+          onError={(e) => console.error(`❌ Restaurant image failed: ${restaurant.name}`, e)}
         />
         <div className="delivery-time">
           <span>{restaurant.deliveryTime}</span>

@@ -4,7 +4,7 @@ import { assets } from '../../assets/assets';
 import { StoreContext } from '../../context/StoreContext';
 import { formatINR } from '../../utils/currencyUtils';
 import OptimizedImage from '../OptimizedImage/OptimizedImage';
-import { getImageUrl } from '../../utils/imageUtils';
+import { getImageUrl, optimizeFoodImage } from '../../utils/imageUtils';
 
 const FoodItem = ({id,name,price,description,image,originalPrice,discountPercentage,isOnSale,discountLabel,isPopular,isFeatured,tags}) => {
     //const [itemCount, setItemCount] = useState(0);
@@ -14,13 +14,13 @@ const FoodItem = ({id,name,price,description,image,originalPrice,discountPercent
         <div className='food-item'>
             <div className="food-item-img-container">
                 <OptimizedImage
-                    src={image}
+                    src={optimizeFoodImage(image)}
                     alt={name}
                     width={280}
                     height={200}
                     quality="auto:good"
                     lazy={false} // Don't lazy load food items for immediate display
-                    className="food-item-image"
+                    className="food-item-image priority-load"
                     onLoad={() => console.log(`✅ Food item image loaded: ${name}`)}
                     onError={(e) => console.error(`❌ Food item image failed: ${name}`, e)}
                 />
