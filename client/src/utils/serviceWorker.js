@@ -11,22 +11,67 @@ const isLocalhost = Boolean(
 );
 
 /**
+ * Clear old service workers from different ports/origins
+ */
+async function clearOldServiceWorkers() {
+  try {
+    const registrations = await navigator.serviceWorker.getRegistrations();
+    for (const registration of registrations) {
+      const scope = registration.scope;
+      const currentOrigin = window.location.origin;
+
+      // If the service worker is from a different port or origin, unregister it
+      if (!scope.startsWith(currentOrigin)) {
+        console.log('🗑️ Service Worker: Clearing old service worker from:', scope);
+        await registration.unregister();
+      }
+    }
+
+    // Also clear all caches to prevent MIME type issues
+    const cacheNames = await caches.keys();
+    for (const cacheName of cacheNames) {
+      if (cacheName.includes('eatzone') || cacheName.includes('vite')) {
+        console.log('🗑️ Service Worker: Clearing cache:', cacheName);
+        await caches.delete(cacheName);
+      }
+    }
+  } catch (error) {
+    console.warn('⚠️ Service Worker: Failed to clear old service workers:', error);
+  }
+}
+
+/**
  * Register service worker
  */
 export function registerSW() {
   if ('serviceWorker' in navigator) {
-    const publicUrl = new URL(process.env.PUBLIC_URL || '', window.location.href);
-    if (publicUrl.origin !== window.location.origin) {
-      return;
+    // Clear any existing service workers from different ports first
+    clearOldServiceWorkers();
+
+    // Get PUBLIC_URL with proper fallback to prevent undefined paths
+    const publicUrl = import.meta.env.VITE_PUBLIC_URL || process.env.PUBLIC_URL || '';
+
+    // Validate public URL
+    try {
+      const url = new URL(publicUrl || '', window.location.href);
+      if (url.origin !== window.location.origin && publicUrl !== '') {
+        console.log('🔧 Service Worker: Different origin detected, skipping registration');
+        return;
+      }
+    } catch (error) {
+      console.log('🔧 Service Worker: Invalid PUBLIC_URL, using default path');
     }
 
     window.addEventListener('load', () => {
-      const swUrl = `${process.env.PUBLIC_URL}/sw.js`;
+      // Construct service worker URL with proper fallback
+      const swUrl = publicUrl ? `${publicUrl}/sw.js` : '/sw.js';
+
+      console.log('🔧 Service Worker: Attempting to register at:', swUrl);
 
       if (isLocalhost) {
         // This is running on localhost
         checkValidServiceWorker(swUrl);
-        
+
         navigator.serviceWorker.ready.then(() => {
           console.log(
             '🔧 This web app is being served cache-first by a service worker.'

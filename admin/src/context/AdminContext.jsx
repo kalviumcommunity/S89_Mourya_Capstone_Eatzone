@@ -1,7 +1,17 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import axios from 'axios';
 
-const AdminContext = createContext();
+// Create context with default value to prevent initialization issues
+const AdminContext = createContext({
+    admin: null,
+    token: null,
+    loading: false,
+    login: () => {},
+    logout: () => {},
+    updateAdmin: () => {},
+    isAuthenticated: false,
+    url: 'https://eatzone.onrender.com'
+});
 
 export const useAdmin = () => {
     const context = useContext(AdminContext);

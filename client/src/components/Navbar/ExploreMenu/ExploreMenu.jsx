@@ -10,9 +10,6 @@ const ExploreMenu = ({category,setCategory}) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Smart reload functionality for efficient updates
-  const { register, unregister } = useSmartReload('categories', fetchCategories);
-
   // Get API URL - prioritize environment variables, fallback to production URL
   const getApiUrl = () => {
     // In development, use proxy or localhost
@@ -35,49 +32,30 @@ const ExploreMenu = ({category,setCategory}) => {
     prod: import.meta.env.PROD
   });
 
+  // Define fetchCategories function first
   const fetchCategories = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
-      console.log("🔄 Fetching categories with caching...");
 
       // Use cached API service
       const response = await apiService.getCategories();
 
-      console.log("🔍 Categories API response:", response);
-
       if (response.success) {
-        console.log("✅ Categories loaded:", response.data.length, "items");
         setCategories(response.data);
-
-        // If no categories found, show helpful message
-        if (response.data.length === 0) {
-          console.log("ℹ️ No active categories found");
-        }
       } else {
-        console.error("❌ Failed to fetch categories:", response.message);
         setError(response.message || "Failed to load categories");
       }
     } catch (error) {
       console.error("❌ Error fetching categories:", error);
-
-      // Provide more specific error messages
-      let errorMessage = "Unable to connect to server.";
-      if (error.code === 'ECONNABORTED') {
-        errorMessage = "Request timed out. Please try again.";
-      } else if (error.response) {
-        errorMessage = `Server error: ${error.response.status} ${error.response.statusText}`;
-      } else if (error.request) {
-        errorMessage = "Network error. Please check your internet connection.";
-      } else {
-        errorMessage = `Error: ${error.message}`;
-      }
-
-      setError(errorMessage);
+      setError("Unable to load categories. Please try again.");
     } finally {
       setLoading(false);
     }
   }, []);
+
+  // Smart reload functionality for efficient updates
+  const { register, unregister } = useSmartReload('categories', fetchCategories);
 
   // Initial load with smart reload system
   useEffect(() => {
@@ -88,8 +66,6 @@ const ExploreMenu = ({category,setCategory}) => {
         await fetchCategories();
         // Register with smart reload system
         register();
-        // Initialize smart reload manager
-        smartReloadManager.initialize();
       }
     };
 
@@ -101,47 +77,10 @@ const ExploreMenu = ({category,setCategory}) => {
     };
   }, [fetchCategories, register, unregister]);
 
-  if (loading) {
-    return (
-      <div className='explore-menu' id='explore-menu'>
-        <h1>Explore our menu</h1>
-        <p className='explore-menu-text'>Loading categories...</p>
-        <div className="loading-spinner" style={{textAlign: 'center', padding: '20px'}}>
-          <div style={{display: 'inline-block', width: '20px', height: '20px', border: '2px solid #f3f3f3', borderTop: '2px solid #ff6b35', borderRadius: '50%', animation: 'spin 1s linear infinite'}}></div>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className='explore-menu' id='explore-menu'>
-        <h1>Explore our menu</h1>
-        <p className='explore-menu-text' style={{color: '#ff6b35'}}>
-          {error}
-        </p>
-        <button
-          onClick={() => fetchCategories(true)}
-          style={{
-            padding: '10px 20px',
-            backgroundColor: '#ff6b35',
-            color: 'white',
-            border: 'none',
-            borderRadius: '5px',
-            cursor: 'pointer',
-            marginTop: '10px'
-          }}
-        >
-          Try Again
-        </button>
-      </div>
-    );
-  }
-
-  console.log("🔍 Rendering ExploreMenu with categories:", categories);
-  console.log("🔍 Categories length:", categories.length);
-  console.log("🔍 Loading state:", loading);
-  console.log("🔍 Error state:", error);
+  // Initialize smart reload manager once
+  useEffect(() => {
+    smartReloadManager.initialize();
+  }, []);
 
   return (
     <div className='explore-menu' id='explore-menu'>
@@ -153,6 +92,25 @@ const ExploreMenu = ({category,setCategory}) => {
             {Array.from({ length: 8 }).map((_, index) => (
               <SkeletonCategory key={index} />
             ))}
+          </div>
+        ) : error ? (
+          <div style={{textAlign: 'center', padding: '40px 20px', color: '#666'}}>
+            <div style={{fontSize: '48px', marginBottom: '16px'}}>⚠️</div>
+            <h3 style={{margin: '0 0 8px 0', color: '#ff6b35'}}>Failed to load categories</h3>
+            <p style={{margin: '0 0 16px 0', color: '#666'}}>{error}</p>
+            <button
+              onClick={() => fetchCategories()}
+              style={{
+                padding: '10px 20px',
+                backgroundColor: '#ff6b35',
+                color: 'white',
+                border: 'none',
+                borderRadius: '5px',
+                cursor: 'pointer'
+              }}
+            >
+              Try Again
+            </button>
           </div>
         ) : categories.length === 0 ? (
           <div style={{textAlign: 'center', padding: '40px 20px', color: '#666'}}>
@@ -171,12 +129,6 @@ const ExploreMenu = ({category,setCategory}) => {
                             baseUrl={url}
                             className={category===item.name?"active":""}
                             alt={item.name}
-                            onLoad={() => {
-                              console.log(`Successfully loaded image for ${item.name}`);
-                            }}
-                            onError={() => {
-                              console.log(`Failed to load image for ${item.name}, using fallback`);
-                            }}
                           />
                       </div>
                   )

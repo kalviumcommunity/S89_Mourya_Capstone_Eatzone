@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clear All Caches - EatZone</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        button {
+            background: #ff6b35;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 0;
+        }
+        button:hover {
+            background: #e55a2b;
+        }
+        .log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 20px 0;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧹 EatZone Cache Cleaner</h1>
+        <p>This tool will clear all browser caches, service workers, and storage to fix any caching issues.</p>
+        
+        <button onclick="clearAllCaches()">🗑️ Clear All Caches</button>
+        <button onclick="clearServiceWorkers()">🔧 Clear Service Workers Only</button>
+        <button onclick="clearBrowserStorage()">💾 Clear Browser Storage</button>
+        <button onclick="reloadPage()">🔄 Reload Page</button>
+        
+        <div id="log" class="log">Ready to clear caches...</div>
+    </div>
+
+    <script>
+        const log = document.getElementById('log');
+        
+        function addLog(message) {
+            log.textContent += new Date().toLocaleTimeString() + ' - ' + message + '\n';
+            log.scrollTop = log.scrollHeight;
+        }
+        
+        async function clearServiceWorkers() {
+            addLog('🔧 Clearing service workers...');
+            
+            try {
+                if ('serviceWorker' in navigator) {
+                    const registrations = await navigator.serviceWorker.getRegistrations();
+                    addLog(`Found ${registrations.length} service worker(s)`);
+                    
+                    for (const registration of registrations) {
+                        addLog(`🗑️ Unregistering: ${registration.scope}`);
+                        await registration.unregister();
+                    }
+                    
+                    addLog('✅ All service workers cleared');
+                } else {
+                    addLog('ℹ️ Service workers not supported');
+                }
+            } catch (error) {
+                addLog(`❌ Error clearing service workers: ${error.message}`);
+            }
+        }
+        
+        async function clearBrowserCaches() {
+            addLog('🧹 Clearing browser caches...');
+            
+            try {
+                if ('caches' in window) {
+                    const cacheNames = await caches.keys();
+                    addLog(`Found ${cacheNames.length} cache(s)`);
+                    
+                    for (const cacheName of cacheNames) {
+                        addLog(`🗑️ Deleting cache: ${cacheName}`);
+                        await caches.delete(cacheName);
+                    }
+                    
+                    addLog('✅ All caches cleared');
+                } else {
+                    addLog('ℹ️ Cache API not supported');
+                }
+            } catch (error) {
+                addLog(`❌ Error clearing caches: ${error.message}`);
+            }
+        }
+        
+        function clearBrowserStorage() {
+            addLog('💾 Clearing browser storage...');
+            
+            try {
+                // Clear localStorage
+                const localStorageKeys = Object.keys(localStorage);
+                addLog(`Clearing ${localStorageKeys.length} localStorage items`);
+                localStorage.clear();
+                
+                // Clear sessionStorage
+                const sessionStorageKeys = Object.keys(sessionStorage);
+                addLog(`Clearing ${sessionStorageKeys.length} sessionStorage items`);
+                sessionStorage.clear();
+                
+                addLog('✅ Browser storage cleared');
+            } catch (error) {
+                addLog(`❌ Error clearing storage: ${error.message}`);
+            }
+        }
+        
+        async function clearAllCaches() {
+            addLog('🚀 Starting comprehensive cache clearing...');
+            
+            await clearServiceWorkers();
+            await clearBrowserCaches();
+            clearBrowserStorage();
+            
+            addLog('✅ All caches and storage cleared!');
+            addLog('🔄 Page will reload in 3 seconds...');
+            
+            setTimeout(() => {
+                window.location.reload(true);
+            }, 3000);
+        }
+        
+        function reloadPage() {
+            addLog('🔄 Reloading page...');
+            window.location.reload(true);
+        }
+        
+        // Auto-clear on page load if requested
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('auto') === 'true') {
+            setTimeout(clearAllCaches, 1000);
+        }
+    </script>
+</body>
+</html>

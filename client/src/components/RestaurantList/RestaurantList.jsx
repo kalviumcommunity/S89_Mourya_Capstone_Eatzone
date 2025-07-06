@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useCallback } from 'react';
 import RestaurantCard from '../RestaurantCard/RestaurantCard';
 import { StoreContext } from '../../context/StoreContext';
 import apiService from '../../services/apiService';
@@ -10,6 +10,28 @@ const RestaurantList = () => {
   const [restaurants, setRestaurants] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  // Define fetchRestaurants function first with useCallback
+  const fetchRestaurants = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      // Use cached API service
+      const response = await apiService.getRestaurants();
+
+      if (response.success) {
+        setRestaurants(response.data);
+      } else {
+        setError(response.message || 'Failed to fetch restaurants');
+      }
+    } catch (error) {
+      console.error('❌ Error fetching restaurants:', error);
+      setError('Failed to load restaurants');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   // Smart reload functionality for efficient updates
   const { register, unregister } = useSmartReload('restaurants', fetchRestaurants);
@@ -30,29 +52,7 @@ const RestaurantList = () => {
       mounted = false;
       unregister();
     };
-  }, [fetchRestaurants, register, unregister]);
-
-  const fetchRestaurants = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-
-      // Use cached API service
-      const response = await apiService.getRestaurants();
-
-      if (response.success) {
-        setRestaurants(response.data);
-        console.log('✅ Restaurants loaded:', response.data.length, 'items');
-      } else {
-        setError(response.message || 'Failed to fetch restaurants');
-      }
-    } catch (error) {
-      console.error('❌ Error fetching restaurants:', error);
-      setError('Failed to load restaurants');
-    } finally {
-      setLoading(false);
-    }
-  };
+  }, []);
 
   if (loading) {
     return (
