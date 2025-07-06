@@ -3,7 +3,7 @@ import RestaurantCard from '../RestaurantCard/RestaurantCard';
 import { StoreContext } from '../../context/StoreContext';
 import apiService from '../../services/apiService';
 import { SkeletonRestaurant } from '../Skeleton/Skeleton';
-import { useAutoReload } from '../../utils/autoReload';
+import { useSmartReload } from '../../utils/smartReload';
 import './RestaurantList.css';
 
 const RestaurantList = () => {
@@ -11,22 +11,26 @@ const RestaurantList = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Auto-reload functionality for real-time updates
-  const { startMonitoring, stopMonitoring } = useAutoReload('restaurants', () => {
-    console.log('🔄 Admin made changes to restaurants, auto-reloading...');
-    fetchRestaurants();
-  });
+  // Smart reload functionality for efficient updates
+  const { register, unregister } = useSmartReload('restaurants', fetchRestaurants);
 
   useEffect(() => {
-    fetchRestaurants();
+    let mounted = true;
 
-    // Start monitoring for admin changes
-    startMonitoring();
+    const initializeRestaurants = async () => {
+      if (mounted) {
+        await fetchRestaurants();
+        register();
+      }
+    };
+
+    initializeRestaurants();
 
     return () => {
-      stopMonitoring();
+      mounted = false;
+      unregister();
     };
-  }, [startMonitoring, stopMonitoring]);
+  }, [fetchRestaurants, register, unregister]);
 
   const fetchRestaurants = async () => {
     try {

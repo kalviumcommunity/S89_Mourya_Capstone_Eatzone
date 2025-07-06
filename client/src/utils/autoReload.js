@@ -4,8 +4,8 @@
 
 class AutoReloadManager {
   constructor() {
-    this.isEnabled = true;
-    this.pollInterval = 30000; // 30 seconds
+    this.isEnabled = false; // Disabled by default to prevent continuous reloading
+    this.pollInterval = 60000; // Increased to 60 seconds to reduce server load
     this.lastUpdateTimes = {
       categories: null,
       restaurants: null,
@@ -13,6 +13,7 @@ class AutoReloadManager {
     };
     this.intervalIds = new Map();
     this.callbacks = new Map();
+    this.isInitialized = false;
   }
 
   /**
@@ -21,26 +22,29 @@ class AutoReloadManager {
    * @param {Function} callback - Callback to execute when changes detected
    */
   startMonitoring(type, callback) {
-    if (!this.isEnabled) return;
+    if (!this.isEnabled) {
+      console.log(`⏸️ Auto-reload monitoring disabled for ${type}`);
+      return;
+    }
 
     console.log(`🔄 Starting auto-reload monitoring for ${type}`);
-    
+
     this.callbacks.set(type, callback);
-    
+
     // Clear existing interval if any
     if (this.intervalIds.has(type)) {
       clearInterval(this.intervalIds.get(type));
     }
 
-    // Start polling for changes
+    // Start polling for changes with reduced frequency
     const intervalId = setInterval(() => {
       this.checkForUpdates(type);
     }, this.pollInterval);
 
     this.intervalIds.set(type, intervalId);
 
-    // Initial check
-    this.checkForUpdates(type);
+    // Skip initial check to prevent immediate reload
+    console.log(`✅ Auto-reload monitoring started for ${type} (${this.pollInterval}ms interval)`);
   }
 
   /**
@@ -138,59 +142,13 @@ class AutoReloadManager {
   }
 
   /**
-   * Show notification to user about updates
+   * Show notification to user about updates (disabled to prevent popup spam)
    * @param {string} type - Type that was updated
    */
   showUpdateNotification(type) {
-    // Create a subtle notification
-    const notification = document.createElement('div');
-    notification.style.cssText = `
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      background: #4CAF50;
-      color: white;
-      padding: 12px 20px;
-      border-radius: 8px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-      z-index: 10000;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      font-size: 14px;
-      font-weight: 500;
-      animation: slideIn 0.3s ease-out;
-    `;
-    
-    notification.innerHTML = `
-      <div style="display: flex; align-items: center; gap: 8px;">
-        <span>🔄</span>
-        <span>${this.getUpdateMessage(type)}</span>
-      </div>
-    `;
-
-    // Add animation
-    const style = document.createElement('style');
-    style.textContent = `
-      @keyframes slideIn {
-        from { transform: translateX(100%); opacity: 0; }
-        to { transform: translateX(0); opacity: 1; }
-      }
-    `;
-    document.head.appendChild(style);
-
-    document.body.appendChild(notification);
-
-    // Remove notification after 3 seconds
-    setTimeout(() => {
-      notification.style.animation = 'slideIn 0.3s ease-out reverse';
-      setTimeout(() => {
-        if (notification.parentNode) {
-          notification.parentNode.removeChild(notification);
-        }
-        if (style.parentNode) {
-          style.parentNode.removeChild(style);
-        }
-      }, 300);
-    }, 3000);
+    // Disable popup notifications to prevent continuous popup spam
+    // Just log to console for debugging
+    console.log(`✅ ${this.getUpdateMessage(type)} (notification disabled)`);
   }
 
   /**
