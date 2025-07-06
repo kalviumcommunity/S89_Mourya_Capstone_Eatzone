@@ -7,6 +7,7 @@ import { StoreContext } from './context/StoreContext'
 import LazyWrapper from './components/LazyWrapper/LazyWrapper'
 import { initializePreloader, useComponentPreloader } from './utils/preloader'
 import { preloadCriticalImages } from './utils/imageUtils'
+import { preloadImagesViaSW } from './utils/serviceWorker'
 import './utils/imageLoadTest' // Import for auto-testing in development
 
 // Lazy load pages for better performance
@@ -28,11 +29,27 @@ const App = () => {
   const location = useLocation()
   const { preloadByRoute } = useComponentPreloader()
 
-  // Initialize preloader and handle route-based preloading
+  // Initialize preloader and handle aggressive image preloading
   useEffect(() => {
     initializePreloader()
-    // Preload critical images for faster loading
+
+    // Preload critical images for faster loading using multiple strategies
     preloadCriticalImages()
+
+    // Also preload via service worker for persistent caching
+    const criticalImageUrls = [
+      'https://res.cloudinary.com/dodxdudew/image/upload/f_auto,q_auto:good,w_400,h_300,c_fill,fl_progressive,fl_awebp,dpr_auto/v1735055000/eatzone/categories/default-food.jpg',
+      'https://res.cloudinary.com/dodxdudew/image/upload/f_auto,q_auto:good,w_200,h_200,c_fill,fl_progressive,fl_awebp,dpr_auto/v1735055000/eatzone/categories/pizza.jpg',
+      'https://res.cloudinary.com/dodxdudew/image/upload/f_auto,q_auto:good,w_200,h_200,c_fill,fl_progressive,fl_awebp,dpr_auto/v1735055000/eatzone/categories/burgers.jpg',
+      'https://res.cloudinary.com/dodxdudew/image/upload/f_auto,q_auto:good,w_200,h_200,c_fill,fl_progressive,fl_awebp,dpr_auto/v1735055000/eatzone/categories/desserts.jpg'
+    ];
+
+    // Preload via service worker after a short delay to avoid blocking initial render
+    setTimeout(() => {
+      preloadImagesViaSW(criticalImageUrls).catch(error => {
+        console.log('Service worker preloading not available, using fallback method');
+      });
+    }, 500);
   }, [])
 
   // Preload components based on current route

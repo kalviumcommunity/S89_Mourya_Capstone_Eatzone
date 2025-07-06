@@ -201,6 +201,44 @@ export function sendMessageToSW(message) {
 }
 
 /**
+ * Preload images via service worker for instant loading
+ */
+export function preloadImagesViaSW(imageUrls) {
+  return new Promise((resolve, reject) => {
+    if (!('serviceWorker' in navigator)) {
+      reject(new Error('Service Worker not supported'));
+      return;
+    }
+
+    const messageChannel = new MessageChannel();
+
+    messageChannel.port1.onmessage = (event) => {
+      if (event.data.success) {
+        console.log('✅ Images preloaded via Service Worker for instant loading');
+        resolve(event.data);
+      } else {
+        console.error('❌ Failed to preload images via Service Worker:', event.data.error);
+        reject(new Error(event.data.error));
+      }
+    };
+
+    getRegistration().then((registration) => {
+      if (registration.active) {
+        registration.active.postMessage(
+          {
+            type: 'PRELOAD_IMAGES',
+            images: imageUrls
+          },
+          [messageChannel.port2]
+        );
+      } else {
+        reject(new Error('Service Worker not active'));
+      }
+    }).catch(reject);
+  });
+}
+
+/**
  * Listen for service worker messages
  */
 export function listenForSWMessages(callback) {

@@ -1,8 +1,18 @@
-// Service Worker for EatZone - Caching Strategy
-const CACHE_NAME = 'eatzone-v1';
-const STATIC_CACHE = 'eatzone-static-v1';
-const DYNAMIC_CACHE = 'eatzone-dynamic-v1';
-const IMAGE_CACHE = 'eatzone-images-v1';
+// Service Worker for EatZone - Aggressive Image Caching Strategy
+const CACHE_NAME = 'eatzone-v2';
+const STATIC_CACHE = 'eatzone-static-v2';
+const DYNAMIC_CACHE = 'eatzone-dynamic-v2';
+const IMAGE_CACHE = 'eatzone-images-v2';
+
+// Critical images to cache immediately for instant loading
+const CRITICAL_IMAGES = [
+  'https://res.cloudinary.com/dodxdudew/image/upload/f_auto,q_auto:good,w_400,h_300,c_fill,fl_progressive,fl_awebp,dpr_auto/v1735055000/eatzone/categories/default-food.jpg',
+  'https://res.cloudinary.com/dodxdudew/image/upload/f_auto,q_auto:good,w_200,h_200,c_fill,fl_progressive,fl_awebp,dpr_auto/v1735055000/eatzone/categories/pizza.jpg',
+  'https://res.cloudinary.com/dodxdudew/image/upload/f_auto,q_auto:good,w_200,h_200,c_fill,fl_progressive,fl_awebp,dpr_auto/v1735055000/eatzone/categories/burgers.jpg',
+  'https://res.cloudinary.com/dodxdudew/image/upload/f_auto,q_auto:good,w_200,h_200,c_fill,fl_progressive,fl_awebp,dpr_auto/v1735055000/eatzone/categories/desserts.jpg',
+  'https://res.cloudinary.com/dodxdudew/image/upload/f_auto,q_auto:good,w_200,h_200,c_fill,fl_progressive,fl_awebp,dpr_auto/v1735055000/eatzone/categories/noodles.jpg',
+  'https://res.cloudinary.com/dodxdudew/image/upload/f_auto,q_auto:good,w_200,h_200,c_fill,fl_progressive,fl_awebp,dpr_auto/v1735055000/eatzone/categories/salads.jpg'
+];
 
 // Assets to cache immediately
 const STATIC_ASSETS = [
@@ -12,21 +22,33 @@ const STATIC_ASSETS = [
   '/manifest.json'
 ];
 
-// Install event - cache static assets
+// Install event - cache static assets and critical images immediately
 self.addEventListener('install', (event) => {
-  console.log('Service Worker: Installing...');
-  
+  console.log('🔧 EatZone Service Worker: Installing with aggressive image caching...');
+
   event.waitUntil(
-    caches.open(STATIC_CACHE)
-      .then((cache) => {
-        console.log('Service Worker: Caching static assets');
-        return cache.addAll(STATIC_ASSETS);
-      })
-      .catch((error) => {
-        console.error('Service Worker: Failed to cache static assets', error);
-      })
+    Promise.all([
+      // Cache static assets
+      caches.open(STATIC_CACHE)
+        .then((cache) => {
+          console.log('📦 Service Worker: Caching static assets');
+          return cache.addAll(STATIC_ASSETS);
+        }),
+      // Aggressively cache critical images for instant loading
+      caches.open(IMAGE_CACHE)
+        .then((cache) => {
+          console.log('🚀 Service Worker: Aggressively caching critical images for instant loading...');
+          return cache.addAll(CRITICAL_IMAGES);
+        })
+    ])
+    .then(() => {
+      console.log('✅ Service Worker: All critical assets cached successfully');
+    })
+    .catch((error) => {
+      console.error('❌ Service Worker: Failed to cache critical assets', error);
+    })
   );
-  
+
   self.skipWaiting();
 });
 
@@ -78,28 +100,41 @@ self.addEventListener('fetch', (event) => {
   }
 });
 
-// Handle image requests
+// Handle image requests with aggressive caching
 async function handleImageRequest(request) {
   try {
     const cache = await caches.open(IMAGE_CACHE);
     const cachedResponse = await cache.match(request);
-    
+
     if (cachedResponse) {
-      console.log('Service Worker: Serving image from cache', request.url);
+      console.log('🚀 Service Worker: Serving image from cache (instant load)', request.url);
       return cachedResponse;
     }
-    
+
+    console.log('📥 Service Worker: Fetching and caching new image', request.url);
     const networkResponse = await fetch(request);
-    
+
     if (networkResponse.ok) {
-      console.log('Service Worker: Caching new image', request.url);
-      cache.put(request, networkResponse.clone());
+      // Clone response before caching
+      const responseClone = networkResponse.clone();
+
+      // Cache immediately for future requests
+      cache.put(request, responseClone);
+      console.log('💾 Service Worker: Image cached for instant future access', request.url);
     }
-    
+
     return networkResponse;
   } catch (error) {
-    console.error('Service Worker: Image request failed', error);
-    // Return a fallback image if available
+    console.error('❌ Service Worker: Image request failed', error);
+
+    // Try to return a fallback image from critical images
+    const cache = await caches.open(IMAGE_CACHE);
+    const fallback = await cache.match(CRITICAL_IMAGES[0]);
+    if (fallback) {
+      console.log('🔄 Service Worker: Serving fallback image');
+      return fallback;
+    }
+
     return new Response('', { status: 404 });
   }
 }
