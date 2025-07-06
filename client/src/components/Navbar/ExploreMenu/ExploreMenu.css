@@ -64,22 +64,7 @@
     object-position: center;
     border-radius: 50%;
 }
-.explore-menu-list-item p{
-    margin-top: 8px;
-    color: #747474;
-    font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
-    line-height: 1.2;
-    min-height: 32px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    word-wrap: break-word;
-    hyphens: auto;
-    max-width: 100px;
-}
+/* Category names removed - images only display */
 .explore-menu hr{
     margin: 10px 0px;
     height: 2px;
@@ -130,11 +115,7 @@
         min-height: 70px;
     }
 
-    .explore-menu-list-item p {
-        font-size: 12px;
-        min-height: 28px;
-        max-width: 90px;
-    }
+    /* Category names removed */
 }
 
 @media (max-width: 768px) {
@@ -170,12 +151,7 @@
         min-height: 55px;
     }
 
-    .explore-menu-list-item p {
-        font-size: 10px;
-        min-height: 20px;
-        max-width: 70px;
-        margin-top: 4px;
-    }
+    /* Category names removed */
 }
 
 @media (max-width: 480px) {
@@ -211,12 +187,7 @@
         min-height: 50px;
     }
 
-    .explore-menu-list-item p {
-        font-size: 9px;
-        min-height: 18px;
-        max-width: 60px;
-        margin-top: 3px;
-    }
+    /* Category names removed */
 }
 
 @media (max-width: 360px) {
@@ -248,10 +219,5 @@
         min-height: 45px;
     }
 
-    .explore-menu-list-item p {
-        font-size: 8px;
-        min-height: 16px;
-        max-width: 55px;
-        margin-top: 2px;
-    }
+    /* Category names removed */
 }

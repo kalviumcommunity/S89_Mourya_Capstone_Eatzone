@@ -8,6 +8,7 @@ import LazyWrapper from './components/LazyWrapper/LazyWrapper'
 import { initializePreloader, useComponentPreloader } from './utils/preloader'
 import { preloadCriticalImages } from './utils/imageUtils'
 import { preloadImagesViaSW } from './utils/serviceWorker'
+import { initializeImagePerformanceMonitoring } from './utils/imagePerformance'
 import './utils/imageLoadTest' // Import for auto-testing in development
 
 // Lazy load pages for better performance
@@ -32,6 +33,9 @@ const App = () => {
   // Initialize preloader and handle aggressive image preloading
   useEffect(() => {
     initializePreloader()
+
+    // Initialize image performance monitoring
+    initializeImagePerformanceMonitoring()
 
     // Preload critical images for faster loading using multiple strategies
     preloadCriticalImages()

@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { getImageUrl, handleImageError } from '../../utils/imageUtils';
+import { imagePerformanceMonitor } from '../../utils/imagePerformance';
 import imageCache from '../../utils/imageCache';
 import LoadingIndicator from '../LoadingIndicator/LoadingIndicator';
 import './OptimizedImage.css';
@@ -43,7 +44,7 @@ const OptimizedImage = ({
         });
       },
       {
-        rootMargin: '200px', // Start loading 200px before image comes into view for faster loading
+        rootMargin: '500px', // Start loading 500px before image comes into view for instant loading
         threshold: 0.01
       }
     );
@@ -70,12 +71,20 @@ const OptimizedImage = ({
     gravity: 'auto'
   });
 
-  // Debug logging for troubleshooting
+  // Debug logging and performance monitoring
   useEffect(() => {
     if (src) {
       console.log(`🔍 OptimizedImage: src="${src}", optimized="${optimizedSrc}"`);
+
+      // Determine image type for performance monitoring
+      const imageType = className.includes('restaurant') ? 'restaurant' :
+                       className.includes('food') ? 'food' :
+                       className.includes('category') ? 'category' : 'unknown';
+
+      // Start performance monitoring
+      imagePerformanceMonitor.startLoad(optimizedSrc, imageType);
     }
-  }, [src, optimizedSrc]);
+  }, [src, optimizedSrc, className]);
 
   // Check if image is cached
   useEffect(() => {
@@ -91,6 +100,9 @@ const OptimizedImage = ({
     setIsLoaded(true);
     setHasError(false);
 
+    // Mark as loaded in performance monitor
+    imagePerformanceMonitor.markLoaded(optimizedSrc);
+
     // Cache the successfully loaded image for faster subsequent loads
     if (optimizedSrc && e.target) {
       imageCache.set(optimizedSrc, e.target);
@@ -104,6 +116,10 @@ const OptimizedImage = ({
     console.error(`❌ OptimizedImage error for src: ${src}`, e);
     console.error(`❌ Optimized src: ${optimizedSrc}`);
     setHasError(true);
+
+    // Mark as failed in performance monitor
+    imagePerformanceMonitor.markFailed(optimizedSrc, e);
+
     if (onError) {
       onError(e);
     } else {
@@ -160,7 +176,7 @@ const OptimizedImage = ({
             width: '100%',
             height: '100%',
             objectFit: 'cover',
-            transition: 'opacity 0.3s ease-in-out',
+            transition: className.includes('priority-load') ? 'opacity 0.1s ease-in-out' : 'opacity 0.2s ease-in-out',
             opacity: isLoaded ? 1 : 0
           }}
         />

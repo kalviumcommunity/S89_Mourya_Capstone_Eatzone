@@ -3,11 +3,18 @@ import './ExploreMenu.css'
 import CategoryImage from '../../CategoryImage/CategoryImage'
 import apiService from '../../../services/apiService'
 import { SkeletonCategory } from '../../Skeleton/Skeleton'
+import { useAutoReload } from '../../../utils/autoReload'
 
 const ExploreMenu = ({category,setCategory}) => {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  // Auto-reload functionality for real-time updates
+  const { startMonitoring, stopMonitoring } = useAutoReload('categories', () => {
+    console.log('🔄 Admin made changes to categories, auto-reloading...');
+    fetchCategories(true);
+  });
 
   // Get API URL - prioritize environment variables, fallback to production URL
   const getApiUrl = () => {
@@ -75,11 +82,14 @@ const ExploreMenu = ({category,setCategory}) => {
     }
   }, []);
 
-  // Initial load and automatic refresh every 30 seconds
+  // Initial load and automatic refresh with admin change detection
   useEffect(() => {
     fetchCategories();
 
-    // Set up automatic refresh every 30 seconds
+    // Start monitoring for admin changes
+    startMonitoring();
+
+    // Set up automatic refresh every 30 seconds as backup
     const refreshInterval = setInterval(() => {
       console.log("🔄 Auto-refreshing categories...");
       fetchCategories(true);
@@ -87,8 +97,9 @@ const ExploreMenu = ({category,setCategory}) => {
 
     return () => {
       clearInterval(refreshInterval);
+      stopMonitoring();
     };
-  }, [fetchCategories]);
+  }, [fetchCategories, startMonitoring, stopMonitoring]);
 
   // Add a refresh function that can be called externally
   useEffect(() => {
@@ -182,7 +193,6 @@ const ExploreMenu = ({category,setCategory}) => {
                               console.log(`Failed to load image for ${item.name}, using fallback`);
                             }}
                           />
-                          <p>{item.name}</p>
                       </div>
                   )
               })}

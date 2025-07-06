@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import './CategoryImage.css';
 import { getCategoryImageUrl, getCategoryFallbackImage } from '../../utils/categoryUtils';
+import { optimizeCategoryImage } from '../../utils/imageUtils';
 import OptimizedImage from '../OptimizedImage/OptimizedImage';
 
 // Use utility functions for better consistency
@@ -62,13 +63,13 @@ const CategoryImage = ({
                 getPlaceholderContent()
             ) : (
                 <OptimizedImage
-                    src={currentImageUrl}
+                    src={optimizeCategoryImage(currentImageUrl)}
                     alt={alt || categoryName}
                     width={80}
                     height={80}
-                    quality="auto"
+                    quality="auto:good"
                     lazy={false} // Don't lazy load category images for faster initial load
-                    className="category-image"
+                    className="category-image priority-load"
                     onLoad={handleImageLoad}
                     onError={handleImageError}
                     style={{

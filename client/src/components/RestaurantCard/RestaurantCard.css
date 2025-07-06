@@ -28,6 +28,13 @@
   height: 100%;
   object-fit: cover;
   transition: transform 0.3s ease;
+  /* Performance optimizations for fastest loading */
+  will-change: transform;
+  transform: translateZ(0); /* Force hardware acceleration */
+  backface-visibility: hidden;
+  /* Prioritize restaurant image loading */
+  loading: eager;
+  decoding: async;
 }
 
 .restaurant-card:hover .restaurant-image img {

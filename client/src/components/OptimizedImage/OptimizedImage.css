@@ -28,6 +28,16 @@
   opacity: 1;
 }
 
+/* Priority loading for restaurant images */
+.optimized-image.priority-load {
+  /* Fastest possible loading optimizations */
+  will-change: opacity, transform;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  /* Reduce transition time for instant appearance */
+  transition: opacity 0.1s ease-in-out;
+}
+
 .image-placeholder {
   position: absolute;
   top: 0;
