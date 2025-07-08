@@ -1,6 +1,7 @@
 
 import { createContext, useState, useEffect, useCallback } from "react";
 import apiService from "../services/apiService";
+import { food_list } from "../assets/assets";
 
 export const StoreContext = createContext(null);
 
@@ -36,6 +37,36 @@ const StoreContextProvider = (props) => {
     fetchFoodData();
   }, [fetchFoodData]);
 
+  // Add cart functions
+  const addToCart = (itemId) => {
+    setCartItems((prev) => ({...prev, [itemId]: (prev[itemId] || 0) + 1}))
+  }
+
+  const removeFromCart = (itemId) => {
+    setCartItems((prev) => {
+      const newCart = {...prev}
+      if (newCart[itemId] > 1) {
+        newCart[itemId] -= 1
+      } else {
+        delete newCart[itemId]
+      }
+      return newCart
+    })
+  }
+
+  const getTotalCartAmount = () => {
+    let totalAmount = 0
+    for (const item in cartItems) {
+      if (cartItems[item] > 0) {
+        let itemInfo = foodData.find((product) => product._id === item)
+        if (itemInfo) {
+          totalAmount += itemInfo.price * cartItems[item]
+        }
+      }
+    }
+    return totalAmount
+  }
+
   const contextValue = {
     token,
     setToken,
@@ -43,8 +74,12 @@ const StoreContextProvider = (props) => {
     setUser,
     cartItems,
     setCartItems,
+    addToCart,
+    removeFromCart,
+    getTotalCartAmount,
     foodData,
     setFoodData,
+    food_list, // Static fallback food list
     isFoodLoading,
     fetchFoodData,
     url
