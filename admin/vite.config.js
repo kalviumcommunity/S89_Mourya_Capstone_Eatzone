@@ -3,7 +3,11 @@ import react from '@vitejs/plugin-react'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react({
+    // Explicitly configure React plugin
+    include: "**/*.{jsx,tsx}",
+    exclude: /node_modules/,
+  })],
   base: '/', // Ensure proper base path for deployment
   define: {
     // Prevent service worker registration attempts
@@ -15,6 +19,9 @@ export default defineConfig({
     assetsDir: 'assets',
     sourcemap: false, // Disable sourcemaps for production
     rollupOptions: {
+      input: {
+        main: './index.html'
+      },
       output: {
         manualChunks: undefined, // Prevent chunk splitting issues
         // Ensure proper module initialization order

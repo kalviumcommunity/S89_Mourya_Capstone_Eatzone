@@ -2,6 +2,13 @@
   command = "npm ci && npm run build"
   publish = "dist"
 
+[build.environment]
+  NODE_VERSION = "18"
+  NPM_FLAGS = "--production=false"
+  VITE_API_BASE_URL = "https://eatzone.onrender.com"
+  VITE_APP_ENV = "production"
+  NODE_ENV = "production"
+
 # Redirect all routes to index.html for client-side routing
 [[redirects]]
   from = "/*"
@@ -19,11 +26,10 @@
   to = "/404"
   status = 404
 
-# Environment variables for production build
-[build.environment]
-  VITE_API_BASE_URL = "https://eatzone.onrender.com"
-  VITE_APP_ENV = "production"
-  NODE_ENV = "production"
+# Environment variables for production build (merged with build section above)
+# VITE_API_BASE_URL = "https://eatzone.onrender.com"
+# VITE_APP_ENV = "production"
+# NODE_ENV = "production"
 
 # Security headers
 [[headers]]
