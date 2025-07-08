@@ -1,0 +1,3 @@
+# This file helps Netlify detect the correct framework
+# React + Vite project
+framework = "vite"
