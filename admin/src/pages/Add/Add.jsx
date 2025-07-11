@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import "./Add.css";
-import { assets } from "../../assets/assets";
 import axios from "axios"
 import { toast } from "react-toastify";
 import { uploadToCloudinary, uploadConfigs } from '../../utils/cloudinaryUtils';

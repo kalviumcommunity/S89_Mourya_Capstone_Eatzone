@@ -10,6 +10,7 @@ const Dashboard = ({ url }) => {
     totalUsers: 0,
     todayOrders: 0,
     todayRevenue: 0,
+    weekRevenue: 0,
     pendingOrders: 0,
     deliveredOrders: 0
   });
@@ -26,22 +27,33 @@ const Dashboard = ({ url }) => {
     try {
       setLoading(true);
       
-      // Fetch orders
-      const ordersResponse = await axios.get(`${url}/api/order/list`);
+      // Fetch orders, food items, and users
+      const [ordersResponse, foodResponse, usersResponse] = await Promise.all([
+        axios.get(`${url}/api/order/list`),
+        axios.get(`${url}/api/food/list`),
+        axios.get(`${url}/api/user/list`).catch(() => ({ data: { success: false, data: [] } }))
+      ]);
+
       const orders = ordersResponse.data.success ? ordersResponse.data.data : [];
-      
-      // Fetch food items
-      const foodResponse = await axios.get(`${url}/api/food/list`);
       const foodItems = foodResponse.data.success ? foodResponse.data.data : [];
+      const users = usersResponse.data.success ? usersResponse.data.data : [];
       
       // Calculate stats
       const today = new Date().toDateString();
-      const todayOrders = orders.filter(order => 
+      const todayOrders = orders.filter(order =>
         new Date(order.date).toDateString() === today
       );
-      
+
+      // Calculate this week's orders
+      const oneWeekAgo = new Date();
+      oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+      const weekOrders = orders.filter(order =>
+        new Date(order.date) >= oneWeekAgo
+      );
+
       const totalRevenue = orders.reduce((sum, order) => sum + order.amount, 0);
       const todayRevenue = todayOrders.reduce((sum, order) => sum + order.amount, 0);
+      const weekRevenue = weekOrders.reduce((sum, order) => sum + order.amount, 0);
       
       const pendingOrders = orders.filter(order => 
         order.status === 'Food Processing' || order.status === 'Out for delivery'
@@ -55,18 +67,35 @@ const Dashboard = ({ url }) => {
         totalOrders: orders.length,
         totalRevenue,
         totalFoodItems: foodItems.length,
-        totalUsers: 0, // We'll need to add user count API
+        totalUsers: users.length,
         todayOrders: todayOrders.length,
         todayRevenue,
+        weekRevenue,
         pendingOrders,
         deliveredOrders
       });
 
-      // Set recent orders (last 5)
-      setRecentOrders(orders.slice(0, 5));
-      
-      // Calculate top food items (mock data for now)
-      setTopFoodItems(foodItems.slice(0, 5));
+      // Set recent orders (last 10, sorted by date)
+      const sortedOrders = orders.sort((a, b) => new Date(b.date) - new Date(a.date));
+      setRecentOrders(sortedOrders.slice(0, 10));
+
+      // Calculate top food items based on order frequency
+      const foodItemCounts = {};
+      orders.forEach(order => {
+        order.items?.forEach(item => {
+          foodItemCounts[item._id] = (foodItemCounts[item._id] || 0) + item.quantity;
+        });
+      });
+
+      const topItems = foodItems
+        .map(item => ({
+          ...item,
+          orderCount: foodItemCounts[item._id] || 0
+        }))
+        .sort((a, b) => b.orderCount - a.orderCount)
+        .slice(0, 5);
+
+      setTopFoodItems(topItems);
       
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
@@ -170,6 +199,32 @@ const Dashboard = ({ url }) => {
             </svg>
           }
           change={{ type: 'increase', value: 5 }}
+        />
+
+        <StatCard
+          title="Total Users"
+          value={stats.totalUsers}
+          color="purple"
+          icon={
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+              <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+          }
+          change={{ type: 'increase', value: 5 }}
+        />
+
+        <StatCard
+          title="Week Revenue"
+          value={formatCurrency(stats.weekRevenue)}
+          color="success"
+          icon={
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M3 3v18h18"></path>
+              <path d="M18.7 8l-5.1 5.2-2.8-2.7L7 14.3"></path>
+            </svg>
+          }
+          change={{ type: 'increase', value: 22 }}
         />
       </div>
 
