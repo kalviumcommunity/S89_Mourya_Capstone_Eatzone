@@ -1,21 +1,19 @@
 [build]
+  base = "client"
   command = "npm ci && npm run build"
-  publish = "dist"
+  publish = "client/dist"
 
-# Redirect all routes to index.html for client-side routing
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
-
-# Environment variables for production build
 [build.environment]
   NODE_VERSION = "18"
   VITE_API_BASE_URL = "https://eatzone.onrender.com"
   VITE_APP_ENV = "production"
   NODE_ENV = "production"
 
-# Simplified security headers
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
 [[headers]]
   for = "/*"
   [headers.values]
@@ -23,7 +21,6 @@
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
 
-# Cache static assets
 [[headers]]
   for = "/assets/*"
   [headers.values]
