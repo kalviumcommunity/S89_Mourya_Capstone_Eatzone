@@ -158,6 +158,14 @@ const StoreContextProvider = (props) => {
     }
   }, [logout]);
 
+  // Auto-fetch user profile when token is available but user data is missing
+  useEffect(() => {
+    if (token && !user && !isUserLoading) {
+      console.log("🔄 Auto-fetching user profile - token exists but no user data");
+      fetchUserProfile();
+    }
+  }, [token, user, isUserLoading, fetchUserProfile]);
+
   // Load cart from server or localStorage
   const loadCart = useCallback(async () => {
     if (token && user?.id) {

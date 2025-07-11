@@ -68,6 +68,11 @@ const Profile = () => {
   // Use fallback user data if user is not available
   const displayUser = user || fallbackUser;
 
+  // Enhanced display values with better fallbacks
+  const displayName = displayUser?.name || 'User';
+  const displayEmail = displayUser?.email || '';
+  const avatarLetter = displayEmail ? displayEmail.charAt(0).toUpperCase() : (displayName ? displayName.charAt(0).toUpperCase() : 'U');
+
   return (
     <div className="profile-container">
       <div className="profile-header">
@@ -101,10 +106,10 @@ const Profile = () => {
         <div className="profile-content">
           <div className="profile-image-section">
             <div className="profile-image-placeholder">
-              {displayUser?.email ? displayUser.email.charAt(0).toUpperCase() : 'U'}
+              {avatarLetter}
             </div>
-            <h2>{displayUser?.name || 'User'}</h2>
-            <p>{displayUser?.email || ''}</p>
+            <h2>{displayName}</h2>
+            <p>{displayEmail}</p>
           </div>
 
           <div className="profile-details">
@@ -112,11 +117,11 @@ const Profile = () => {
               <h3>Account Information</h3>
               <div className="profile-info-item">
                 <span className="info-label">Name:</span>
-                <span className="info-value">{displayUser?.name || 'Not provided'}</span>
+                <span className="info-value">{displayName}</span>
               </div>
               <div className="profile-info-item">
                 <span className="info-label">Email:</span>
-                <span className="info-value">{displayUser?.email || 'Not provided'}</span>
+                <span className="info-value">{displayEmail || 'Not provided'}</span>
               </div>
               <div className="profile-info-item">
                 <span className="info-label">Account Type:</span>
