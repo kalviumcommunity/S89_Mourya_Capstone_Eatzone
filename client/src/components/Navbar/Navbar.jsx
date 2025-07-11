@@ -7,6 +7,7 @@ import ProfileDropdown from '../ProfileDropdown/ProfileDropdown'
 import { getImageUrl } from '../../utils/imageUtils';
 
 const Navbar = ({setShowLogin}) => {
+  //new
 
     const [menu, setMenu] = useState("menu");
     const {getTotalCartAmount, token, foodData, url, addToCart, user} = useContext(StoreContext);
