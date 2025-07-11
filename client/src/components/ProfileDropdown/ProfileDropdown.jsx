@@ -7,7 +7,7 @@ import './ProfileDropdown.css';
 const ProfileDropdown = () => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
-  const { user, logout } = useContext(StoreContext);
+  const { user, logout, token, fetchUserProfile } = useContext(StoreContext);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -23,6 +23,14 @@ const ProfileDropdown = () => {
     };
   }, []);
 
+  // Fetch user profile if we have token but no user data
+  useEffect(() => {
+    if (token && !user) {
+      console.log("🔄 ProfileDropdown: Token exists but no user data, fetching profile...");
+      fetchUserProfile();
+    }
+  }, [token, user, fetchUserProfile]);
+
   const handleLogout = () => {
     logout();
     setIsOpen(false);
@@ -33,24 +41,31 @@ const ProfileDropdown = () => {
     console.log("🎭 ProfileDropdown - Current user data:", user);
     console.log("🎭 ProfileDropdown - User name:", user?.name);
     console.log("🎭 ProfileDropdown - User email:", user?.email);
-  }, [user]);
+    console.log("🎭 ProfileDropdown - Token exists:", !!token);
+  }, [user, token]);
+
+  // Get display name and email with fallbacks
+  const displayName = user?.name || 'User';
+  const displayEmail = user?.email || '';
+  const avatarLetter = displayEmail ? displayEmail.charAt(0).toUpperCase() : (displayName ? displayName.charAt(0).toUpperCase() : 'U');
 
   return (
     <div className="profile-dropdown-container" ref={dropdownRef}>
       <div
         className="profile-icon-container"
         onClick={() => setIsOpen(!isOpen)}
+        title={`${displayName} - Click to open menu`}
       >
         <div className="profile-letter-avatar">
-          {user?.email ? user.email.charAt(0).toUpperCase() : 'U'}
+          {avatarLetter}
         </div>
       </div>
 
       {isOpen && (
         <div className="dropdown-menu">
           <div className="dropdown-header">
-            <p className="user-name">{user?.name || 'User'}</p>
-            <p className="user-email">{user?.email || ''}</p>
+            <p className="user-name">{displayName}</p>
+            <p className="user-email">{displayEmail}</p>
           </div>
 
           <div className="dropdown-items">
