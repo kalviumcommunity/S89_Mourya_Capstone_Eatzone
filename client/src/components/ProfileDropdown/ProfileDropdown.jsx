@@ -85,12 +85,15 @@ const ProfileDropdown = () => {
   return (
     <div className="profile-dropdown-container" ref={dropdownRef}>
       <div
-        className="profile-icon-container"
+        className={`profile-icon-container ${isOpen ? 'active' : ''}`}
         onClick={() => setIsOpen(!isOpen)}
         title={`${displayName} - Click to open menu`}
       >
         <div className="profile-letter-avatar">
           {avatarLetter}
+        </div>
+        <div className={`dropdown-arrow ${isOpen ? 'open' : ''}`}>
+          ▼
         </div>
       </div>
 

@@ -116,7 +116,10 @@
     height: 40px;
     border-radius: 6px;
     object-fit: cover;
+    object-position: center;
     flex-shrink: 0;
+    background-color: #f8f9fa;
+    border: 1px solid #e9ecef;
 }
 
 .search-result-info {

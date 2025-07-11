@@ -14,9 +14,17 @@
   width: 120px;
   height: 120px;
   object-fit: cover;
+  object-position: center;
   border-radius: 8px;
   border: 2px dashed #ccc;
   cursor: pointer;
+  background-color: #f8f9fa;
+  transition: all 0.3s ease;
+}
+
+.add-img-upload img:hover {
+  border-color: #ff6b35;
+  transform: scale(1.02);
 }
 
 .add-restaurant-name input,
