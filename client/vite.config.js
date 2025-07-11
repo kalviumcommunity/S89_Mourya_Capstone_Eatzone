@@ -14,19 +14,33 @@ export default defineConfig({
     outDir: 'dist',
     assetsDir: 'assets',
     sourcemap: false, // Disable sourcemaps for production
+    minify: 'terser', // Use terser for better compression
+    target: 'es2015', // Target older browsers for compatibility
+    chunkSizeWarningLimit: 1000, // Increase chunk size warning limit
     rollupOptions: {
       output: {
-        manualChunks: undefined, // Prevent chunk splitting issues
-        // Ensure proper module initialization order
+        // Optimize chunk splitting for better caching
+        manualChunks: {
+          vendor: ['react', 'react-dom'],
+          router: ['react-router-dom'],
+          utils: ['axios']
+        },
         entryFileNames: 'assets/[name]-[hash].js',
         chunkFileNames: 'assets/[name]-[hash].js',
         assetFileNames: 'assets/[name]-[hash].[ext]'
       }
     },
-    // Optimize dependencies to prevent circular dependency issues
+    // Optimize build performance
     commonjsOptions: {
       include: [/node_modules/],
       transformMixedEsModules: true
+    },
+    // Reduce memory usage during build
+    terserOptions: {
+      compress: {
+        drop_console: true, // Remove console logs in production
+        drop_debugger: true
+      }
     }
   },
   server: {
@@ -52,9 +66,13 @@ export default defineConfig({
       }
     }
   },
-  // Optimize dependencies to prevent React issues
+  // Optimize dependencies for faster builds
   optimizeDeps: {
-    include: ['react', 'react-dom', 'react-router-dom'],
+    include: ['react', 'react-dom', 'react-router-dom', 'axios', 'lucide-react'],
     exclude: ['@vite/client', '@vite/env']
+  },
+  // Improve build performance
+  esbuild: {
+    logOverride: { 'this-is-undefined-in-esm': 'silent' }
   }
 })
