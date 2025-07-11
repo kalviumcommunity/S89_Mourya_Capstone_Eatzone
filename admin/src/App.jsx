@@ -27,6 +27,7 @@ const AdminApp = () => {
 
   return (
     <div className="app">
+      {/* Debug: Authentication removed - direct admin access */}
       <ToastContainer
         position="top-right"
         autoClose={3000}
