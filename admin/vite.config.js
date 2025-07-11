@@ -19,9 +19,6 @@ export default defineConfig({
     assetsDir: 'assets',
     sourcemap: false, // Disable sourcemaps for production
     rollupOptions: {
-      input: {
-        main: './index.html'
-      },
       output: {
         manualChunks: undefined, // Prevent chunk splitting issues
         // Ensure proper module initialization order

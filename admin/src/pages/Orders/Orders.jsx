@@ -2,7 +2,6 @@ import { useEffect, useState, useCallback } from 'react';
 import './Orders.css';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-import { assets } from '../../assets/assets';
 
 // Currency utilities for INR
 const formatINR = (amount) => `₹${amount}`;

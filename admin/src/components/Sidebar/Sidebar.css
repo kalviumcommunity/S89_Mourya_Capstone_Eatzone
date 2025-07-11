@@ -1,0 +1,149 @@
+.sidebar {
+  width: 280px;
+  background-color: var(--white);
+  border-right: 1px solid var(--medium-gray);
+  height: calc(100vh - 80px);
+  position: fixed;
+  left: 0;
+  top: 80px;
+  overflow-y: auto;
+  transition: transform 0.3s ease;
+  z-index: 999;
+  box-shadow: var(--shadow-md);
+}
+
+.sidebar.closed {
+  transform: translateX(-100%);
+}
+
+.sidebar-content {
+  padding: 2rem 0;
+}
+
+.sidebar-header {
+  padding: 0 2rem 1rem 2rem;
+  border-bottom: 1px solid var(--medium-gray);
+  margin-bottom: 1rem;
+}
+
+.sidebar-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--accent-black);
+  margin: 0;
+}
+
+.sidebar-menu {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.sidebar-menu-item {
+  margin: 0.25rem 1rem;
+}
+
+.sidebar-menu-link {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  border-radius: var(--radius-lg);
+  color: var(--dark-gray);
+  text-decoration: none;
+  transition: var(--transition);
+  font-weight: 500;
+  position: relative;
+}
+
+.sidebar-menu-link:hover {
+  background-color: var(--light-gray);
+  color: var(--accent-black);
+}
+
+.sidebar-menu-link.active {
+  background-color: var(--primary-red-light);
+  color: var(--primary-red);
+  font-weight: 600;
+}
+
+.sidebar-menu-link.active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 60%;
+  background-color: var(--primary-red);
+  border-radius: 0 2px 2px 0;
+}
+
+.sidebar-menu-icon {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sidebar-menu-text {
+  flex: 1;
+}
+
+.sidebar-menu-label {
+  font-size: 1rem;
+  margin: 0 0 0.25rem 0;
+}
+
+.sidebar-menu-description {
+  font-size: 0.875rem;
+  color: var(--dark-gray);
+  margin: 0;
+  opacity: 0.8;
+}
+
+.sidebar-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 998;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+}
+
+.sidebar-overlay.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .sidebar {
+    width: 100%;
+    max-width: 320px;
+  }
+  
+  .sidebar-content {
+    padding: 1rem 0;
+  }
+  
+  .sidebar-header {
+    padding: 0 1rem 1rem 1rem;
+  }
+  
+  .sidebar-menu-item {
+    margin: 0.25rem 0.5rem;
+  }
+}
+
+@media (min-width: 769px) {
+  .sidebar-overlay {
+    display: none;
+  }
+}

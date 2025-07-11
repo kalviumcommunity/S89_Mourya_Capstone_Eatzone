@@ -67,6 +67,29 @@ const App = () => {
           } />
           <Route path='/simple' element={<SimpleHome />} />
 
+          {/* Admin route - redirect to separate admin site */}
+          <Route path='/admin' element={
+            <div style={{ padding: '20px', textAlign: 'center' }}>
+              <h1>🔐 EatZone Admin Panel</h1>
+              <p>The admin panel is available at a separate URL.</p>
+              <p>Please contact your administrator for the admin panel URL.</p>
+              <button
+                onClick={() => window.location.href = '/'}
+                style={{
+                  padding: '10px 20px',
+                  backgroundColor: '#ff4757',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '5px',
+                  cursor: 'pointer',
+                  marginTop: '10px'
+                }}
+              >
+                Go to Main Site
+              </button>
+            </div>
+          } />
+
           {/* Catch-all route */}
           <Route path='*' element={
             <div style={{ padding: '20px', textAlign: 'center' }}>

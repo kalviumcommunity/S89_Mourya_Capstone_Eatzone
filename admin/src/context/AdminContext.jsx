@@ -34,31 +34,29 @@ export const AdminProvider = ({ children }) => {
     const isAuthenticated = !!(admin && token);
 
     // Login function
-    const login = async (credentials) => {
-        setLoading(true);
+    const login = async (email, password) => {
         try {
-            const response = await fetch(`${url}/api/admin/login`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(credentials),
+            setLoading(true);
+            const response = await axios.post(`${url}/api/admin/login`, {
+                email,
+                password
             });
 
-            const data = await response.json();
-
-            if (data.success) {
-                setAdmin(data.admin);
-                setToken(data.token);
-                localStorage.setItem('adminToken', data.token);
-                localStorage.setItem('adminData', JSON.stringify(data.admin));
+            if (response.data.success) {
+                const { token: newToken, admin: adminData } = response.data;
+                setToken(newToken);
+                setAdmin(adminData);
+                localStorage.setItem('adminToken', newToken);
                 return { success: true };
             } else {
-                return { success: false, message: data.message };
+                return { success: false, message: response.data.message };
             }
         } catch (error) {
             console.error('Login error:', error);
-            return { success: false, message: 'Login failed. Please try again.' };
+            return {
+                success: false,
+                message: error.response?.data?.message || 'Login failed'
+            };
         } finally {
             setLoading(false);
         }
@@ -69,14 +67,41 @@ export const AdminProvider = ({ children }) => {
         setAdmin(null);
         setToken(null);
         localStorage.removeItem('adminToken');
-        localStorage.removeItem('adminData');
     };
 
     // Update admin data
     const updateAdmin = (adminData) => {
         setAdmin(adminData);
-        localStorage.setItem('adminData', JSON.stringify(adminData));
     };
+
+    // Verify token on app load
+    useEffect(() => {
+        const verifyToken = async () => {
+            if (token) {
+                try {
+                    const response = await axios.get(`${url}/api/admin/verify`, {
+                        headers: { Authorization: `Bearer ${token}` }
+                    });
+
+                    if (response.data.success) {
+                        setAdmin(response.data.admin);
+                    } else {
+                        logout();
+                    }
+                } catch (error) {
+                    console.error('Token verification failed:', error);
+                    logout();
+                }
+            }
+            setLoading(false);
+        };
+
+        verifyToken();
+    }, [token, url]);
+
+
+
+
 
     // Load admin data on app start
     useEffect(() => {

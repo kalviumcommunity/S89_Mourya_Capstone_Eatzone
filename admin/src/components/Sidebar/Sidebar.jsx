@@ -2,7 +2,7 @@ import React from 'react'
 import './Sidebar.css'
 import { NavLink } from 'react-router-dom'
 
-const Sidebar = ({ isMobileOpen, onMobileClose }) => {
+const Sidebar = ({ isOpen, setSidebarOpen }) => {
   const menuItems = [
     {
       path: '/dashboard',
