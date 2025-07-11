@@ -166,6 +166,42 @@ const StoreContextProvider = (props) => {
     }
   }, [token, user, isUserLoading, fetchUserProfile]);
 
+  // Initialize user data on app start if token exists but user is missing
+  useEffect(() => {
+    const initializeUserData = async () => {
+      const storedToken = localStorage.getItem("token");
+      const storedUser = localStorage.getItem("user");
+
+      console.log("🔄 Initializing user data...");
+      console.log("  - Stored token:", !!storedToken);
+      console.log("  - Stored user:", !!storedUser);
+      console.log("  - Context token:", !!token);
+      console.log("  - Context user:", !!user);
+
+      if (storedToken && !user && !isUserLoading) {
+        if (storedUser) {
+          try {
+            const userData = JSON.parse(storedUser);
+            console.log("🔄 Restoring user data from localStorage:", userData.name);
+            setUser(userData);
+          } catch (error) {
+            console.error("Error parsing stored user data:", error);
+            // If stored user data is corrupted, fetch fresh data
+            if (token) {
+              console.log("🔄 Fetching fresh user data due to corrupted storage");
+              fetchUserProfile();
+            }
+          }
+        } else if (token) {
+          console.log("🔄 No stored user data, fetching from server");
+          fetchUserProfile();
+        }
+      }
+    };
+
+    initializeUserData();
+  }, [token, user, isUserLoading, fetchUserProfile]); // Include dependencies
+
   // Load cart from server or localStorage
   const loadCart = useCallback(async () => {
     if (token && user?.id) {
