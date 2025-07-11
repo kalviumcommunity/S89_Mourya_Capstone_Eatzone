@@ -36,6 +36,15 @@ const ProfileDropdown = () => {
     setIsOpen(false);
   };
 
+  const handleRefreshProfile = async () => {
+    console.log("🔄 Manual profile refresh triggered");
+    if (token) {
+      await fetchUserProfile();
+    } else {
+      console.log("❌ No token available for profile refresh");
+    }
+  };
+
   // For debugging
   useEffect(() => {
     console.log("🎭 ProfileDropdown - Current user data:", user);
@@ -45,9 +54,33 @@ const ProfileDropdown = () => {
   }, [user, token]);
 
   // Get display name and email with fallbacks
-  const displayName = user?.name || 'User';
-  const displayEmail = user?.email || '';
+  const getStoredUser = () => {
+    try {
+      const storedUser = localStorage.getItem('user');
+      return storedUser ? JSON.parse(storedUser) : null;
+    } catch (error) {
+      console.error('Error parsing stored user:', error);
+      return null;
+    }
+  };
+
+  const storedUser = getStoredUser();
+  const effectiveUser = user || storedUser;
+
+  const displayName = effectiveUser?.name || 'User';
+  const displayEmail = effectiveUser?.email || '';
   const avatarLetter = displayEmail ? displayEmail.charAt(0).toUpperCase() : (displayName ? displayName.charAt(0).toUpperCase() : 'U');
+
+  // Enhanced debugging
+  useEffect(() => {
+    console.log("🎭 ProfileDropdown Enhanced Debug:");
+    console.log("  - Context user:", user);
+    console.log("  - Stored user:", storedUser);
+    console.log("  - Effective user:", effectiveUser);
+    console.log("  - Display name:", displayName);
+    console.log("  - Display email:", displayEmail);
+    console.log("  - Token exists:", !!token);
+  }, [user, storedUser, effectiveUser, displayName, displayEmail, token]);
 
   return (
     <div className="profile-dropdown-container" ref={dropdownRef}>

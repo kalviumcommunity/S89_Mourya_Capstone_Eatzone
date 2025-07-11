@@ -182,12 +182,13 @@
 /* Loading grid layouts */
 .skeleton-grid {
   display: grid;
-  gap: 20px;
+  gap: 24px;
   animation: fadeIn 0.3s ease-in-out;
 }
 
 .skeleton-grid.food-grid {
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  justify-items: center;
 }
 
 .skeleton-grid.restaurant-grid {
@@ -205,6 +206,54 @@
 
 .skeleton-grid.category-grid::-webkit-scrollbar {
   display: none;
+}
+
+/* Responsive skeleton grids */
+@media (max-width: 1024px) {
+  .skeleton-grid.food-grid {
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 20px;
+    justify-items: center;
+  }
+}
+
+@media (max-width: 768px) {
+  .skeleton-grid {
+    gap: 12px;
+    padding: 0 4px;
+  }
+
+  .skeleton-grid.food-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    justify-items: stretch;
+  }
+}
+
+@media (max-width: 480px) {
+  .skeleton-grid {
+    gap: 6px;
+    padding: 0 2px;
+  }
+
+  .skeleton-grid.food-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 6px;
+    justify-items: stretch;
+  }
+}
+
+@media (max-width: 360px) {
+  .skeleton-grid {
+    gap: 4px;
+    padding: 0 1px;
+  }
+
+  .skeleton-grid.food-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 4px;
+    justify-items: stretch;
+  }
 }
 
 /* Fade in animation */
