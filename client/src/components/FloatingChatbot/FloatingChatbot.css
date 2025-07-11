@@ -497,7 +497,10 @@
   height: 40px;
   border-radius: 8px;
   object-fit: cover;
+  object-position: center;
   border: 1px solid #e9ecef;
+  background-color: #f8f9fa;
+  flex-shrink: 0;
 }
 
 .cart-item-details {
