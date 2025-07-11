@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
@@ -25,9 +25,9 @@ const AdminApp = () => {
   // Use environment variable for API URL with fallback
   const url = import.meta.env.VITE_API_BASE_URL || "https://eatzone.onrender.com"
 
+  // Force direct admin access - no authentication
   return (
     <div className="app">
-      {/* Debug: Authentication removed - direct admin access */}
       <ToastContainer
         position="top-right"
         autoClose={3000}
