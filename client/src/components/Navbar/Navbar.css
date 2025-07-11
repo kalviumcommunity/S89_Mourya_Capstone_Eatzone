@@ -45,6 +45,14 @@
 
 .navbar li{
     cursor: pointer;
+    display: inline-block;
+    white-space: nowrap;
+}
+
+.navbar li a {
+    text-decoration: none;
+    color: inherit;
+    display: block;
 }
 
 /* Search functionality styles */
