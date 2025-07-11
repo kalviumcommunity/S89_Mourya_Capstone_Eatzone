@@ -11,13 +11,7 @@ adminRouter.get("/test", (req, res) => {
     res.json({ message: "Admin routes are working!" });
 });
 
-// Regular admin authentication routes (temporarily disabled)
-adminRouter.post("/register", (req, res) => {
-    res.json({ success: false, message: "Admin registration temporarily disabled for testing" });
-});
-adminRouter.post("/login", (req, res) => {
-    res.json({ success: false, message: "Admin login temporarily disabled for testing" });
-});
+// Authentication routes removed - admin panel now has direct access
 
 // Google OAuth routes for admin
 adminRouter.get("/auth/google", (req, res) => {
@@ -46,13 +40,6 @@ adminRouter.get("/auth/google/callback", (req, res) => {
     res.json({ message: "Google callback received", query: req.query });
 });
 
-// Protected admin routes (temporarily disabled)
-adminRouter.get("/profile", (req, res) => {
-    res.json({ success: false, message: "Admin profile temporarily disabled for testing" });
-});
-
-adminRouter.post("/logout", (req, res) => {
-    res.json({ success: true, message: "Admin logout temporarily disabled for testing" });
-});
+// Authentication endpoints removed - admin panel now has direct access
 
 export default adminRouter;

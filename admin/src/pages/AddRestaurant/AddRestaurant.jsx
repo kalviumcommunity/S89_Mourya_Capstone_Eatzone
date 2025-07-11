@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { useAdmin } from '../../context/AdminContext';
 import { toast } from 'react-toastify';
 import './AddRestaurant.css';
 import { uploadToCloudinary, uploadConfigs } from '../../utils/cloudinaryUtils';
@@ -7,7 +6,6 @@ import { uploadToCloudinary, uploadConfigs } from '../../utils/cloudinaryUtils';
 // Using centralized Cloudinary utility for consistent image handling
 
 const AddRestaurant = ({ url, token }) => {
-  const { admin } = useAdmin();
   const [image, setImage] = useState(null);
   const [imageUploading, setImageUploading] = useState(false);
   const [cloudinaryUrl, setCloudinaryUrl] = useState("");
