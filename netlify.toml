@@ -9,7 +9,7 @@
   VITE_APP_ENV = "production"
   NODE_ENV = "production"
 
-# Admin Panel - Direct Access (No Authentication)
+# Admin Panel - Direct Access (No Authentication) - Updated: 2025-07-15-v3
 
 [[redirects]]
   from = "/*"
