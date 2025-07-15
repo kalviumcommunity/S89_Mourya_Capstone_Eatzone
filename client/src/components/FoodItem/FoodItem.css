@@ -9,6 +9,14 @@
     background: white;
     overflow: hidden;
     min-height: 380px; /* Minimum height for consistent card size */
+    box-sizing: border-box;
+}
+
+.food-item *,
+.food-item *::before,
+.food-item *::after {
+    box-sizing: border-box;
+}
     display: flex;
     flex-direction: column;
     position: relative;
@@ -20,18 +28,31 @@
 }
 
 .food-item-image{
-    width: 100%;
-    height: 180px;
-    object-fit: cover;
-    object-position: center;
-    border-radius: 15px 15px 0px 0px;
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    object-position: center !important;
     transition: transform 0.3s ease;
     background-color: #f8f9fa;
+    display: block !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none;
+    outline: none;
+    vertical-align: top; /* Removes any baseline spacing */
+    border-radius: inherit;
+    line-height: 0;
+    /* Performance optimizations for fastest loading */
+    will-change: transform;
+    transform: translateZ(0); /* Force hardware acceleration */
+    backface-visibility: hidden;
 }
 
 .food-item:hover .food-item-image {
     transform: scale(1.02);
 }
+
+
 
 .food-item-info{
     padding: 16px;
@@ -79,110 +100,158 @@
     line-height: 1.2;
 }
 
-/* Discount Badge */
+/* Professional Discount Badge */
 .discount-badge {
     position: absolute;
-    top: 10px;
-    left: 10px;
-    background: linear-gradient(135deg, #ff4757, #ff3742);
+    top: 8px;
+    left: 8px;
+    background: linear-gradient(135deg, #ff4757, #e74c3c);
     color: white;
-    padding: 4px 8px;
-    border-radius: 12px;
-    font-size: 11px;
+    padding: 6px 10px;
+    border-radius: 16px;
+    font-size: 10px;
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
-    box-shadow: 0 2px 8px rgba(255, 71, 87, 0.3);
-    z-index: 2;
-    animation: pulse 2s infinite;
+    letter-spacing: 0.8px;
+    box-shadow: 0 3px 12px rgba(255, 71, 87, 0.4);
+    z-index: 3;
+    border: 1.5px solid rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(4px);
+    transform: translateZ(0);
+    transition: all 0.3s ease;
+}
+
+.discount-badge:hover {
+    transform: scale(1.05) translateZ(0);
+    box-shadow: 0 4px 16px rgba(255, 71, 87, 0.6);
 }
 
 /* Mega Deal Badge for high discounts */
 .discount-badge.mega-deal {
-    background: linear-gradient(135deg, #e74c3c, #c0392b);
+    background: linear-gradient(135deg, #ff3742, #c0392b);
     border: 2px solid #fff;
-    box-shadow: 0 4px 15px rgba(231, 76, 60, 0.5);
-    animation: megaDealPulse 1.5s ease-in-out infinite;
+    box-shadow: 0 4px 16px rgba(231, 76, 60, 0.6);
+    padding: 7px 12px;
+    font-size: 11px;
+    animation: megaDealGlow 2s ease-in-out infinite;
+    position: relative;
+    overflow: hidden;
 }
 
 .discount-badge.mega-deal::before {
-    content: '🔥 ';
-}
-
-.discount-badge.mega-deal::after {
-    content: ' 🔥';
-}
-
-@keyframes pulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.05); }
-    100% { transform: scale(1); }
-}
-
-@keyframes megaDealPulse {
-    0% {
-        transform: scale(1);
-        box-shadow: 0 4px 15px rgba(231, 76, 60, 0.5);
-    }
-    50% {
-        transform: scale(1.1);
-        box-shadow: 0 6px 20px rgba(231, 76, 60, 0.8);
-    }
-    100% {
-        transform: scale(1);
-        box-shadow: 0 4px 15px rgba(231, 76, 60, 0.5);
-    }
-}
-
-/* Item Badges */
-.item-badges {
+    content: '';
     position: absolute;
-    top: 10px;
-    right: 10px;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    animation: shimmer 2s infinite;
+    z-index: 1;
+}
+
+.discount-badge.mega-deal span {
+    position: relative;
     z-index: 2;
 }
 
+@keyframes megaDealGlow {
+    0%, 100% {
+        box-shadow: 0 4px 16px rgba(231, 76, 60, 0.6);
+    }
+    50% {
+        box-shadow: 0 6px 24px rgba(231, 76, 60, 0.9);
+    }
+}
+
+@keyframes shimmer {
+    0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+    100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+}
+
+/* Professional Item Badges */
+.item-badges {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    z-index: 3;
+}
+
 .badge {
-    padding: 2px 6px;
-    border-radius: 8px;
-    font-size: 10px;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 9px;
     font-weight: 600;
     text-align: center;
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(4px);
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.badge:hover {
+    transform: scale(1.05);
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.25);
 }
 
 .badge.popular {
     background: linear-gradient(135deg, #ff9500, #ff8c00);
     color: white;
+    position: relative;
+    overflow: hidden;
+}
+
+.badge.popular::before {
+    content: '🔥';
+    margin-right: 3px;
 }
 
 .badge.featured {
     background: linear-gradient(135deg, #ffd700, #ffcc00);
     color: #333;
+    font-weight: 700;
 }
 
-/* Tags */
+.badge.featured::before {
+    content: '⭐';
+    margin-right: 3px;
+}
+
+/* Professional Tags - Restaurant Style */
 .food-item-tags {
     display: flex;
     flex-wrap: wrap;
-    gap: 3px;
-    margin: 4px 0;
-    min-height: 16px; /* Fixed minimum height */
-    max-height: 20px; /* Limit height to prevent expansion */
+    gap: 5px;
+    margin: 8px 0;
+    min-height: 22px; /* Fixed minimum height */
+    max-height: 26px; /* Limit height to prevent expansion */
     overflow: hidden;
 }
 
 .tag {
-    background: #f0f0f0;
-    color: #666;
-    padding: 1px 4px;
-    border-radius: 4px;
-    font-size: 9px;
-    font-weight: 500;
+    background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+    color: #495057;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 10px;
+    font-weight: 600;
+    border: 1px solid #dee2e6;
     line-height: 1.2;
+    white-space: nowrap;
+    transition: all 0.2s ease;
+    text-transform: capitalize;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.tag:hover {
+    background: linear-gradient(135deg, #e9ecef, #dee2e6);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
 }
 
 /* Price with discount */
@@ -282,6 +351,132 @@
 
 .food-item-img-container{
     position: relative;
+    width: 100%;
+    height: 180px;
+    overflow: hidden;
+    border-radius: 15px 15px 0px 0px;
+    background-color: #f8f9fa;
+    margin: 0 !important;
+    padding: 0 !important;
+    display: block;
+    line-height: 0 !important; /* Removes any line-height spacing */
+    font-size: 0 !important; /* Removes any font-size spacing */
+    border: none;
+    outline: none;
+    box-sizing: border-box;
+}
+
+/* Ensure OptimizedImage component fills container completely for food items */
+.food-item-img-container .optimized-image-container {
+    width: 100% !important;
+    height: 100% !important;
+    border-radius: inherit;
+    margin: 0 !important;
+    padding: 0 !important;
+    background-color: #f8f9fa;
+    display: block !important;
+    position: absolute;
+    top: 0 !important;
+    left: 0 !important;
+    line-height: 0 !important;
+    font-size: 0 !important;
+    border: none !important;
+    outline: none !important;
+    box-sizing: border-box !important;
+}
+
+.food-item-img-container .optimized-image {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    object-position: center !important;
+    border-radius: inherit;
+    margin: 0 !important;
+    padding: 0 !important;
+    display: block !important;
+    vertical-align: top !important;
+    border: none !important;
+    outline: none !important;
+    box-sizing: border-box !important;
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+}
+
+/* Additional rules to eliminate any possible gaps or spacing */
+.food-item-img-container * {
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    outline: none !important;
+}
+
+/* Ensure no spacing from any wrapper elements - Override global img styles */
+.food-item-img-container img,
+.food-item-img-container picture,
+.food-item-img-container source {
+    width: 100% !important;
+    height: 100% !important;
+    max-width: 100% !important; /* Override global max-width */
+    max-height: 100% !important; /* Override global max-height */
+    object-fit: cover !important;
+    object-position: center !important;
+    display: block !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    outline: none !important;
+    vertical-align: top !important;
+    line-height: 0 !important;
+    font-size: 0 !important;
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+}
+
+/* This rule is now covered by the more comprehensive rule above */
+
+/* Force OptimizedImage component to fill completely without any gaps */
+.food-item-img-container .optimized-image-container,
+.food-item-img-container .optimized-image-container * {
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    outline: none !important;
+    box-sizing: border-box !important;
+}
+
+/* Override any global styles that might add spacing */
+.food-item-img-container .optimized-image-container {
+    border-radius: inherit !important;
+    background-color: #f8f9fa !important;
+}
+
+/* Ensure the actual image fills completely */
+.food-item-img-container .optimized-image-container .optimized-image {
+    width: 100% !important;
+    height: 100% !important;
+    max-width: none !important;
+    max-height: none !important;
+    object-fit: cover !important;
+    object-position: center !important;
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    outline: none !important;
+    display: block !important;
+    vertical-align: top !important;
+}
+
+.food-item:hover .food-item-image {
+    transform: scale(1.05);
 }
 .food-item-img-container .add{
     width: 35px;
@@ -364,8 +559,32 @@
         margin: 0;
     }
 
-    .food-item-image {
+    .food-item-img-container {
         height: 140px;
+        border-radius: 12px 12px 0px 0px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .food-item-img-container .optimized-image-container {
+        width: 100% !important;
+        height: 100% !important;
+        border-radius: 12px 12px 0px 0px;
+        position: absolute;
+        top: 0;
+        left: 0;
+    }
+
+    .food-item-img-container .optimized-image {
+        width: 100% !important;
+        height: 100% !important;
+        border-radius: 12px 12px 0px 0px;
+    }
+
+    .food-item-image {
+        width: 100%;
+        height: 100%;
         border-radius: 12px 12px 0px 0px;
     }
 
@@ -419,13 +638,16 @@
     }
 
     .food-item-tags {
-        margin: 2px 0;
-        max-height: 16px;
+        margin: 6px 0;
+        max-height: 22px;
+        gap: 4px;
+        min-height: 20px;
     }
 
     .tag {
-        font-size: 8px;
-        padding: 1px 3px;
+        font-size: 9px;
+        padding: 3px 6px;
+        border-radius: 10px;
     }
 
     .food-item-img-container .add {
@@ -444,6 +666,32 @@
     .food-item-counter img {
         width: 25px;
     }
+
+    /* Responsive Badge Styles */
+    .discount-badge {
+        top: 6px;
+        left: 6px;
+        padding: 5px 8px;
+        font-size: 9px;
+        border-radius: 14px;
+    }
+
+    .discount-badge.mega-deal {
+        padding: 6px 10px;
+        font-size: 10px;
+    }
+
+    .item-badges {
+        top: 6px;
+        right: 6px;
+        gap: 4px;
+    }
+
+    .badge {
+        padding: 3px 6px;
+        font-size: 8px;
+        border-radius: 10px;
+    }
 }
 
 /* Small Mobile Responsive */
@@ -455,8 +703,32 @@
         margin: 0;
     }
 
-    .food-item-image {
+    .food-item-img-container {
         height: 110px;
+        border-radius: 8px 8px 0px 0px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .food-item-img-container .optimized-image-container {
+        width: 100% !important;
+        height: 100% !important;
+        border-radius: 8px 8px 0px 0px;
+        position: absolute;
+        top: 0;
+        left: 0;
+    }
+
+    .food-item-img-container .optimized-image {
+        width: 100% !important;
+        height: 100% !important;
+        border-radius: 8px 8px 0px 0px;
+    }
+
+    .food-item-image {
+        width: 100%;
+        height: 100%;
         border-radius: 8px 8px 0px 0px;
     }
 
@@ -523,8 +795,32 @@
         margin: 0;
     }
 
-    .food-item-image {
+    .food-item-img-container {
         height: 100px;
+        border-radius: 6px 6px 0px 0px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .food-item-img-container .optimized-image-container {
+        width: 100% !important;
+        height: 100% !important;
+        border-radius: 6px 6px 0px 0px;
+        position: absolute;
+        top: 0;
+        left: 0;
+    }
+
+    .food-item-img-container .optimized-image {
+        width: 100% !important;
+        height: 100% !important;
+        border-radius: 6px 6px 0px 0px;
+    }
+
+    .food-item-image {
+        width: 100%;
+        height: 100%;
         border-radius: 6px 6px 0px 0px;
     }
 
@@ -577,13 +873,16 @@
     }
 
     .food-item-tags {
-        margin: 1px 0;
-        max-height: 14px;
+        margin: 4px 0;
+        max-height: 20px;
+        gap: 3px;
+        min-height: 18px;
     }
 
     .tag {
-        font-size: 7px;
-        padding: 1px 2px;
+        font-size: 8px;
+        padding: 2px 5px;
+        border-radius: 8px;
     }
 
     .food-item-img-container .add {
@@ -601,5 +900,32 @@
 
     .food-item-counter img {
         width: 22px;
+    }
+
+    /* Extra Small Screen Badge Styles */
+    .discount-badge {
+        top: 4px;
+        left: 4px;
+        padding: 4px 6px;
+        font-size: 8px;
+        border-radius: 12px;
+        border-width: 1px;
+    }
+
+    .discount-badge.mega-deal {
+        padding: 5px 8px;
+        font-size: 9px;
+    }
+
+    .item-badges {
+        top: 4px;
+        right: 4px;
+        gap: 3px;
+    }
+
+    .badge {
+        padding: 2px 5px;
+        font-size: 7px;
+        border-radius: 8px;
     }
 }

@@ -64,20 +64,49 @@ const StoreContextProvider = (props) => {
   }, [fetchFoodData]);
 
   // Add cart functions
-  const addToCart = (itemId) => {
-    setCartItems((prev) => ({...prev, [itemId]: (prev[itemId] || 0) + 1}))
+  const addToCart = async (itemId) => {
+    console.log("🛒 Adding item to cart:", itemId);
+    const newCartItems = {...cartItems, [itemId]: (cartItems[itemId] || 0) + 1};
+    setCartItems(newCartItems);
+
+    // Immediately save to server if user is authenticated
+    if (token && user?.id) {
+      try {
+        console.log("💾 Immediately saving cart to server after add");
+        await saveCartToServer(newCartItems);
+      } catch (error) {
+        console.error("❌ Error saving cart after add:", error);
+      }
+    } else {
+      // Save to session storage for guest users
+      console.log("💾 Saving cart to session storage (guest user)");
+      sessionStorage.setItem('guestCart', JSON.stringify(newCartItems));
+    }
   }
 
-  const removeFromCart = (itemId) => {
-    setCartItems((prev) => {
-      const newCart = {...prev}
-      if (newCart[itemId] > 1) {
-        newCart[itemId] -= 1
-      } else {
-        delete newCart[itemId]
+  const removeFromCart = async (itemId) => {
+    console.log("🛒 Removing item from cart:", itemId);
+    const newCartItems = {...cartItems};
+    if (newCartItems[itemId] > 1) {
+      newCartItems[itemId] -= 1;
+    } else {
+      delete newCartItems[itemId];
+    }
+    setCartItems(newCartItems);
+
+    // Immediately save to server if user is authenticated
+    if (token && user?.id) {
+      try {
+        console.log("💾 Immediately saving cart to server after remove");
+        await saveCartToServer(newCartItems);
+      } catch (error) {
+        console.error("❌ Error saving cart after remove:", error);
       }
-      return newCart
-    })
+    } else {
+      // Save to session storage for guest users
+      console.log("💾 Saving cart to session storage (guest user)");
+      sessionStorage.setItem('guestCart', JSON.stringify(newCartItems));
+    }
   }
 
   const getTotalCartAmount = () => {
@@ -105,11 +134,11 @@ const StoreContextProvider = (props) => {
       console.log("🔄 Fetching user profile...");
 
       const response = await axios.get(`${url}/api/user/profile`, {
-        headers: { token }
+        headers: { Authorization: `Bearer ${token}` }
       });
 
       if (response.data.success) {
-        const userData = response.data.data;
+        const userData = response.data.user;
         console.log("✅ User profile fetched:", userData.name);
         setUser(userData);
         localStorage.setItem("user", JSON.stringify(userData));
@@ -166,19 +195,20 @@ const StoreContextProvider = (props) => {
     }
   }, [token, user, isUserLoading, fetchUserProfile]);
 
-  // Initialize user data on app start if token exists but user is missing
+  // Initialize app on first load - load token and user from localStorage
   useEffect(() => {
-    const initializeUserData = async () => {
+    const initializeApp = () => {
       const storedToken = localStorage.getItem("token");
       const storedUser = localStorage.getItem("user");
 
-      console.log("🔄 Initializing user data...");
+      console.log("🚀 Initializing app on first load...");
       console.log("  - Stored token:", !!storedToken);
       console.log("  - Stored user:", !!storedUser);
-      console.log("  - Context token:", !!token);
-      console.log("  - Context user:", !!user);
 
-      if (storedToken && !user && !isUserLoading) {
+      if (storedToken) {
+        console.log("🔄 Setting token from localStorage");
+        setToken(storedToken);
+
         if (storedUser) {
           try {
             const userData = JSON.parse(storedUser);
@@ -186,78 +216,100 @@ const StoreContextProvider = (props) => {
             setUser(userData);
           } catch (error) {
             console.error("Error parsing stored user data:", error);
-            // If stored user data is corrupted, fetch fresh data
-            if (token) {
-              console.log("🔄 Fetching fresh user data due to corrupted storage");
-              fetchUserProfile();
-            }
+            // If stored user data is corrupted, we'll fetch fresh data in the next effect
           }
-        } else if (token) {
-          console.log("🔄 No stored user data, fetching from server");
-          fetchUserProfile();
         }
       }
     };
 
-    initializeUserData();
-  }, [token, user, isUserLoading, fetchUserProfile]); // Include dependencies
+    initializeApp();
+  }, []); // Run only once on app start
+
+  // Auto-fetch user profile when token is available but user data is missing
+  useEffect(() => {
+    if (token && !user && !isUserLoading) {
+      console.log("🔄 Token available but no user data - fetching from server");
+      fetchUserProfile();
+    }
+  }, [token, user, isUserLoading, fetchUserProfile]);
 
   // Load cart from server or localStorage
   const loadCart = useCallback(async () => {
+    console.log("🔄 Loading cart - token:", !!token, "user:", !!user, "user.id:", user?.id);
+
     if (token && user?.id) {
       try {
+        console.log("🔄 Loading cart from server for user:", user.id, "with token:", token.substring(0, 20) + "...");
         const response = await axios.post(`${url}/api/cart/get`, {}, {
           headers: { Authorization: `Bearer ${token}` }
         });
+        console.log("🔄 Server response:", response.data);
         if (response.data.success) {
+          console.log("✅ Cart loaded from server:", response.data.cartData);
+          console.log("✅ Setting cart items to:", response.data.cartData || {});
           setCartItems(response.data.cartData || {});
+        } else {
+          console.log("❌ Failed to load cart from server:", response.data.message);
+          // If cart loading fails, set empty cart instead of keeping old data
+          setCartItems({});
         }
       } catch (error) {
-        console.error("Error loading cart from server:", error);
+        console.error("❌ Error loading cart from server:", error);
+        console.error("❌ Error details:", error.response?.data || error.message);
+        // If cart loading fails, set empty cart instead of keeping old data
+        setCartItems({});
       }
-    } else {
+    } else if (!token && !user) {
+      console.log("👤 Loading cart from session storage (guest user)");
       // Load from session storage for guest users
       const guestCart = sessionStorage.getItem('guestCart');
       if (guestCart) {
         try {
-          setCartItems(JSON.parse(guestCart));
+          const parsedCart = JSON.parse(guestCart);
+          console.log("✅ Guest cart loaded:", parsedCart);
+          setCartItems(parsedCart);
         } catch (error) {
-          console.error("Error parsing guest cart:", error);
+          console.error("❌ Error parsing guest cart:", error);
+          setCartItems({});
         }
+      } else {
+        console.log("📭 No guest cart found in session storage");
+        setCartItems({});
       }
+    } else {
+      console.log("⏳ Skipping cart load - waiting for authentication to complete");
+      console.log("⏳ Current state - token:", !!token, "user:", !!user);
+      // Don't change cart state if we're in an intermediate authentication state
     }
-  }, [token, user?.id, url]);
+  }, [token, user, url]);
 
   // Save cart to server
   const saveCartToServer = useCallback(async (cartData) => {
+    console.log("💾 Saving cart to server - token:", !!token, "user:", !!user, "user.id:", user?.id);
+    console.log("💾 Cart data to save:", cartData);
+
     if (token && user?.id) {
       try {
-        await axios.post(`${url}/api/cart/add`, { cartData }, {
+        console.log("🔄 Sending cart data to server for user:", user.id);
+        const response = await axios.post(`${url}/api/cart/add`, { cartData }, {
           headers: { Authorization: `Bearer ${token}` }
         });
+        console.log("✅ Cart saved to server successfully:", response.data);
       } catch (error) {
-        console.error("Error saving cart to server:", error);
+        console.error("❌ Error saving cart to server:", error);
       }
+    } else {
+      console.log("⚠️ Cannot save to server - missing token or user ID");
     }
-  }, [token, user?.id, url]);
+  }, [token, user, url]);
 
-  // Load cart on mount and when user changes
+  // Load cart when authentication state changes
   useEffect(() => {
+    console.log("🔄 Authentication state changed - token:", !!token, "user:", !!user, "user.id:", user?.id);
     loadCart();
-  }, [loadCart]);
+  }, [loadCart, token, user, url]); // Include all dependencies
 
-  // Auto-save cart when it changes
-  useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      if (token && user?.id) {
-        saveCartToServer(cartItems);
-      } else {
-        sessionStorage.setItem('guestCart', JSON.stringify(cartItems));
-      }
-    }, 500);
-
-    return () => clearTimeout(timeoutId);
-  }, [cartItems, token, user?.id, saveCartToServer]);
+  // Note: Cart is now saved immediately in addToCart and removeFromCart functions
 
   // Clear cart function
   const clearCart = useCallback(async () => {

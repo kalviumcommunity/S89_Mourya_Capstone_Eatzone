@@ -6,6 +6,7 @@ import FoodDisplay from '../../components/FoodDisplay/FoodDisplay';
 import RestaurantList from '../../components/RestaurantList/RestaurantList';
 import AppDownload from '../../components/AppDownload/AppDownload';
 import FloatingChatbot from '../../components/FloatingChatbot/FloatingChatbot';
+import TestCartFunctionality from '../../components/TestCartFunctionality/TestCartFunctionality';
 
 function Home() {
   console.log('🏠 Home component rendering...')
@@ -20,6 +21,7 @@ function Home() {
       <FoodDisplay category={category}/>
       <AppDownload/>
       <FloatingChatbot />
+      <TestCartFunctionality />
     </div>
   );
 }

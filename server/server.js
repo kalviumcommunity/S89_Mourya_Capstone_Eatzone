@@ -16,6 +16,8 @@ import chatbotRoute from "./routes/chatbotRoute.js";
 import adminAuthRouter from "./routes/adminAuthRoute.js";
 import testAuthRouter from "./routes/testAuthRoute.js";
 import categoryRouter from "./routes/categoryRoute.js";
+import debugRouter from "./routes/debugRoute.js";
+import testLoginRouter from "./routes/testLoginRoute.js";
 
 const app = express();
 const port = process.env.SERVER_PORT || 4000;
@@ -67,6 +69,8 @@ app.use("/api/chatbot", chatbotRoute);
 app.use("/api/admin/auth", adminAuthRouter);
 app.use("/api/test", testAuthRouter);
 app.use("/api/category", categoryRouter);
+app.use("/api/debug", debugRouter);
+app.use("/api/test-login", testLoginRouter);
 
 // Global error handling middleware
 app.use((err, req, res, _next) => {

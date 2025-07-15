@@ -153,6 +153,56 @@
   gap: 24px;
 }
 
+/* Ensure food items in restaurant page have perfect image fitting */
+.food-items-grid .food-item {
+  width: 100%;
+  max-width: none; /* Remove max-width constraint for restaurant page */
+}
+
+.food-items-grid .food-item-img-container {
+  position: relative;
+  width: 100%;
+  height: 180px;
+  overflow: hidden;
+  border-radius: 15px 15px 0px 0px;
+  background-color: #f8f9fa;
+  margin: 0;
+  padding: 0;
+  display: block;
+  line-height: 0;
+  font-size: 0;
+}
+
+.food-items-grid .food-item-img-container .optimized-image-container {
+  width: 100% !important;
+  height: 100% !important;
+  border-radius: inherit;
+  margin: 0 !important;
+  padding: 0 !important;
+  background-color: #f8f9fa;
+  display: block !important;
+  position: absolute;
+  top: 0;
+  left: 0;
+  line-height: 0;
+}
+
+.food-items-grid .food-item-img-container .optimized-image,
+.food-items-grid .food-item-img-container img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  object-position: center !important;
+  border-radius: inherit;
+  margin: 0 !important;
+  padding: 0 !important;
+  display: block !important;
+  vertical-align: top;
+  line-height: 0;
+  border: none;
+  outline: none;
+}
+
 /* Loading States */
 .menu-loading {
   margin-top: 20px;
@@ -301,6 +351,17 @@
     gap: 20px;
   }
 
+  .food-items-grid .food-item-img-container {
+    height: 160px;
+    border-radius: 12px 12px 0px 0px;
+  }
+
+  .food-items-grid .food-item-img-container .optimized-image-container,
+  .food-items-grid .food-item-img-container .optimized-image,
+  .food-items-grid .food-item-img-container img {
+    border-radius: 12px 12px 0px 0px;
+  }
+
   .loading-grid {
     grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
     gap: 20px;
@@ -338,6 +399,17 @@
     gap: 14px;
   }
 
+  .food-items-grid .food-item-img-container {
+    height: 140px;
+    border-radius: 10px 10px 0px 0px;
+  }
+
+  .food-items-grid .food-item-img-container .optimized-image-container,
+  .food-items-grid .food-item-img-container .optimized-image,
+  .food-items-grid .food-item-img-container img {
+    border-radius: 10px 10px 0px 0px;
+  }
+
   .loading-grid {
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
     gap: 14px;
@@ -372,6 +444,17 @@
   .food-items-grid {
     grid-template-columns: 1fr;
     gap: 10px;
+  }
+
+  .food-items-grid .food-item-img-container {
+    height: 120px;
+    border-radius: 8px 8px 0px 0px;
+  }
+
+  .food-items-grid .food-item-img-container .optimized-image-container,
+  .food-items-grid .food-item-img-container .optimized-image,
+  .food-items-grid .food-item-img-container img {
+    border-radius: 8px 8px 0px 0px;
   }
 
   .loading-grid {
