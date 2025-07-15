@@ -98,26 +98,39 @@ const ProfileDropdown = () => {
       </div>
 
       {isOpen && (
-        <div className="dropdown-menu">
-          <div className="dropdown-header">
-            <p className="user-name">{displayName}</p>
-            <p className="user-email">{displayEmail}</p>
+        <div className="profile-menu">
+          <div className="profile-menu-header">
+            <div className="user-info">
+              <div className="user-avatar-large">
+                {avatarLetter}
+              </div>
+              <div className="user-details">
+                <p className="user-name">{displayName}</p>
+                <p className="user-email">{displayEmail}</p>
+              </div>
+            </div>
           </div>
 
-          <div className="dropdown-items">
-            <Link to="/profile" className="dropdown-item" onClick={() => setIsOpen(false)}>
-              <img src={assets.profile_icon} alt="Profile" />
-              <span>Profile</span>
+          <div className="profile-menu-grid">
+            <Link to="/profile" className="menu-column" onClick={() => setIsOpen(false)}>
+              <div className="menu-icon">
+                <img src={assets.profile_icon} alt="Profile" />
+              </div>
+              <span className="menu-label">Profile</span>
             </Link>
 
-            <Link to="/myorders" className="dropdown-item" onClick={() => setIsOpen(false)}>
-              <img src={assets.bag_icon} alt="Orders" />
-              <span>Orders</span>
+            <Link to="/myorders" className="menu-column" onClick={() => setIsOpen(false)}>
+              <div className="menu-icon">
+                <img src={assets.bag_icon} alt="Orders" />
+              </div>
+              <span className="menu-label">Orders</span>
             </Link>
 
-            <div className="dropdown-item logout" onClick={handleLogout}>
-              <img src={assets.logout_icon} alt="Logout" />
-              <span>Logout</span>
+            <div className="menu-column logout-column" onClick={handleLogout}>
+              <div className="menu-icon">
+                <img src={assets.logout_icon} alt="Logout" />
+              </div>
+              <span className="menu-label">Logout</span>
             </div>
           </div>
         </div>

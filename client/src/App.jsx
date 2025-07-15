@@ -17,6 +17,8 @@ import Verify from './pages/Verify/Verify'
 import AuthSuccess from './components/AuthSuccess/AuthSuccess'
 import DiagnosticApp from './DiagnosticApp'
 import SimpleHome from './SimpleHome'
+import Reviews from './pages/Reviews/Reviews'
+import Settings from './pages/Settings/Settings'
 
 const App = () => {
   const [showLogin, setShowLogin] = useState(false)
@@ -53,6 +55,16 @@ const App = () => {
           <Route path='/profile' element={
             <ProtectedRoute>
               <Profile />
+            </ProtectedRoute>
+          } />
+          <Route path='/reviews' element={
+            <ProtectedRoute>
+              <Reviews />
+            </ProtectedRoute>
+          } />
+          <Route path='/settings' element={
+            <ProtectedRoute>
+              <Settings />
             </ProtectedRoute>
           } />
 

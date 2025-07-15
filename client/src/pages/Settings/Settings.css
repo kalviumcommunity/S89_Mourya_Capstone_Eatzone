@@ -1,0 +1,270 @@
+.settings-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  min-height: 80vh;
+}
+
+.settings-header {
+  text-align: center;
+  margin-bottom: 40px;
+  padding: 20px 0;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+.settings-header h1 {
+  color: #333;
+  font-size: 2.5rem;
+  margin-bottom: 10px;
+  font-weight: 700;
+}
+
+.settings-header p {
+  color: #666;
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+.no-auth-message {
+  text-align: center;
+  padding: 60px 20px;
+  background: #f9f9f9;
+  border-radius: 12px;
+  margin: 20px 0;
+}
+
+.settings-icon {
+  font-size: 4rem;
+  margin-bottom: 20px;
+}
+
+.no-auth-message h3 {
+  color: #333;
+  font-size: 1.5rem;
+  margin-bottom: 10px;
+}
+
+.no-auth-message p {
+  color: #666;
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.settings-content {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.settings-section {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: 1px solid #f0f0f0;
+}
+
+.settings-section h2 {
+  color: #333;
+  font-size: 1.4rem;
+  margin-bottom: 20px;
+  font-weight: 600;
+  border-bottom: 2px solid #ff4d00;
+  padding-bottom: 8px;
+}
+
+.setting-item {
+  margin-bottom: 20px;
+}
+
+.setting-item:last-child {
+  margin-bottom: 0;
+}
+
+.setting-item label {
+  display: block;
+  color: #555;
+  font-weight: 500;
+  margin-bottom: 8px;
+  font-size: 0.95rem;
+}
+
+.setting-item input,
+.setting-item select {
+  width: 100%;
+  padding: 12px 16px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: border-color 0.3s ease;
+  background: white;
+}
+
+.setting-item input:focus,
+.setting-item select:focus {
+  outline: none;
+  border-color: #ff4d00;
+  box-shadow: 0 0 0 3px rgba(255, 77, 0, 0.1);
+}
+
+.readonly-input {
+  background-color: #f8f9fa !important;
+  color: #6c757d;
+  cursor: not-allowed;
+}
+
+/* Toggle Switch Styles */
+.toggle-label {
+  display: flex !important;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0 !important;
+  cursor: pointer;
+}
+
+.toggle-switch {
+  position: relative;
+  width: 50px;
+  height: 24px;
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: 0.3s;
+  border-radius: 24px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: 0.3s;
+  border-radius: 50%;
+}
+
+input:checked + .slider {
+  background-color: #ff4d00;
+}
+
+input:checked + .slider:before {
+  transform: translateX(26px);
+}
+
+/* Action Buttons */
+.action-buttons {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+.action-buttons button {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  flex: 1;
+  min-width: 120px;
+}
+
+.save-btn {
+  background: linear-gradient(135deg, #ff4d00, #ff6b35);
+  color: white;
+}
+
+.save-btn:hover {
+  background: linear-gradient(135deg, #e63900, #ff4d00);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 77, 0, 0.3);
+}
+
+.logout-btn {
+  background: #6c757d;
+  color: white;
+}
+
+.logout-btn:hover {
+  background: #5a6268;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
+}
+
+.delete-account-btn {
+  background: #dc3545;
+  color: white;
+}
+
+.delete-account-btn:hover {
+  background: #c82333;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .settings-container {
+    padding: 15px;
+  }
+
+  .settings-header h1 {
+    font-size: 2rem;
+  }
+
+  .settings-section {
+    padding: 20px;
+  }
+
+  .action-buttons {
+    flex-direction: column;
+  }
+
+  .action-buttons button {
+    width: 100%;
+    min-width: auto;
+  }
+}
+
+@media (max-width: 480px) {
+  .settings-container {
+    padding: 10px;
+  }
+
+  .settings-header {
+    padding: 15px 0;
+  }
+
+  .settings-header h1 {
+    font-size: 1.8rem;
+  }
+
+  .settings-section {
+    padding: 16px;
+  }
+
+  .settings-section h2 {
+    font-size: 1.2rem;
+  }
+
+  .toggle-label {
+    font-size: 0.9rem;
+  }
+}
