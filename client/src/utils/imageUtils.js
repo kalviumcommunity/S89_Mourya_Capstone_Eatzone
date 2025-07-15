@@ -62,7 +62,7 @@ export const getImageUrl = (image, serverUrl = import.meta.env.VITE_API_BASE_URL
   if (imageStr.includes('.png') || imageStr.includes('.jpg') || imageStr.includes('.jpeg') || imageStr.includes('.webp') || imageStr.includes('.gif')) {
     const cleanImagePath = imageStr.startsWith('/') ? imageStr.substring(1) : imageStr;
     const fullUrl = `${serverUrl}/images/${cleanImagePath}`;
-
+    console.log(`🔗 Constructed server image URL: ${fullUrl}`);
     return fullUrl;
   }
 
@@ -76,7 +76,7 @@ export const getImageUrl = (image, serverUrl = import.meta.env.VITE_API_BASE_URL
  * @returns {string} Default food image URL
  */
 export const getDefaultFoodImage = () => {
-  return 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400&h=400&fit=crop&crop=center&auto=format&q=80';
+  return 'https://res.cloudinary.com/dodxdudew/image/upload/v1735055000/eatzone/categories/default-food.jpg';
 };
 
 /**
