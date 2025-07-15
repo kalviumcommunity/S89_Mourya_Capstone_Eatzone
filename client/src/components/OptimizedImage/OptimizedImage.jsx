@@ -186,7 +186,7 @@ const OptimizedImage = ({
       {hasError && (
         <div className="image-error">
           <span className="error-icon">🍽️</span>
-          <span className="error-text">Image unavailable</span>
+          <span className="error-text">Item not available</span>
         </div>
       )}
 

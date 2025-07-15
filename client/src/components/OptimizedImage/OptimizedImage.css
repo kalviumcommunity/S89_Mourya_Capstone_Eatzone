@@ -106,21 +106,24 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background-color: #f8f8f8;
-  color: #999;
+  background: linear-gradient(135deg, #f8f8f8 0%, #eeeeee 100%);
+  color: #888;
   border-radius: inherit;
+  border: 1px dashed #ddd;
 }
 
 .error-icon {
-  font-size: 2rem;
+  font-size: 1.5rem;
   margin-bottom: 0.5rem;
   opacity: 0.7;
 }
 
 .error-text {
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   text-align: center;
   opacity: 0.8;
+  font-weight: 600;
+  color: #666;
 }
 
 /* Responsive adjustments */
