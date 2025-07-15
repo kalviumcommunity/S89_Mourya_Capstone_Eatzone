@@ -87,50 +87,38 @@ const ProfileDropdown = () => {
       <div
         className={`profile-icon-container ${isOpen ? 'active' : ''}`}
         onClick={() => setIsOpen(!isOpen)}
-        title={`${displayName} - Click to open menu`}
+        title={`${displayName} - Click to open profile`}
       >
         <div className="profile-letter-avatar">
           {avatarLetter}
-        </div>
-        <div className={`dropdown-arrow ${isOpen ? 'open' : ''}`}>
-          ▼
         </div>
       </div>
 
       {isOpen && (
         <div className="profile-menu">
-          <div className="profile-menu-header">
-            <div className="user-info">
-              <div className="user-avatar-large">
-                {avatarLetter}
-              </div>
-              <div className="user-details">
-                <p className="user-name">{displayName}</p>
-                <p className="user-email">{displayEmail}</p>
-              </div>
+          <div className="profile-info-section">
+            <div className="user-avatar-display">
+              {avatarLetter}
+            </div>
+            <div className="user-info-display">
+              <h3 className="user-name-display">{displayName}</h3>
+              <p className="user-email-display">{displayEmail}</p>
             </div>
           </div>
 
-          <div className="profile-menu-grid">
-            <Link to="/profile" className="menu-column" onClick={() => setIsOpen(false)}>
-              <div className="menu-icon">
+          <div className="profile-actions">
+            <Link to="/profile" className="profile-action-item" onClick={() => setIsOpen(false)}>
+              <div className="action-icon">
                 <img src={assets.profile_icon} alt="Profile" />
               </div>
-              <span className="menu-label">Profile</span>
+              <span className="action-label">Profile</span>
             </Link>
 
-            <Link to="/myorders" className="menu-column" onClick={() => setIsOpen(false)}>
-              <div className="menu-icon">
-                <img src={assets.bag_icon} alt="Orders" />
-              </div>
-              <span className="menu-label">Orders</span>
-            </Link>
-
-            <div className="menu-column logout-column" onClick={handleLogout}>
-              <div className="menu-icon">
+            <div className="profile-action-item logout-action" onClick={handleLogout}>
+              <div className="action-icon">
                 <img src={assets.logout_icon} alt="Logout" />
               </div>
-              <span className="menu-label">Logout</span>
+              <span className="action-label">Logout</span>
             </div>
           </div>
         </div>

@@ -1,6 +1,7 @@
 .profile-dropdown-container {
   position: relative;
   display: inline-block;
+  z-index: 999;
 }
 
 .profile-icon-container {
@@ -20,18 +21,6 @@
 .profile-icon-container.active .profile-letter-avatar {
   box-shadow: 0 4px 12px rgba(255, 77, 0, 0.4);
   transform: translateY(-1px);
-}
-
-.dropdown-arrow {
-  font-size: 10px;
-  color: #666;
-  transition: all 0.2s ease;
-  margin-left: 2px;
-}
-
-.dropdown-arrow.open {
-  transform: rotate(180deg);
-  color: #ff4d00;
 }
 
 .profile-icon {
@@ -67,7 +56,9 @@
   position: absolute;
   top: 50px;
   right: 0;
-  width: 400px;
+  width: 320px !important;
+  min-width: 320px;
+  max-width: 320px;
   background-color: white;
   border-radius: 16px;
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
@@ -75,6 +66,7 @@
   z-index: 1000;
   overflow: hidden;
   animation: fadeIn 0.3s ease-out;
+  white-space: normal;
 }
 
 @keyframes fadeIn {
@@ -88,119 +80,139 @@
   }
 }
 
-.profile-menu-header {
-  padding: 20px 24px;
+.profile-info-section {
+  padding: 24px;
+  text-align: center;
   border-bottom: 1px solid #f0f0f0;
   background: linear-gradient(135deg, #fafafa, #ffffff);
 }
 
-.user-info {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-
-.user-avatar-large {
-  width: 50px;
-  height: 50px;
+.user-avatar-display {
+  width: 60px;
+  height: 60px;
   background: linear-gradient(135deg, #ff4d00, #ff6b35);
   color: white;
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 600;
-  font-size: 20px;
+  font-size: 24px;
   border-radius: 50%;
   border: 3px solid #ff4d00;
   box-shadow: 0 4px 12px rgba(255, 77, 0, 0.3);
+  margin: 0 auto 16px auto;
 }
 
-.user-details {
-  flex: 1;
+.user-info-display {
+  text-align: center;
 }
 
-.user-name {
+.user-name-display {
   font-weight: 600;
-  margin: 0 0 4px 0;
+  margin: 0 0 8px 0;
   color: #2c3e50;
-  font-size: 16px;
+  font-size: 18px;
   line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
 }
 
-.user-email {
-  font-size: 13px;
+.user-email-display {
+  font-size: 14px;
   color: #7f8c8d;
   margin: 0;
   word-break: break-word;
   overflow-wrap: break-word;
   opacity: 0.8;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
 }
 
-.profile-menu-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 0;
-  padding: 20px 0;
+.profile-actions {
+  padding: 16px;
 }
 
-.menu-column {
+.profile-action-item {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  padding: 20px 16px;
+  padding: 12px 16px;
   text-decoration: none;
   color: #2c3e50;
   transition: all 0.3s ease;
   cursor: pointer;
-  border-radius: 8px;
-  margin: 0 8px;
-  position: relative;
+  border-radius: 12px;
+  margin-bottom: 8px;
+  border: 1px solid transparent;
+  white-space: nowrap;
+  width: 100%;
+  box-sizing: border-box;
 }
 
-.menu-column:hover {
+.profile-action-item:last-child {
+  margin-bottom: 0;
+}
+
+.profile-action-item:hover {
   background-color: #f8f9fa;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border-color: #e9ecef;
+  transform: translateX(4px);
 }
 
-.menu-icon {
-  width: 48px;
-  height: 48px;
+.logout-action:hover {
+  background-color: #fff5f5;
+  border-color: #fed7d7;
+  color: #e53e3e;
+}
+
+.action-icon {
+  width: 40px;
+  height: 40px;
   background: linear-gradient(135deg, #f8f9fa, #e9ecef);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 12px;
+  margin-right: 16px;
   transition: all 0.3s ease;
   border: 2px solid transparent;
+  flex-shrink: 0;
 }
 
-.menu-column:hover .menu-icon {
+.profile-action-item:hover .action-icon {
   background: linear-gradient(135deg, #ff4d00, #ff6b35);
   border-color: #ff4d00;
-  transform: scale(1.1);
+  transform: scale(1.05);
 }
 
-.menu-icon img {
-  width: 20px;
-  height: 20px;
+.logout-action:hover .action-icon {
+  background: linear-gradient(135deg, #e53e3e, #c53030);
+  border-color: #e53e3e;
+}
+
+.action-icon img {
+  width: 18px;
+  height: 18px;
   opacity: 0.7;
   transition: all 0.3s ease;
   filter: grayscale(1);
 }
 
-.menu-column:hover .menu-icon img {
+.profile-action-item:hover .action-icon img {
   opacity: 1;
   filter: grayscale(0) brightness(0) invert(1);
 }
 
-.menu-label {
-  font-size: 13px;
+.action-label {
+  font-size: 15px;
   font-weight: 500;
-  text-align: center;
   transition: all 0.3s ease;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .menu-column:hover .menu-label {
@@ -234,36 +246,41 @@
   }
 
   .profile-menu {
-    width: 380px;
+    width: 300px !important;
+    min-width: 300px;
     top: 45px;
   }
 
-  .profile-menu-header {
-    padding: 18px 20px;
+  .profile-info-section {
+    padding: 20px;
   }
 
-  .user-avatar-large {
-    width: 45px;
-    height: 45px;
-    font-size: 18px;
+  .user-avatar-display {
+    width: 55px;
+    height: 55px;
+    font-size: 22px;
   }
 
-  .menu-column {
-    padding: 18px 14px;
+  .user-name-display {
+    font-size: 17px;
   }
 
-  .menu-icon {
-    width: 44px;
-    height: 44px;
+  .profile-action-item {
+    padding: 10px 14px;
   }
 
-  .menu-icon img {
-    width: 18px;
-    height: 18px;
+  .action-icon {
+    width: 36px;
+    height: 36px;
   }
 
-  .menu-label {
-    font-size: 12px;
+  .action-icon img {
+    width: 16px;
+    height: 16px;
+  }
+
+  .action-label {
+    font-size: 14px;
   }
 }
 
@@ -275,44 +292,46 @@
   }
 
   .profile-menu {
-    width: 360px;
+    width: 280px !important;
+    min-width: 280px;
     top: 42px;
   }
 
-  .profile-menu-header {
-    padding: 16px 18px;
+  .profile-info-section {
+    padding: 18px;
   }
 
-  .user-avatar-large {
-    width: 42px;
-    height: 42px;
-    font-size: 17px;
+  .user-avatar-display {
+    width: 50px;
+    height: 50px;
+    font-size: 20px;
   }
 
-  .user-name {
-    font-size: 15px;
+  .user-name-display {
+    font-size: 16px;
   }
 
-  .user-email {
-    font-size: 12px;
+  .user-email-display {
+    font-size: 13px;
   }
 
-  .menu-column {
-    padding: 16px 12px;
+  .profile-action-item {
+    padding: 10px 12px;
   }
 
-  .menu-icon {
-    width: 40px;
-    height: 40px;
+  .action-icon {
+    width: 34px;
+    height: 34px;
+    margin-right: 14px;
   }
 
-  .menu-icon img {
-    width: 16px;
-    height: 16px;
+  .action-icon img {
+    width: 15px;
+    height: 15px;
   }
 
-  .menu-label {
-    font-size: 11px;
+  .action-label {
+    font-size: 13px;
   }
 }
 
@@ -324,56 +343,53 @@
     border-width: 1.5px;
   }
 
-  .dropdown-arrow {
-    font-size: 8px;
-    margin-left: 1px;
-  }
-
   .profile-menu {
-    width: 320px;
+    width: 260px !important;
+    min-width: 260px;
     top: 40px;
     right: -10px;
   }
 
-  .profile-menu-header {
-    padding: 14px 16px;
+  .profile-info-section {
+    padding: 16px;
   }
 
-  .user-avatar-large {
-    width: 38px;
-    height: 38px;
+  .user-avatar-display {
+    width: 45px;
+    height: 45px;
+    font-size: 18px;
+    margin-bottom: 12px;
+  }
+
+  .user-name-display {
     font-size: 15px;
   }
 
-  .user-info {
-    gap: 12px;
+  .user-email-display {
+    font-size: 12px;
   }
 
-  .user-name {
-    font-size: 14px;
+  .profile-actions {
+    padding: 12px;
   }
 
-  .user-email {
-    font-size: 11px;
+  .profile-action-item {
+    padding: 8px 10px;
   }
 
-  .menu-column {
-    padding: 14px 10px;
+  .action-icon {
+    width: 32px;
+    height: 32px;
+    margin-right: 12px;
   }
 
-  .menu-icon {
-    width: 36px;
-    height: 36px;
-    margin-bottom: 10px;
-  }
-
-  .menu-icon img {
+  .action-icon img {
     width: 14px;
     height: 14px;
   }
 
-  .menu-label {
-    font-size: 10px;
+  .action-label {
+    font-size: 12px;
   }
 }
 
@@ -385,61 +401,54 @@
     border-width: 1px;
   }
 
-  .dropdown-arrow {
-    font-size: 7px;
-    margin-left: 0px;
-  }
-
   .profile-menu {
-    width: 280px;
+    width: 240px !important;
+    min-width: 240px;
     top: 38px;
     right: -15px;
     border-radius: 12px;
   }
 
-  .profile-menu-header {
-    padding: 12px 14px;
+  .profile-info-section {
+    padding: 14px;
   }
 
-  .user-avatar-large {
-    width: 35px;
-    height: 35px;
+  .user-avatar-display {
+    width: 40px;
+    height: 40px;
+    font-size: 16px;
+    margin-bottom: 10px;
+  }
+
+  .user-name-display {
     font-size: 14px;
   }
 
-  .user-info {
-    gap: 10px;
+  .user-email-display {
+    font-size: 11px;
   }
 
-  .user-name {
-    font-size: 13px;
+  .profile-actions {
+    padding: 10px;
   }
 
-  .user-email {
-    font-size: 10px;
+  .profile-action-item {
+    padding: 8px;
   }
 
-  .profile-menu-grid {
-    padding: 16px 0;
+  .action-icon {
+    width: 30px;
+    height: 30px;
+    margin-right: 10px;
   }
 
-  .menu-column {
-    padding: 12px 8px;
-  }
-
-  .menu-icon {
-    width: 32px;
-    height: 32px;
-    margin-bottom: 8px;
-  }
-
-  .menu-icon img {
+  .action-icon img {
     width: 12px;
     height: 12px;
   }
 
-  .menu-label {
-    font-size: 9px;
+  .action-label {
+    font-size: 11px;
   }
 }
 
@@ -450,59 +459,52 @@
     font-size: 11px;
   }
 
-  .dropdown-arrow {
-    font-size: 6px;
-    margin-left: 0px;
-  }
-
   .profile-menu {
-    width: 260px;
+    width: 220px !important;
+    min-width: 220px;
     top: 36px;
     right: -20px;
   }
 
-  .profile-menu-header {
-    padding: 10px 12px;
+  .profile-info-section {
+    padding: 12px;
   }
 
-  .user-avatar-large {
-    width: 32px;
-    height: 32px;
+  .user-avatar-display {
+    width: 36px;
+    height: 36px;
+    font-size: 14px;
+    margin-bottom: 8px;
+  }
+
+  .user-name-display {
     font-size: 13px;
   }
 
-  .user-info {
-    gap: 8px;
+  .user-email-display {
+    font-size: 10px;
   }
 
-  .user-name {
-    font-size: 12px;
+  .profile-actions {
+    padding: 8px;
   }
 
-  .user-email {
-    font-size: 9px;
+  .profile-action-item {
+    padding: 6px 8px;
   }
 
-  .profile-menu-grid {
-    padding: 14px 0;
-  }
-
-  .menu-column {
-    padding: 10px 6px;
-  }
-
-  .menu-icon {
+  .action-icon {
     width: 28px;
     height: 28px;
-    margin-bottom: 6px;
+    margin-right: 8px;
   }
 
-  .menu-icon img {
+  .action-icon img {
     width: 10px;
     height: 10px;
   }
 
-  .menu-label {
-    font-size: 8px;
+  .action-label {
+    font-size: 10px;
   }
 }
