@@ -1,4 +1,4 @@
-import { useContext } from 'react';
+import { useContext, useState } from 'react';
 import './FoodItem.css';
 import { assets } from '../../assets/assets';
 import { StoreContext } from '../../context/StoreContext';
@@ -7,7 +7,7 @@ import OptimizedImage from '../OptimizedImage/OptimizedImage';
 
 
 const FoodItem = ({id,name,price,description,image,originalPrice,discountPercentage,isOnSale,discountLabel,isPopular,isFeatured,tags}) => {
-    //const [itemCount, setItemCount] = useState(0);
+    const [imageError, setImageError] = useState(false);
     const {cartItems,addToCart,removeFromCart} = useContext(StoreContext);
 
     return (
@@ -21,8 +21,14 @@ const FoodItem = ({id,name,price,description,image,originalPrice,discountPercent
                     quality="auto:good"
                     lazy={false} // Don't lazy load food items for immediate display
                     className="food-item-image priority-load"
-                    onLoad={() => console.log(`✅ Food item image loaded: ${name}`)}
-                    onError={(e) => console.error(`❌ Food item image failed: ${name}`, e)}
+                    onLoad={() => {
+                        console.log(`✅ Food item image loaded: ${name}`);
+                        setImageError(false);
+                    }}
+                    onError={(e) => {
+                        console.error(`❌ Food item image failed: ${name}`, e);
+                        setImageError(true);
+                    }}
                     style={{
                         width: '100%',
                         height: '100%',
@@ -46,26 +52,36 @@ const FoodItem = ({id,name,price,description,image,originalPrice,discountPercent
                     </div>
                 )}
 
-                {!cartItems[id]
-                    ?(<img
-                        className='add'
-                        onClick={() => addToCart(id)}
-                        src={assets.add_icon_white}
-                        alt="Add to cart"
-                    />
-                ) : (
-                    <div className='food-item-counter'>
-                        <img
-                            onClick={() => removeFromCart(id)}
-                            src={assets.remove_icon_red}
-                            alt="Remove from cart"
-                        />
-                        <p>{cartItems[id]}</p>
-                        <img
+                {/* Only show add/remove buttons if item is available (image loaded successfully) */}
+                {!imageError && (
+                    !cartItems[id]
+                        ?(<img
+                            className='add'
                             onClick={() => addToCart(id)}
-                            src={assets.add_icon_green}
-                            alt="Add more to cart"
+                            src={assets.add_icon_white}
+                            alt="Add to cart"
                         />
+                    ) : (
+                        <div className='food-item-counter'>
+                            <img
+                                onClick={() => removeFromCart(id)}
+                                src={assets.remove_icon_red}
+                                alt="Remove from cart"
+                            />
+                            <p>{cartItems[id]}</p>
+                            <img
+                                onClick={() => addToCart(id)}
+                                src={assets.add_icon_green}
+                                alt="Add more to cart"
+                            />
+                        </div>
+                    )
+                )}
+
+                {/* Show unavailable message when image fails to load */}
+                {imageError && (
+                    <div className="item-unavailable-overlay">
+                        <span className="unavailable-text">Not Available</span>
                     </div>
                 )}
             </div>
