@@ -45,9 +45,8 @@
 
 The admin panel expects these API endpoints to be available:
 
-#### Authentication Endpoints
-- `POST /api/admin/login` - Admin login
-- `GET /api/admin/verify` - Verify admin token
+#### Authentication
+- No authentication required - direct access enabled
 
 #### Data Endpoints
 - `GET /api/order/list` - Get all orders
@@ -68,17 +67,12 @@ VITE_API_BASE_URL=https://eatzone.onrender.com
 VITE_APP_ENV=production
 ```
 
-## 🔐 Admin Authentication
+## 🔐 Admin Access
 
-### Default Login (Demo)
-- **Email**: `admin@eatzone.com`
-- **Password**: `admin123`
-
-### Setting Up Real Authentication
-
-1. **Backend Setup**: Ensure your backend has admin authentication endpoints
-2. **Admin Registration**: Use the secure admin registration endpoint with super admin key
-3. **Token Management**: The admin panel handles JWT tokens automatically
+### Direct Access Enabled
+- No authentication required
+- Admin panel provides direct access to all features
+- Authentication has been removed as per user preferences
 
 ## 📱 Features Overview
 
@@ -157,10 +151,10 @@ After deployment, access different sections:
    - Check CORS settings on backend
    - Ensure backend is running
 
-3. **Authentication Issues**:
-   - Check admin credentials
-   - Verify JWT token handling
-   - Check backend admin endpoints
+3. **Access Issues**:
+   - No authentication required
+   - Admin panel provides direct access
+   - Check backend API endpoints are working
 
 4. **Image Upload Issues**:
    - Verify Cloudinary configuration

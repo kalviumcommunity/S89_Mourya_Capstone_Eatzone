@@ -24,9 +24,7 @@ NODE_ENV=production
 
 ### Step 4: Test Admin Panel
 1. Visit: `https://eatzone.netlify.app/`
-2. Login with:
-   - Email: `admin@eatzone.com`
-   - Password: `admin123`
+2. Admin panel provides direct access - no login required
 
 ## 🎉 Result
 - **Customer App**: `https://eatzone1.netlify.app/`

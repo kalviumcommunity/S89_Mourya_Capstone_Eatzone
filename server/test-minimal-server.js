@@ -28,34 +28,7 @@ app.get("/test", (req, res) => {
     res.json({ message: "Test endpoint working!" });
 });
 
-// Admin test routes
-app.post("/api/admin/register", (req, res) => {
-    console.log("Admin register endpoint hit!");
-    console.log("Request body:", req.body);
-    res.json({ 
-        success: true, 
-        message: "Admin registration test successful",
-        data: req.body 
-    });
-});
-
-app.post("/api/admin/login", (req, res) => {
-    console.log("Admin login endpoint hit!");
-    console.log("Request body:", req.body);
-    res.json({ 
-        success: true, 
-        message: "Admin login test successful",
-        data: req.body 
-    });
-});
-
-app.get("/api/admin/auth/google", (req, res) => {
-    console.log("Admin Google OAuth endpoint hit!");
-    res.json({ 
-        message: "Google OAuth test endpoint working!",
-        redirect: "This would redirect to Google in real implementation"
-    });
-});
+// Admin authentication removed - direct access enabled
 
 // Start server
 app.listen(port, () => {
