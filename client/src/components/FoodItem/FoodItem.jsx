@@ -4,7 +4,7 @@ import { assets } from '../../assets/assets';
 import { StoreContext } from '../../context/StoreContext';
 import { formatINR } from '../../utils/currencyUtils';
 import OptimizedImage from '../OptimizedImage/OptimizedImage';
-import { getImageUrl, optimizeFoodImage } from '../../utils/imageUtils';
+
 
 const FoodItem = ({id,name,price,description,image,originalPrice,discountPercentage,isOnSale,discountLabel,isPopular,isFeatured,tags}) => {
     //const [itemCount, setItemCount] = useState(0);
@@ -14,7 +14,7 @@ const FoodItem = ({id,name,price,description,image,originalPrice,discountPercent
         <div className='food-item'>
             <div className="food-item-img-container">
                 <OptimizedImage
-                    src={optimizeFoodImage(image)}
+                    src={image}
                     alt={name}
                     width={280}
                     height={200}
@@ -23,20 +23,26 @@ const FoodItem = ({id,name,price,description,image,originalPrice,discountPercent
                     className="food-item-image priority-load"
                     onLoad={() => console.log(`✅ Food item image loaded: ${name}`)}
                     onError={(e) => console.error(`❌ Food item image failed: ${name}`, e)}
+                    style={{
+                        width: '100%',
+                        height: '100%',
+                        objectFit: 'cover',
+                        objectPosition: 'center'
+                    }}
                 />
 
-                {/* Discount Badge */}
+                {/* Professional Discount Badge */}
                 {isOnSale && discountPercentage > 0 && (
                     <div className={`discount-badge ${discountPercentage >= 25 ? 'mega-deal' : ''}`}>
-                        {discountLabel || `${discountPercentage}% OFF`}
+                        <span>{discountLabel || `${discountPercentage}% OFF`}</span>
                     </div>
                 )}
 
-                {/* Popular/Featured Badges */}
+                {/* Professional Item Badges */}
                 {(isPopular || isFeatured) && (
                     <div className="item-badges">
-                        {isPopular && <span className="badge popular">🔥 Popular</span>}
-                        {isFeatured && <span className="badge featured">⭐ Featured</span>}
+                        {isPopular && <span className="badge popular">Popular</span>}
+                        {isFeatured && <span className="badge featured">Featured</span>}
                     </div>
                 )}
 
@@ -66,7 +72,7 @@ const FoodItem = ({id,name,price,description,image,originalPrice,discountPercent
             <div className="food-item-info">
                 <div className="food-item-name-rating">
                     <p>{name}</p>
-                    <img src={assets.rating_stars} alt="" />
+                    <img src={assets.rating_starts} alt="" />
                 </div>
                 <p className="food-item-desc">{description}</p>
 

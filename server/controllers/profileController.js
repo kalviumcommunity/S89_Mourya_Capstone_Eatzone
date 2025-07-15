@@ -19,9 +19,18 @@ export const getUserProfile = async (req, res) => {
         console.log("Request headers:", req.headers);
 
         const authHeader = req.headers.authorization;
+        const tokenHeader = req.headers.token;
         console.log("Authorization header:", authHeader);
+        console.log("Token header:", tokenHeader);
 
-        const token = authHeader?.split(" ")[1];
+        // Support both Authorization: Bearer <token> and token: <token> formats
+        let token = null;
+        if (authHeader && authHeader.startsWith('Bearer ')) {
+            token = authHeader.split(" ")[1];
+        } else if (tokenHeader) {
+            token = tokenHeader;
+        }
+
         console.log("Extracted token:", token ? token.substring(0, 10) + "..." : "none");
 
         if (!token) {
@@ -58,7 +67,7 @@ export const getUserProfile = async (req, res) => {
         console.log("Processed user data to return:", userData);
         console.log("User profile fetched successfully:", userData.name);
 
-        res.status(200).json({ success: true, user: userData });
+        res.status(200).json({ success: true, data: userData, user: userData });
     } catch (error) {
         console.error("Error fetching user profile:", error);
         res.status(500).json({ success: false, message: "Server error", error: error.message });

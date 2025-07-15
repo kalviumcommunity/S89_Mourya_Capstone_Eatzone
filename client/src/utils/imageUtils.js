@@ -26,6 +26,8 @@ export const getImageUrl = (image, serverUrl = import.meta.env.VITE_API_BASE_URL
     return getDefaultFoodImage();
   }
 
+
+
   // Check if it's already a complete URL (Cloudinary, external URLs, etc.)
   if (imageStr.startsWith('http://') || imageStr.startsWith('https://')) {
     // If it's a Cloudinary URL, always apply aggressive optimizations for fastest loading
@@ -60,6 +62,7 @@ export const getImageUrl = (image, serverUrl = import.meta.env.VITE_API_BASE_URL
   if (imageStr.includes('.png') || imageStr.includes('.jpg') || imageStr.includes('.jpeg') || imageStr.includes('.webp') || imageStr.includes('.gif')) {
     const cleanImagePath = imageStr.startsWith('/') ? imageStr.substring(1) : imageStr;
     const fullUrl = `${serverUrl}/images/${cleanImagePath}`;
+
     return fullUrl;
   }
 
@@ -162,7 +165,9 @@ export const optimizeRestaurantImage = (imageUrl) => {
  * @returns {string} Optimized food item image URL
  */
 export const optimizeFoodImage = (imageUrl) => {
-  if (!imageUrl) return getDefaultFoodImage();
+  if (!imageUrl) {
+    return getDefaultFoodImage();
+  }
 
   // For food images, use aggressive optimizations for instant loading
   if (imageUrl.includes('cloudinary.com')) {

@@ -64,7 +64,7 @@ export const updateCart = async (req, res) => {
         }
 
         // Enhanced cart validation with business logic
-        const validatedCartData = {};
+        let validatedCartData = {};
         const maxItemsPerProduct = parseInt(process.env.MAX_CART_QUANTITY_PER_ITEM) || 50;
         const maxTotalItems = parseInt(process.env.MAX_TOTAL_CART_ITEMS) || 200;
         let totalItems = 0;
