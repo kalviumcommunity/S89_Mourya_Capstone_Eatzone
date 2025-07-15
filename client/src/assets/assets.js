@@ -165,7 +165,7 @@ export const food_list = [
     {
         _id: "1",
         name: "Greek salad",
-        image: food_1,
+        image: "https://res.cloudinary.com/dodxdudew/image/upload/v1735055000/eatzone/food/greek-salad.jpg",
         price: 12,
         description: "Food provides essential nutrients for overall health and well-being",
         category: "Salad"
@@ -173,77 +173,77 @@ export const food_list = [
     {
         _id: "2",
         name: "Veg salad",
-        image: food_2,
+        image: "https://res.cloudinary.com/dodxdudew/image/upload/v1735055000/eatzone/food/veg-salad.jpg",
         price: 18,
         description: "Food provides essential nutrients for overall health and well-being",
         category: "Salad"
     }, {
         _id: "3",
         name: "Clover Salad",
-        image: food_3,
+        image: "https://res.cloudinary.com/dodxdudew/image/upload/v1735055000/eatzone/food/clover-salad.jpg",
         price: 16,
         description: "Food provides essential nutrients for overall health and well-being",
         category: "Salad"
     }, {
         _id: "4",
         name: "Chicken Salad",
-        image: food_4,
+        image: "https://res.cloudinary.com/dodxdudew/image/upload/v1735055000/eatzone/food/chicken-salad.jpg",
         price: 24,
         description: "Food provides essential nutrients for overall health and well-being",
         category: "Salad"
     }, {
         _id: "5",
         name: "Lasagna Rolls",
-        image: food_5,
+        image: "https://res.cloudinary.com/dodxdudew/image/upload/v1735055000/eatzone/food/lasagna-rolls.jpg",
         price: 14,
         description: "Food provides essential nutrients for overall health and well-being",
         category: "Rolls"
     }, {
         _id: "6",
         name: "Peri Peri Rolls",
-        image: food_6,
+        image: "https://res.cloudinary.com/dodxdudew/image/upload/v1735055000/eatzone/food/peri-peri-rolls.jpg",
         price: 12,
         description: "Food provides essential nutrients for overall health and well-being",
         category: "Rolls"
     }, {
         _id: "7",
         name: "Chicken Rolls",
-        image: food_7,
+        image: "https://res.cloudinary.com/dodxdudew/image/upload/v1735055000/eatzone/food/chicken-rolls.jpg",
         price: 20,
         description: "Food provides essential nutrients for overall health and well-being",
         category: "Rolls"
     }, {
         _id: "8",
         name: "Veg Rolls",
-        image: food_8,
+        image: "https://res.cloudinary.com/dodxdudew/image/upload/v1735055000/eatzone/food/veg-rolls.jpg",
         price: 15,
         description: "Food provides essential nutrients for overall health and well-being",
         category: "Rolls"
     }, {
         _id: "9",
         name: "Ripple Ice Cream",
-        image: food_9,
+        image: "https://res.cloudinary.com/dodxdudew/image/upload/v1735055000/eatzone/food/ripple-ice-cream.jpg",
         price: 14,
         description: "Food provides essential nutrients for overall health and well-being",
         category: "Deserts"
     }, {
         _id: "10",
         name: "Fruit Ice Cream",
-        image: food_10,
+        image: "https://res.cloudinary.com/dodxdudew/image/upload/v1735055000/eatzone/food/fruit-ice-cream.jpg",
         price: 22,
         description: "Food provides essential nutrients for overall health and well-being",
         category: "Deserts"
     }, {
         _id: "11",
         name: "Jar Ice Cream",
-        image: food_11,
+        image: "https://res.cloudinary.com/dodxdudew/image/upload/v1735055000/eatzone/food/jar-ice-cream.jpg",
         price: 10,
         description: "Food provides essential nutrients for overall health and well-being",
         category: "Deserts"
     }, {
         _id: "12",
         name: "Vanilla Ice Cream",
-        image: food_12,
+        image: "https://res.cloudinary.com/dodxdudew/image/upload/v1735055000/eatzone/food/vanilla-ice-cream.jpg",
         price: 12,
         description: "Food provides essential nutrients for overall health and well-being",
         category: "Deserts"
@@ -251,7 +251,7 @@ export const food_list = [
     {
         _id: "13",
         name: "Chicken Sandwich",
-        image: food_13,
+        image: "https://res.cloudinary.com/dodxdudew/image/upload/v1735055000/eatzone/food/chicken-sandwich.jpg",
         price: 12,
         description: "Food provides essential nutrients for overall health and well-being",
         category: "Sandwich"
@@ -259,77 +259,77 @@ export const food_list = [
     {
         _id: "14",
         name: "Vegan Sandwich",
-        image: food_14,
+        image: "https://res.cloudinary.com/dodxdudew/image/upload/v1735055000/eatzone/food/vegan-sandwich.jpg",
         price: 18,
         description: "Food provides essential nutrients for overall health and well-being",
         category: "Sandwich"
     }, {
         _id: "15",
         name: "Grilled Sandwich",
-        image: food_15,
+        image: "https://res.cloudinary.com/dodxdudew/image/upload/v1735055000/eatzone/food/grilled-sandwich.jpg",
         price: 16,
         description: "Food provides essential nutrients for overall health and well-being",
         category: "Sandwich"
     }, {
         _id: "16",
         name: "Bread Sandwich",
-        image: food_16,
+        image: "https://res.cloudinary.com/dodxdudew/image/upload/v1735055000/eatzone/food/bread-sandwich.jpg",
         price: 24,
         description: "Food provides essential nutrients for overall health and well-being",
         category: "Sandwich"
     }, {
         _id: "17",
         name: "Cup Cake",
-        image: food_17,
+        image: "https://res.cloudinary.com/dodxdudew/image/upload/v1735055000/eatzone/food/cup-cake.jpg",
         price: 14,
         description: "Food provides essential nutrients for overall health and well-being",
         category: "Cake"
     }, {
         _id: "18",
         name: "Vegan Cake",
-        image: food_18,
+        image: "https://res.cloudinary.com/dodxdudew/image/upload/v1735055000/eatzone/food/vegan-cake.jpg",
         price: 12,
         description: "Food provides essential nutrients for overall health and well-being",
         category: "Cake"
     }, {
         _id: "19",
         name: "Butterscotch Cake",
-        image: food_19,
+        image: "https://res.cloudinary.com/dodxdudew/image/upload/v1735055000/eatzone/food/butterscotch-cake.jpg",
         price: 20,
         description: "Food provides essential nutrients for overall health and well-being",
         category: "Cake"
     }, {
         _id: "20",
         name: "Sliced Cake",
-        image: food_20,
+        image: "https://res.cloudinary.com/dodxdudew/image/upload/v1735055000/eatzone/food/sliced-cake.jpg",
         price: 15,
         description: "Food provides essential nutrients for overall health and well-being",
         category: "Cake"
     }, {
         _id: "21",
         name: "Garlic Mushroom ",
-        image: food_21,
+        image: "https://res.cloudinary.com/dodxdudew/image/upload/v1735055000/eatzone/food/garlic-mushroom.jpg",
         price: 14,
         description: "Food provides essential nutrients for overall health and well-being",
         category: "Pure Veg"
     }, {
         _id: "22",
         name: "Fried Cauliflower",
-        image: food_22,
+        image: "https://res.cloudinary.com/dodxdudew/image/upload/v1735055000/eatzone/food/fried-cauliflower.jpg",
         price: 22,
         description: "Food provides essential nutrients for overall health and well-being",
         category: "Pure Veg"
     }, {
         _id: "23",
         name: "Mix Veg Pulao",
-        image: food_23,
+        image: "https://res.cloudinary.com/dodxdudew/image/upload/v1735055000/eatzone/food/mix-veg-pulao.jpg",
         price: 10,
         description: "Food provides essential nutrients for overall health and well-being",
         category: "Pure Veg"
     }, {
         _id: "24",
         name: "Rice Zucchini",
-        image: food_24,
+        image: "https://res.cloudinary.com/dodxdudew/image/upload/v1735055000/eatzone/food/rice-zucchini.jpg",
         price: 12,
         description: "Food provides essential nutrients for overall health and well-being",
         category: "Pure Veg"
@@ -337,7 +337,7 @@ export const food_list = [
     {
         _id: "25",
         name: "Cheese Pasta",
-        image: food_25,
+        image: "https://res.cloudinary.com/dodxdudew/image/upload/v1735055000/eatzone/food/cheese-pasta.jpg",
         price: 12,
         description: "Food provides essential nutrients for overall health and well-being",
         category: "Pasta"
@@ -345,49 +345,49 @@ export const food_list = [
     {
         _id: "26",
         name: "Tomato Pasta",
-        image: food_26,
+        image: "https://res.cloudinary.com/dodxdudew/image/upload/v1735055000/eatzone/food/tomato-pasta.jpg",
         price: 18,
         description: "Food provides essential nutrients for overall health and well-being",
         category: "Pasta"
     }, {
         _id: "27",
         name: "Creamy Pasta",
-        image: food_27,
+        image: "https://res.cloudinary.com/dodxdudew/image/upload/v1735055000/eatzone/food/creamy-pasta.jpg",
         price: 16,
         description: "Food provides essential nutrients for overall health and well-being",
         category: "Pasta"
     }, {
         _id: "28",
         name: "Chicken Pasta",
-        image: food_28,
+        image: "https://res.cloudinary.com/dodxdudew/image/upload/v1735055000/eatzone/food/chicken-pasta.jpg",
         price: 24,
         description: "Food provides essential nutrients for overall health and well-being",
         category: "Pasta"
     }, {
         _id: "29",
         name: "Buttter Noodles",
-        image: food_29,
+        image: "https://res.cloudinary.com/dodxdudew/image/upload/v1735055000/eatzone/food/butter-noodles.jpg",
         price: 14,
         description: "Food provides essential nutrients for overall health and well-being",
         category: "Noodles"
     }, {
         _id: "30",
         name: "Veg Noodles",
-        image: food_30,
+        image: "https://res.cloudinary.com/dodxdudew/image/upload/v1735055000/eatzone/food/veg-noodles.jpg",
         price: 12,
         description: "Food provides essential nutrients for overall health and well-being",
         category: "Noodles"
     }, {
         _id: "31",
         name: "Somen Noodles",
-        image: food_31,
+        image: "https://res.cloudinary.com/dodxdudew/image/upload/v1735055000/eatzone/food/somen-noodles.jpg",
         price: 20,
         description: "Food provides essential nutrients for overall health and well-being",
         category: "Noodles"
     }, {
         _id: "32",
         name: "Cooked Noodles",
-        image: food_32,
+        image: "https://res.cloudinary.com/dodxdudew/image/upload/v1735055000/eatzone/food/cooked-noodles.jpg",
         price: 15,
         description: "Food provides essential nutrients for overall health and well-being",
         category: "Noodles"

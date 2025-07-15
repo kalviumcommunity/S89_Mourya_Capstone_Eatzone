@@ -10,6 +10,12 @@ const FoodItem = ({id,name,price,description,image,originalPrice,discountPercent
     const [imageError, setImageError] = useState(false);
     const {cartItems,addToCart,removeFromCart} = useContext(StoreContext);
 
+
+
+
+
+
+
     return (
         <div className='food-item'>
             <div className="food-item-img-container">
@@ -52,31 +58,39 @@ const FoodItem = ({id,name,price,description,image,originalPrice,discountPercent
                     </div>
                 )}
 
-                {/* Only show add/remove buttons if item is available (image loaded successfully) */}
-                {!imageError && (
-                    !cartItems[id]
-                        ?(<img
-                            className='add'
-                            onClick={() => addToCart(id)}
-                            src={assets.add_icon_white}
-                            alt="Add to cart"
-                        />
-                    ) : (
-                        <div className='food-item-counter'>
-                            <img
-                                onClick={() => removeFromCart(id)}
-                                src={assets.remove_icon_red}
-                                alt="Remove from cart"
-                            />
-                            <p>{cartItems[id]}</p>
-                            <img
+                {/* Add/Remove buttons - always show when item is available */}
+                {!imageError && (() => {
+                    const itemCount = cartItems[id] || 0;
+
+                    if (itemCount === 0) {
+                        return (
+                            <div
+                                className='add-button'
                                 onClick={() => addToCart(id)}
-                                src={assets.add_icon_green}
-                                alt="Add more to cart"
-                            />
-                        </div>
-                    )
-                )}
+                            >
+                                <span className='add-icon'>+</span>
+                            </div>
+                        );
+                    } else {
+                        return (
+                            <div className='food-item-counter'>
+                                <div
+                                    className='counter-button remove-button'
+                                    onClick={() => removeFromCart(id)}
+                                >
+                                    <span>−</span>
+                                </div>
+                                <span className='counter-number'>{itemCount}</span>
+                                <div
+                                    className='counter-button add-button-small'
+                                    onClick={() => addToCart(id)}
+                                >
+                                    <span>+</span>
+                                </div>
+                            </div>
+                        );
+                    }
+                })()}
 
                 {/* Show unavailable message when image fails to load */}
                 {imageError && (

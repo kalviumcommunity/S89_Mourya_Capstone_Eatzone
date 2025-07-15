@@ -76,6 +76,11 @@ const OptimizedImage = ({
     if (src) {
       console.log(`🔍 OptimizedImage: src="${src}", optimized="${optimizedSrc}"`);
 
+      // Special debugging for biriyani
+      if (alt && alt.toLowerCase().includes('biriyani')) {
+        console.log(`🍛 BIRIYANI DEBUG: src="${src}", optimized="${optimizedSrc}"`);
+      }
+
       // Determine image type for performance monitoring
       const imageType = className.includes('restaurant') ? 'restaurant' :
                        className.includes('food') ? 'food' :
@@ -84,7 +89,7 @@ const OptimizedImage = ({
       // Start performance monitoring
       imagePerformanceMonitor.startLoad(optimizedSrc, imageType);
     }
-  }, [src, optimizedSrc, className]);
+  }, [src, optimizedSrc, className, alt]);
 
   // Check if image is cached
   useEffect(() => {
@@ -115,6 +120,13 @@ const OptimizedImage = ({
   const handleError = (e) => {
     console.error(`❌ OptimizedImage error for src: ${src}`, e);
     console.error(`❌ Optimized src: ${optimizedSrc}`);
+
+    // Special debugging for biriyani
+    if (alt && alt.toLowerCase().includes('biriyani')) {
+      console.error(`🍛 BIRIYANI ERROR: src="${src}", optimized="${optimizedSrc}"`, e);
+      console.error(`🍛 BIRIYANI ERROR EVENT:`, e.type, e.target?.src);
+    }
+
     setHasError(true);
 
     // Mark as failed in performance monitor
@@ -126,6 +138,8 @@ const OptimizedImage = ({
       handleImageError(e);
     }
   };
+
+
 
   // Create placeholder with first letter of alt text
   const getPlaceholder = () => {
