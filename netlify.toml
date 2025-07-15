@@ -9,6 +9,8 @@
   VITE_APP_ENV = "production"
   NODE_ENV = "production"
 
+# Admin Panel - Direct Access (No Authentication)
+
 [[redirects]]
   from = "/*"
   to = "/index.html"
