@@ -46,13 +46,16 @@ const StoreContextProvider = (props) => {
     try {
       setIsFoodLoading(true);
       const response = await apiService.getFoodList();
-      if (response.success) {
+      if (response.success && response.data && response.data.length > 0) {
         setFoodData(response.data);
-        console.log('✅ Food data loaded:', response.data.length, 'items');
+        console.log('✅ Food data loaded from API:', response.data.length, 'items');
+      } else {
+        console.log('⚠️ API returned no food data, using static fallback');
+        setFoodData(food_list);
       }
     } catch (error) {
-      console.error('❌ Error fetching food data:', error);
-      setFoodData([]);
+      console.error('❌ Error fetching food data, using static fallback:', error);
+      setFoodData(food_list);
     } finally {
       setIsFoodLoading(false);
     }
