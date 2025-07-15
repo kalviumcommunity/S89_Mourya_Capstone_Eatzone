@@ -26,6 +26,8 @@ const AdminApp = () => {
   const url = import.meta.env.VITE_API_BASE_URL || "https://eatzone.onrender.com"
 
   // Force direct admin access - no authentication
+  console.log('🚀 EatZone Admin Panel v3.0 - NO LOGIN - Loaded Successfully!')
+  console.log('✅ Login page has been completely removed')
   return (
     <div className="app">
       <ToastContainer
