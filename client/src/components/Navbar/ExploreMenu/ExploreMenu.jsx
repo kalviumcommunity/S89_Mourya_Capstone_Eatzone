@@ -122,7 +122,7 @@ const ExploreMenu = ({category,setCategory}) => {
           <div className="explore-menu-list">
               {categories.map((item)=>{
                   return(
-                      <div onClick={()=>setCategory(prev=>prev===item.name?"All":item.name)} key={item._id} className='explore-menu-list-item'>
+                      <div onClick={()=>setCategory(prev=>prev===item.name?"All":item.name)} key={item._id} className={`explore-menu-list-item ${category===item.name?"active":""}`}>
                           <CategoryImage
                             image={item.image}
                             categoryName={item.name}
@@ -130,6 +130,7 @@ const ExploreMenu = ({category,setCategory}) => {
                             className={category===item.name?"active":""}
                             alt={item.name}
                           />
+                          <p className="category-name">{item.name}</p>
                       </div>
                   )
               })}

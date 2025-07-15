@@ -33,6 +33,7 @@
     min-width: 100px;
     max-width: 120px;
     flex-shrink: 0;
+    cursor: pointer;
 }
 
 .explore-menu-list-item .category-image-container{
@@ -64,7 +65,23 @@
     object-position: center;
     border-radius: 50%;
 }
-/* Category names removed - images only display */
+
+.explore-menu-list-item .category-name {
+    margin-top: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #333;
+    text-align: center;
+    line-height: 1.2;
+    word-wrap: break-word;
+    max-width: 100%;
+    margin-bottom: 0;
+}
+
+.explore-menu-list-item.active .category-name {
+    color: #ff4d00;
+    font-weight: 600;
+}
 .explore-menu hr{
     margin: 10px 0px;
     height: 2px;
@@ -115,7 +132,10 @@
         min-height: 70px;
     }
 
-    /* Category names removed */
+    .explore-menu-list-item .category-name {
+        font-size: 12px;
+        margin-top: 6px;
+    }
 }
 
 @media (max-width: 768px) {
@@ -151,7 +171,10 @@
         min-height: 55px;
     }
 
-    /* Category names removed */
+    .explore-menu-list-item .category-name {
+        font-size: 11px;
+        margin-top: 5px;
+    }
 }
 
 @media (max-width: 480px) {
@@ -187,7 +210,10 @@
         min-height: 50px;
     }
 
-    /* Category names removed */
+    .explore-menu-list-item .category-name {
+        font-size: 10px;
+        margin-top: 4px;
+    }
 }
 
 @media (max-width: 360px) {
@@ -219,5 +245,8 @@
         min-height: 45px;
     }
 
-    /* Category names removed */
+    .explore-menu-list-item .category-name {
+        font-size: 9px;
+        margin-top: 3px;
+    }
 }

@@ -4,7 +4,6 @@ import './Profile.css';
 
 const Profile = () => {
   const { user, isUserLoading, fetchUserProfile, token } = useContext(StoreContext);
-  const [isRefreshing, setIsRefreshing] = useState(false);
 
   // Fetch user profile when component mounts if we have a token
   useEffect(() => {
@@ -13,38 +12,16 @@ const Profile = () => {
 
     if (token) {
       if (!user || !user.name) {
-        console.log("User data missing or incomplete, refreshing profile");
-        refreshUserProfile();
+        console.log("User data missing or incomplete, fetching profile");
+        fetchUserProfile();
       } else {
         console.log("User data already available:", user.name);
       }
     }
-  }, [token, user]);
-
-  const refreshUserProfile = async () => {
-    if (!token) {
-      console.log("Cannot refresh profile: No token available");
-      return;
-    }
-
-    console.log("Refreshing user profile...");
-    setIsRefreshing(true);
-    try {
-      const userData = await fetchUserProfile();
-      console.log("Profile refresh result:", userData ? "Success" : "Failed");
-
-      if (!userData) {
-        console.error("Failed to fetch user profile data");
-      }
-    } catch (error) {
-      console.error("Error refreshing profile:", error);
-    } finally {
-      setIsRefreshing(false);
-    }
-  };
+  }, [token, user, fetchUserProfile]);
 
   // Loading state
-  const isLoading = isUserLoading || isRefreshing;
+  const isLoading = isUserLoading;
 
   // Try to get user data from localStorage if not available in context
   const [fallbackUser, setFallbackUser] = useState(null);
@@ -77,15 +54,6 @@ const Profile = () => {
     <div className="profile-container">
       <div className="profile-header">
         <h1>My Profile</h1>
-        {token && (
-          <button
-            onClick={refreshUserProfile}
-            disabled={isLoading}
-            className="refresh-button"
-          >
-            {isLoading ? 'Refreshing...' : 'Refresh Profile'}
-          </button>
-        )}
       </div>
 
       {isLoading ? (
@@ -100,7 +68,7 @@ const Profile = () => {
       ) : !displayUser ? (
         <div className="error-container">
           <p>Could not load profile data.</p>
-          <p>Please try refreshing the page or click the "Refresh Profile" button.</p>
+          <p>Please try refreshing the page.</p>
         </div>
       ) : (
         <div className="profile-content">
