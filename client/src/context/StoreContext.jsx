@@ -207,7 +207,7 @@ const StoreContextProvider = (props) => {
     if (token && user?.id) {
       try {
         const response = await axios.post(`${url}/api/cart/get`, {}, {
-          headers: { token }
+          headers: { Authorization: `Bearer ${token}` }
         });
         if (response.data.success) {
           setCartItems(response.data.cartData || {});
@@ -233,7 +233,7 @@ const StoreContextProvider = (props) => {
     if (token && user?.id) {
       try {
         await axios.post(`${url}/api/cart/add`, { cartData }, {
-          headers: { token }
+          headers: { Authorization: `Bearer ${token}` }
         });
       } catch (error) {
         console.error("Error saving cart to server:", error);
@@ -259,6 +259,24 @@ const StoreContextProvider = (props) => {
     return () => clearTimeout(timeoutId);
   }, [cartItems, token, user?.id, saveCartToServer]);
 
+  // Clear cart function
+  const clearCart = useCallback(async () => {
+    setCartItems({});
+
+    if (token && user?.id) {
+      try {
+        await axios.post(`${url}/api/cart/clear`, {}, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+      } catch (error) {
+        console.error("Error clearing cart on server:", error);
+      }
+    } else {
+      // Clear guest cart from session storage
+      sessionStorage.removeItem('guestCart');
+    }
+  }, [token, user?.id, url]);
+
   const contextValue = {
     token,
     setToken,
@@ -272,6 +290,7 @@ const StoreContextProvider = (props) => {
     setCartItems,
     addToCart,
     removeFromCart,
+    clearCart,
     getTotalCartAmount,
     loadCart,
     saveCartToServer,
