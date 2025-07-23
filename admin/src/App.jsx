@@ -21,13 +21,20 @@ import RestaurantList from './pages/RestaurantList/RestaurantList'
 
 const AdminApp = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [isMobileOpen, setIsMobileOpen] = useState(false)
 
   // Use environment variable for API URL with fallback
   const url = import.meta.env.VITE_API_BASE_URL || "https://eatzone.onrender.com"
 
   // Force direct admin access - no authentication
-  console.log('🚀 EatZone Admin Panel v3.0 - NO LOGIN - Loaded Successfully!')
+  console.log('🚀 EatZone Admin Panel v4.0 - NO LOGIN - Loaded Successfully!')
   console.log('✅ Login page has been completely removed')
+
+  const handleMobileClose = () => {
+    setIsMobileOpen(false)
+    setSidebarOpen(false)
+  }
+
   return (
     <div className="app">
       <ToastContainer
@@ -45,7 +52,12 @@ const AdminApp = () => {
       <Navbar setSidebarOpen={setSidebarOpen} />
 
       <div className="app-content">
-        <Sidebar isOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
+        <Sidebar
+          isOpen={sidebarOpen}
+          setSidebarOpen={setSidebarOpen}
+          isMobileOpen={isMobileOpen}
+          onMobileClose={handleMobileClose}
+        />
 
         <main className="main-content">
           <Routes>
