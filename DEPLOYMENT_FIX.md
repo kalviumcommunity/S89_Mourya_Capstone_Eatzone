@@ -25,18 +25,27 @@ Enhanced `admin/netlify.toml` with proper environment variables for separate adm
    - Visit [Netlify Dashboard](https://app.netlify.com)
    - Find your `eatzone1.netlify.app` site
 
-2. **Deploy Updated Client**
+2. **Method A: Manual Deploy (Recommended)**
    - Go to **Deploys** tab
    - Click **"Deploy site"** → **"Deploy manually"**
    - Drag and drop the `client/dist` folder
-   - OR use the updated root `netlify.toml` by triggering a new build
+   - ✅ This bypasses any build issues
 
-3. **Verify Environment Variables**
-   In Site settings → Environment variables, ensure:
+3. **Method B: Git Deploy**
+   - Connect your GitHub repository
+   - Set build settings:
+     - **Base directory**: `client`
+     - **Build command**: `npm ci && npm run build`
+     - **Publish directory**: `dist`
+   - The updated `netlify.toml` will handle this automatically
+
+4. **Set Environment Variables**
+   In Site settings → Environment variables:
    ```
    VITE_API_BASE_URL=https://eatzone.onrender.com
    VITE_APP_ENV=production
    NODE_ENV=production
+   NODE_VERSION=18
    ```
 
 ### **Step 2: Deploy Admin Panel to eatzone.netlify.app**
@@ -78,19 +87,47 @@ After deployment:
 - [ ] Can manage restaurants
 - [ ] API calls work properly
 
-## 🚨 **TROUBLESHOOTING**
+## 🚨 **TROUBLESHOOTING BUILD ISSUES**
 
-### If Client Still Shows Admin:
-1. Clear browser cache
-2. Check Netlify deploy logs
+### **Common Netlify Build Failures:**
+
+#### 1. **"Build failed" - Node.js version**
+**Solution**: Ensure Node.js 18 is specified:
+```toml
+[build.environment]
+  NODE_VERSION = "18"
+```
+
+#### 2. **"npm ci failed" - Dependencies**
+**Solution**: Use manual deploy instead:
+- Build locally: `cd client && npm run build`
+- Deploy the `client/dist` folder manually
+
+#### 3. **"Module not found" errors**
+**Solution**: Check these files exist:
+- `client/package.json`
+- `client/package-lock.json`
+- All source files in `client/src/`
+
+#### 4. **"Publish directory not found"**
+**Solution**: Verify netlify.toml settings:
+```toml
+[build]
+  base = "client"
+  publish = "dist"  # NOT "client/dist"
+```
+
+### **If Client Still Shows Admin:**
+1. Clear browser cache completely
+2. Check Netlify deploy logs for errors
 3. Verify the correct `dist` folder was deployed
-4. Ensure `netlify.toml` changes were applied
+4. Try incognito/private browsing mode
 
-### If Admin Panel Not Working:
+### **If Admin Panel Not Working:**
 1. Check browser console for errors
 2. Verify API URL in environment variables
 3. Check network tab for failed API calls
-4. Ensure backend server is running
+4. Ensure backend server is running at https://eatzone.onrender.com
 
 ## 📝 **FILES MODIFIED**
 - `netlify.toml` - Changed base from "admin" to "client"
