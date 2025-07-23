@@ -1,6 +1,6 @@
 import { useContext, useState, useEffect, useRef } from 'react'
-import './Navbar.css'
-import { assets } from '../../assets/assets'
+import './Navbar.css';
+import { assets } from '../../assets/assets';
 import { Link, useNavigate } from 'react-router-dom';
 import { StoreContext } from '../../context/StoreContext';
 import ProfileDropdown from '../ProfileDropdown/ProfileDropdown'
@@ -57,7 +57,7 @@ const Navbar = ({setShowLogin}) => {
                 item && item.name && item.category &&
                 (item.name.toLowerCase().includes(query.toLowerCase()) ||
                 item.category.toLowerCase().includes(query.toLowerCase()))
-            ).slice(0, 5); // Limit to 5 results
+            ).slice(0, 5); 
 
             // Search in restaurants
             const restaurantResults = (restaurants || []).filter(restaurant =>
