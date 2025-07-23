@@ -78,7 +78,8 @@ const Navbar = ({setShowLogin}) => {
         }
     };
 
-    // Handle clicking outside search to close results
+    //
+    //Handle clicking outside search to close results
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (searchRef.current && !searchRef.current.contains(event.target)) {
