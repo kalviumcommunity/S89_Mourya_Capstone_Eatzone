@@ -161,7 +161,7 @@ app.get("/api/category/health", async (_req, res) => {
     }
 });
 
-// 404 handler for undefined routes (must be last)
+
 app.use((_req, res) => {
     res.status(404).json({
         success: false,
