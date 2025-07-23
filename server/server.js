@@ -52,7 +52,7 @@ app.use(cors({
     credentials: true
 }));
 
-// Connect to database
+// it is Connecting to database
 connectDB();
 
 // API endpoints
