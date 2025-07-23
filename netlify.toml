@@ -3,14 +3,14 @@
 
 [build]
   base = "client"
-  command = "npm ci && npm run build"
+  command = "npm ci --include=dev && npm run build"
   publish = "dist"
 
 [build.environment]
   NODE_VERSION = "18"
+  NPM_FLAGS = "--include=dev"
   VITE_API_BASE_URL = "https://eatzone.onrender.com"
   VITE_APP_ENV = "production"
-  NODE_ENV = "production"
 
 # EatZone Client Application - Updated: 2025-07-23
 
