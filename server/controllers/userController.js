@@ -200,4 +200,34 @@ const googleAuthCallback = (req, res) => {
   }
 };
 
-export { loginUser, registerUser, googleAuth, googleAuthCallback };
+// List all users (for admin dashboard)
+const listUsers = async (req, res) => {
+  try {
+    const users = await userModel.find({}).select('name email googleId cartData createdAt').sort({ createdAt: -1 });
+
+    // Calculate additional stats
+    const usersWithCarts = users.filter(user =>
+      user.cartData && Object.keys(user.cartData).length > 0
+    );
+
+    res.json({
+      success: true,
+      data: users,
+      stats: {
+        totalUsers: users.length,
+        usersWithCarts: usersWithCarts.length,
+        googleUsers: users.filter(user => user.googleId).length,
+        regularUsers: users.filter(user => !user.googleId).length
+      }
+    });
+  } catch (error) {
+    console.error("Error fetching users:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error fetching users",
+      error: error.message
+    });
+  }
+};
+
+export { loginUser, registerUser, googleAuth, googleAuthCallback, listUsers };
