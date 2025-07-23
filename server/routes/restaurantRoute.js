@@ -2,7 +2,6 @@ import express from "express";
 import restaurantModel from "../models/restaurantModel.js";
 import foodModel from "../models/foodModel.js";
 import multer from "multer";
-import adminAuthMiddleware from "../middleware/adminAuth.js";
 
 const restaurantRouter = express.Router();
 
@@ -188,8 +187,8 @@ restaurantRouter.post("/add", upload.single("image"), async (req, res) => {
     }
 });
 
-// Update restaurant (admin only)
-restaurantRouter.post("/update",  upload.single("image"), async (req, res) => {
+// Update restaurant (no auth required)
+restaurantRouter.post("/update", upload.single("image"), async (req, res) => {
     try {
         const {
             id,
@@ -224,34 +223,13 @@ restaurantRouter.post("/update",  upload.single("image"), async (req, res) => {
             updateData.image = req.body.image;
         }
 
-        // SECURITY: Enhanced authorization check for restaurant ownership
+        // Check if restaurant exists
         const existingRestaurant = await restaurantModel.findById(id);
         if (!existingRestaurant) {
             return res.status(404).json({
                 success: false,
                 message: "Restaurant not found"
             });
-        }
-
-        // Enhanced ownership validation with legacy data handling
-        const isOwner = existingRestaurant.adminId &&
-                       existingRestaurant.adminId.toString() === req.adminId;
-
-        const isLegacyData = !existingRestaurant.adminId;
-
-        // SECURITY: Only allow update if admin owns restaurant OR it's legacy data being claimed
-        if (!isOwner && !isLegacyData) {
-            console.warn(`🚨 SECURITY: Unauthorized restaurant update attempt by admin ${req.adminId} for restaurant ${id}`);
-            return res.status(403).json({
-                success: false,
-                message: "You don't have permission to update this restaurant"
-            });
-        }
-
-        // If it's legacy data, assign ownership to current admin
-        if (isLegacyData) {
-            updateData.adminId = req.adminId;
-            console.log(`📝 AUDIT: Legacy restaurant ${id} claimed by admin ${req.adminId}`);
         }
 
         const updatedRestaurant = await restaurantModel.findByIdAndUpdate(
@@ -275,11 +253,10 @@ restaurantRouter.post("/update",  upload.single("image"), async (req, res) => {
     }
 });
 
-// Delete restaurant (admin only) - SECURE VERSION
+// Delete restaurant (no auth required)
 restaurantRouter.post("/remove", async (req, res) => {
     try {
         const { id } = req.body;
-        const adminId = req.adminId; // From auth middleware
 
         if (!id) {
             return res.status(400).json({
@@ -298,26 +275,7 @@ restaurantRouter.post("/remove", async (req, res) => {
             });
         }
 
-        // SECURITY: Enhanced authorization check for restaurant deletion
-        const isOwner = restaurant.adminId &&
-                       restaurant.adminId.toString() === adminId;
-
-        const isLegacyData = !restaurant.adminId;
-
-        // SECURITY: Only allow deletion if admin owns restaurant OR it's legacy data
-        if (!isOwner && !isLegacyData) {
-            console.warn(`🚨 SECURITY: Unauthorized restaurant deletion attempt by admin ${adminId} for restaurant ${id}`);
-            return res.status(403).json({
-                success: false,
-                message: "You don't have permission to delete this restaurant"
-            });
-        }
-
-        // Log deletion for security audit
-        console.log(`🗑️ AUDIT: Restaurant ${id} deleted by admin ${adminId} (Owner: ${isOwner}, Legacy: ${isLegacyData})`);
-
         // Also delete associated food items to maintain data integrity
-        const { default: foodModel } = await import('../models/foodModel.js');
         await foodModel.deleteMany({ restaurantId: id });
 
         // Delete the restaurant
