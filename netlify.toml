@@ -1,3 +1,6 @@
+# This netlify.toml is for the CLIENT application (eatzone1.netlify.app)
+# For admin panel deployment, use manual deployment of admin/dist folder
+
 [build]
   base = "client"
   command = "npm ci && npm run build"
