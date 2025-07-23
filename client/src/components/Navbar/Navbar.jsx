@@ -67,7 +67,7 @@ const Navbar = ({setShowLogin}) => {
                 (restaurant.cuisineTypes && restaurant.cuisineTypes.some(cuisine =>
                     cuisine && cuisine.toLowerCase().includes(query.toLowerCase())
                 )))
-            ).slice(0, 3); // Limit to 3 results
+            ).slice(0, 3); // 
 
             setSearchResults([...foodResults, ...restaurantResults]);
             setShowSearchResults(true);
