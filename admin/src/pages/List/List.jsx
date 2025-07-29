@@ -217,8 +217,7 @@ const List = ({ url }) => {
 
     try {
       const uploadResult = await uploadToCloudinary(file, uploadConfigs.food.folder, {
-        tags: uploadConfigs.food.tags,
-        transformation: uploadConfigs.food.transformation
+        tags: uploadConfigs.food.tags
       });
 
       if (uploadResult.success) {

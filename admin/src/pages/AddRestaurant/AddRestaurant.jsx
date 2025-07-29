@@ -55,8 +55,7 @@ const AddRestaurant = ({ url, token }) => {
 
     try {
       const uploadResult = await uploadToCloudinary(file, uploadConfigs.restaurant.folder, {
-        tags: uploadConfigs.restaurant.tags,
-        transformation: uploadConfigs.restaurant.transformation
+        tags: uploadConfigs.restaurant.tags
       });
 
       if (uploadResult.success) {

@@ -26,9 +26,8 @@ export const uploadToCloudinary = async (file, folder = 'eatzone', options = {})
     }
 
     // Add transformation for automatic optimization
-    if (options.transformation) {
-      formData.append('transformation', JSON.stringify(options.transformation));
-    }
+    // Note: Don't send transformation via FormData as it causes "Invalid transformation component" errors
+    // Transformations should be applied via URL parameters or upload preset settings
 
     const response = await fetch(
       `https://api.cloudinary.com/v1_1/dodxdudew/image/upload`,
@@ -93,40 +92,20 @@ export const getOptimizedCloudinaryUrl = (imageUrl, options = {}) => {
 
 /**
  * Upload configurations for different image types
+ * Note: Transformations are applied via URL optimization, not during upload
  */
 export const uploadConfigs = {
   food: {
     folder: 'eatzone/food',
-    tags: ['food', 'menu'],
-    transformation: {
-      width: 800,
-      height: 600,
-      crop: 'fill',
-      quality: 'auto',
-      format: 'auto'
-    }
+    tags: ['food', 'menu']
   },
   restaurant: {
     folder: 'eatzone/restaurants',
-    tags: ['restaurant', 'cover'],
-    transformation: {
-      width: 1200,
-      height: 800,
-      crop: 'fill',
-      quality: 'auto',
-      format: 'auto'
-    }
+    tags: ['restaurant', 'cover']
   },
   category: {
     folder: 'eatzone/categories',
-    tags: ['category', 'icon'],
-    transformation: {
-      width: 200,
-      height: 200,
-      crop: 'fill',
-      quality: 'auto',
-      format: 'auto'
-    }
+    tags: ['category', 'icon']
   }
 };
 
@@ -154,8 +133,7 @@ export const batchUploadToCloudinary = async (files, type = 'food', onProgress =
     }
     
     const result = await uploadToCloudinary(file, config.folder, {
-      tags: config.tags,
-      transformation: config.transformation
+      tags: config.tags
     });
     
     results.push({
