@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
@@ -20,8 +20,8 @@ import AddRestaurant from './pages/AddRestaurant/AddRestaurant'
 import RestaurantList from './pages/RestaurantList/RestaurantList'
 
 const AdminApp = () => {
-  const [sidebarOpen, setSidebarOpen] = useState(false)
-  const [isMobileOpen, setIsMobileOpen] = useState(false)
+  // Start with sidebar open on desktop, closed on mobile
+  const [sidebarOpen, setSidebarOpen] = useState(window.innerWidth > 1024)
 
   // Use environment variable for API URL with fallback
   const url = import.meta.env.VITE_API_BASE_URL || "https://eatzone.onrender.com"
@@ -30,8 +30,7 @@ const AdminApp = () => {
   console.log('🚀 EatZone Admin Panel v4.0 - NO LOGIN - Loaded Successfully!')
   console.log('✅ Login page has been completely removed')
 
-  const handleMobileClose = () => {
-    setIsMobileOpen(false)
+  const handleSidebarClose = () => {
     setSidebarOpen(false)
   }
 
@@ -49,17 +48,17 @@ const AdminApp = () => {
         pauseOnHover
       />
 
-      <Navbar setSidebarOpen={setSidebarOpen} />
+      <Navbar setSidebarOpen={setSidebarOpen} sidebarOpen={sidebarOpen} />
 
       <div className="app-content">
         <Sidebar
           isOpen={sidebarOpen}
           setSidebarOpen={setSidebarOpen}
-          isMobileOpen={isMobileOpen}
-          onMobileClose={handleMobileClose}
+          isMobileOpen={sidebarOpen}
+          onMobileClose={handleSidebarClose}
         />
 
-        <main className="main-content">
+        <main className={`main-content ${sidebarOpen ? 'sidebar-open' : 'sidebar-closed'}`}>
           <Routes>
             {/* Dashboard */}
             <Route path="/" element={<Dashboard url={url} />} />

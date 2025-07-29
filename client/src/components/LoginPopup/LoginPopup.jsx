@@ -7,7 +7,7 @@ import GoogleIcon from '../icons/GoogleIcon'
 
 const LoginPopup = ({setShowLogin}) => {
 
-    const {url, setToken} = useContext(StoreContext)
+    const {url, setToken, setTokenAndUser} = useContext(StoreContext)
 
     const [currState,setCurrState] = useState("Login")
     const [data,setData] = useState({
@@ -45,12 +45,11 @@ const LoginPopup = ({setShowLogin}) => {
             const response = await axios.post(newUrl, data);
 
             if (response.data.success) {
-                // Set token - user data will be fetched automatically in StoreContext
-                setToken(response.data.token);
-
-                // Also save user data to localStorage as a fallback
+                // Use setTokenAndUser to properly save to cookies
                 if (response.data.user) {
-                    localStorage.setItem('user', JSON.stringify(response.data.user));
+                    setTokenAndUser(response.data.token, response.data.user);
+                } else {
+                    setToken(response.data.token);
                 }
 
                 // Close the login popup

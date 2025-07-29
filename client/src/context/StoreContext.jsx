@@ -3,36 +3,64 @@ import { createContext, useState, useEffect, useCallback } from "react";
 import apiService from "../services/apiService";
 import { food_list } from "../assets/assets";
 import axios from "axios";
+import {
+  getAuthToken,
+  setAuthToken,
+  getUserData,
+  setUserData,
+  clearAuthData,
+  isAuthenticated,
+  migrateAuthToCookies
+} from "../utils/cookieUtils";
 
 export const StoreContext = createContext(null);
 
 const StoreContextProvider = (props) => {
-  console.log('🏪 StoreContext initializing...')
+  console.log('🏪 StoreContext initializing with cookie-based authentication...')
 
   const url = "https://eatzone.onrender.com";
 
-  // Initialize token from localStorage
+  // Initialize token from cookies (with localStorage fallback)
   const [token, setToken] = useState(() => {
-    const storedToken = localStorage.getItem("token");
+    // First, try to migrate any existing localStorage data to cookies
+    migrateAuthToCookies();
+
+    // Get token from cookies
+    const storedToken = getAuthToken();
     if (storedToken) {
-      console.log("🔄 Token found in localStorage");
+      console.log("🍪 Token found in cookies:", storedToken.substring(0, 20) + "...");
+      console.log("🔍 Token length:", storedToken.length);
+
+      // Basic token validation
+      try {
+        const parts = storedToken.split('.');
+        if (parts.length === 3) {
+          console.log("✅ Token format appears valid (3 parts)");
+        } else {
+          console.log("❌ Invalid token format - not a JWT");
+        }
+      } catch (error) {
+        console.log("❌ Error checking token format:", error);
+      }
+
       return storedToken;
     }
+    console.log("📭 No token found in cookies or localStorage");
     return "";
   });
 
-  // Initialize user from localStorage
+  // Initialize user from cookies (with localStorage fallback)
   const [user, setUser] = useState(() => {
     try {
-      const storedUser = localStorage.getItem("user");
-      if (storedUser) {
-        const userData = JSON.parse(storedUser);
-        console.log("🔄 User found in localStorage:", userData.name);
+      const userData = getUserData();
+      if (userData) {
+        console.log("🍪 User found in cookies:", userData.name);
         return userData;
       }
     } catch (error) {
-      console.error("Error parsing stored user data:", error);
+      console.error("Error getting user data from cookies:", error);
     }
+    console.log("📭 No user data found in cookies or localStorage");
     return null;
   });
 
@@ -125,7 +153,7 @@ const StoreContextProvider = (props) => {
     return totalAmount
   }
 
-  // Fetch user profile function
+  // Fetch user profile function with token validation
   const fetchUserProfile = useCallback(async () => {
     if (!token) {
       console.log("No token available for fetching user profile");
@@ -134,24 +162,37 @@ const StoreContextProvider = (props) => {
 
     try {
       setIsUserLoading(true);
-      console.log("🔄 Fetching user profile...");
+      console.log("🔄 Fetching user profile and validating token...");
 
       const response = await axios.get(`${url}/api/user/profile`, {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${token}` },
+        timeout: 10000 // 10 second timeout
       });
 
       if (response.data.success) {
         const userData = response.data.user;
-        console.log("✅ User profile fetched:", userData.name);
+        console.log("✅ User profile fetched and token validated:", userData.name);
         setUser(userData);
-        localStorage.setItem("user", JSON.stringify(userData));
+        setUserData(userData); // Save to cookies
         return userData;
       } else {
-        console.error("Failed to fetch user profile:", response.data.message);
-        return null;
+        console.error("❌ Failed to fetch user profile:", response.data.message);
+        // If the server says the request failed, the token might be invalid
+        throw new Error(response.data.message);
       }
     } catch (error) {
-      console.error("Error fetching user profile:", error);
+      console.error("❌ Error fetching user profile:", error);
+
+      // Check if it's an authentication error
+      if (error.response?.status === 401 || error.response?.status === 403) {
+        console.log("🔒 Authentication failed - token is invalid or expired");
+        // Don't call logout here to avoid infinite loops, just return null
+        // The calling function will handle the logout
+        throw new Error("INVALID_TOKEN");
+      }
+
+      // For other errors (network, server), don't invalidate the token
+      console.log("🌐 Network or server error, keeping token for retry");
       return null;
     } finally {
       setIsUserLoading(false);
@@ -164,9 +205,7 @@ const StoreContextProvider = (props) => {
     setToken("");
     setUser(null);
     setCartItems({});
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    localStorage.removeItem("cartItems");
+    clearAuthData(); // Clear cookies and localStorage
   }, []);
 
   // Custom setToken function that also handles user data
@@ -175,14 +214,14 @@ const StoreContextProvider = (props) => {
 
     if (newToken) {
       setToken(newToken);
-      localStorage.setItem("token", newToken);
-      console.log("💾 Token saved to localStorage");
+      setAuthToken(newToken); // Save to cookies
+      console.log("🍪 Token saved to cookies");
 
       if (userData) {
         console.log("👤 Setting user data immediately:", userData);
         setUser(userData);
-        localStorage.setItem("user", JSON.stringify(userData));
-        console.log("✅ Authentication complete - token and user data set");
+        setUserData(userData); // Save to cookies
+        console.log("✅ Authentication complete - token and user data saved to cookies");
       }
     } else {
       console.log("🧹 Clearing user data - no token");
@@ -190,51 +229,135 @@ const StoreContextProvider = (props) => {
     }
   }, [logout]);
 
-  // Auto-fetch user profile when token is available but user data is missing
+  // Validate token and fetch user profile when token is available
   useEffect(() => {
-    if (token && !user && !isUserLoading) {
-      console.log("🔄 Auto-fetching user profile - token exists but no user data");
-      fetchUserProfile();
-    }
-  }, [token, user, isUserLoading, fetchUserProfile]);
+    const validateTokenAndFetchUser = async () => {
+      if (token && !user && !isUserLoading) {
+        console.log("🔄 Validating token and fetching user profile...");
+        console.log("🔍 Current token:", token.substring(0, 20) + "...");
 
-  // Initialize app on first load - load token and user from localStorage
+        try {
+          // Try to fetch user profile to validate token
+          const userData = await fetchUserProfile();
+
+          if (!userData) {
+            console.log("❌ Token validation failed - no user data returned");
+            // Don't immediately logout, might be a network issue
+            console.log("⏳ Keeping token for potential retry");
+          } else {
+            console.log("✅ Token validated successfully, user data loaded:", userData.name);
+          }
+        } catch (error) {
+          console.error("❌ Token validation error:", error);
+
+          // Only logout if it's specifically an authentication error
+          if (error.message === "INVALID_TOKEN") {
+            console.log("🔒 Invalid token detected - logging out");
+            logout();
+          } else {
+            console.log("🌐 Network/server error - keeping token for retry");
+          }
+        }
+      }
+    };
+
+    // Add a small delay to avoid rapid API calls on app startup
+    const timeoutId = setTimeout(validateTokenAndFetchUser, 500);
+    return () => clearTimeout(timeoutId);
+  }, [token, user, isUserLoading, fetchUserProfile, logout]);
+
+  // Initialize app on first load - validate stored token from cookies
   useEffect(() => {
-    const initializeApp = () => {
-      const storedToken = localStorage.getItem("token");
-      const storedUser = localStorage.getItem("user");
+    const initializeApp = async () => {
+      // Migrate any existing localStorage data to cookies
+      migrateAuthToCookies();
+
+      const storedToken = getAuthToken();
+      const storedUser = getUserData();
 
       console.log("🚀 Initializing app on first load...");
       console.log("  - Stored token:", !!storedToken);
       console.log("  - Stored user:", !!storedUser);
 
       if (storedToken) {
-        console.log("🔄 Setting token from localStorage");
+        console.log("🔄 Found stored token in cookies, validating...");
+
+        // Set token first (this will trigger the validation effect above)
         setToken(storedToken);
 
+        // Try to restore user data from cookies
         if (storedUser) {
-          try {
-            const userData = JSON.parse(storedUser);
-            console.log("🔄 Restoring user data from localStorage:", userData.name);
-            setUser(userData);
-          } catch (error) {
-            console.error("Error parsing stored user data:", error);
-            // If stored user data is corrupted, we'll fetch fresh data in the next effect
-          }
+          console.log("🔄 Restoring user data from cookies:", storedUser.name);
+          setUser(storedUser);
         }
+      } else {
+        console.log("📭 No stored token found in cookies");
       }
     };
 
     initializeApp();
   }, []); // Run only once on app start
 
-  // Auto-fetch user profile when token is available but user data is missing
+  // Listen for storage changes and periodically check cookies (for cross-tab sync)
   useEffect(() => {
-    if (token && !user && !isUserLoading) {
-      console.log("🔄 Token available but no user data - fetching from server");
-      fetchUserProfile();
-    }
-  }, [token, user, isUserLoading, fetchUserProfile]);
+    const handleStorageChange = (e) => {
+      console.log("🔄 Storage changed:", e.key, e.newValue ? "Set" : "Removed");
+
+      // Handle localStorage changes (fallback)
+      if (e.key === 'token') {
+        if (e.newValue && e.newValue !== token) {
+          console.log("🔄 Token updated in another tab, syncing...");
+          setToken(e.newValue);
+          setAuthToken(e.newValue); // Sync to cookies
+        } else if (!e.newValue && token) {
+          console.log("🔄 Token removed in another tab, logging out...");
+          logout();
+        }
+      }
+
+      if (e.key === 'user') {
+        if (e.newValue) {
+          try {
+            const userData = JSON.parse(e.newValue);
+            console.log("🔄 User data updated in another tab, syncing...");
+            setUser(userData);
+            setUserData(userData); // Sync to cookies
+          } catch (error) {
+            console.error("Error parsing user data from storage event:", error);
+          }
+        } else if (!e.newValue && user) {
+          console.log("🔄 User data removed in another tab, clearing...");
+          setUser(null);
+        }
+      }
+    };
+
+    // Check for cookie changes periodically (since cookies don't have storage events)
+    const checkCookieChanges = () => {
+      const cookieToken = getAuthToken();
+      const cookieUser = getUserData();
+
+      if (cookieToken !== token) {
+        console.log("🍪 Cookie token changed, syncing...");
+        setToken(cookieToken || "");
+      }
+
+      if (JSON.stringify(cookieUser) !== JSON.stringify(user)) {
+        console.log("🍪 Cookie user data changed, syncing...");
+        setUser(cookieUser);
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+
+    // Check cookies every 5 seconds for cross-tab sync
+    const cookieCheckInterval = setInterval(checkCookieChanges, 5000);
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      clearInterval(cookieCheckInterval);
+    };
+  }, [token, user, logout]);
 
   // Load cart from server or localStorage
   const loadCart = useCallback(async () => {
