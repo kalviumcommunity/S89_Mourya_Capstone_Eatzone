@@ -113,7 +113,12 @@ const ProfileDropdown = () => {
               </div>
               <span className="action-label">Profile</span>
             </Link>
-
+            <Link to="/myorders" className="profile-action-item" onClick={() => setIsOpen(false)}>
+              <div className="action-icon">
+                <img src={assets.bag_icon} alt="Orders" />
+              </div>
+              <span className="action-label">Orders</span>
+            </Link>
             <div className="profile-action-item logout-action" onClick={handleLogout}>
               <div className="action-icon">
                 <img src={assets.logout_icon} alt="Logout" />

@@ -69,18 +69,37 @@ a {
   padding: 2rem;
   background-color: var(--light-gray);
   overflow-y: auto;
-  transition: margin-left 0.3s ease;
+  transition: all 0.3s ease;
+  margin-left: 0;
 }
 
+/* Desktop: Adjust main content based on sidebar state */
+@media (min-width: 1025px) {
+  .main-content.sidebar-open {
+    margin-left: 280px; /* Sidebar width */
+  }
 
+  .main-content.sidebar-closed {
+    margin-left: 0;
+  }
+}
 
-/* Responsive adjustments */
-@media (max-width: 768px) {
+/* Mobile: Always no margin for main content */
+@media (max-width: 1024px) {
   .main-content {
-    padding: 1rem;
+    margin-left: 0 !important;
+  }
+
+  .main-content.sidebar-open,
+  .main-content.sidebar-closed {
     margin-left: 0 !important;
   }
 }
+
+@media (max-width: 768px) {
+  .main-content {
+    padding: 1rem;
+  }
 }
 
 /* Layout */

@@ -40,6 +40,16 @@
   background-color: var(--light-gray);
 }
 
+.sidebar-toggle.active {
+  background-color: var(--primary-red-light);
+  color: var(--primary-red);
+}
+
+.sidebar-toggle:focus {
+  outline: 2px solid var(--primary-red);
+  outline-offset: 2px;
+}
+
 .navbar-brand h1 {
   font-size: 1.5rem;
   font-weight: 700;
